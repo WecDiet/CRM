@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:16
+    container_name: crm_db
+    restart: always
+    environment:
+      POSTGRES_DB: crm_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: quocviet2002
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5556:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d crm_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crm-network
+  app:
+    image: wecdiet/crm:v1.0.0
+    container_name: crm_app
+    ports:
+      - '8080:8080'
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/crm_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: quocviet2002
+      REDIS_HOST: redis-server
+      REDIS_PORT: 6379
+      TZ: Asia/Ho_Chi_Minh
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: always
+    networks:
+      - crm-network
+
+  redis:
+    image: redis:8.2-alpine
+    container_name: crm_redis
+    restart: always
+    # command: ['redis', '--appendonly', 'yes'] # bật AOF để lưu data
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - crm-network
+
+volumes:
+  postgres-data: {}
+  redis-data: {}
+
+networks:
+  crm-network:
+    driver: bridge
+    name: crm-network
