@@ -18,14 +18,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.CRM.model.EntityBase;
-import com.CRM.response.Pagination.PageResponse;
+import com.CRM.model.BaseEntity;
+import com.CRM.response.Pagination.APIResponse;
+import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Pagination.Info.PaginationInfo;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public abstract class HelperService<T extends EntityBase, K> implements IHelperService<T, K> {
+public abstract class HelperService<T extends BaseEntity, K> implements IHelperService<T, K> {
 
         @Autowired
         private ModelMapper modelMapper;
@@ -38,7 +39,7 @@ public abstract class HelperService<T extends EntityBase, K> implements IHelperS
         private static final Map<String, Sort> SORT_CACHE = new ConcurrentHashMap<>();
 
         @Override
-        public <DTO> PageResponse<DTO> getAll(
+        public <DTO> PagingResponse<DTO> getAll(
                         int page,
                         int limit,
                         String sortBy,
@@ -76,7 +77,7 @@ public abstract class HelperService<T extends EntityBase, K> implements IHelperS
                                 entityPage.hasNext(), // hasNext
                                 entityPage.hasPrevious() // hasPrevious
                 );
-                return new PageResponse<>(
+                return new PagingResponse<>(
                                 true, // success
                                 "Get data successfully", // message
                                 dtoList, // data
@@ -141,5 +142,16 @@ public abstract class HelperService<T extends EntityBase, K> implements IHelperS
                 } catch (Exception e) {
                         throw new RuntimeException("Mapping failed for entity: " + entity.getClass(), e);
                 }
+        }
+
+        @Override
+        public <RES> APIResponse<RES> getById(K id, JpaRepository<T, K> repository, Class<T> entityClass,
+                        Class<RES> responseClass) {
+                T entity = repository.findById(id).orElse(null);
+                if (entity == null) {
+                        return new APIResponse<>(null, List.of("Entity not found"));
+                }
+                RES response = modelMapper.map(entity, responseClass);
+                return new APIResponse<>(response, List.of("Get data successfully"));
         }
 }

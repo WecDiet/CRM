@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageResponse<T> {
+public class PagingResponse<T> {
     private boolean success;
     private String message;
     private List<T> data;

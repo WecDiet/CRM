@@ -7,8 +7,9 @@ import com.CRM.model.Product;
 import com.CRM.repository.IProductRepository;
 import com.CRM.repository.Specification.Product.ProductSpecification;
 import com.CRM.request.Product.ProductFilter;
-import com.CRM.response.Pagination.PageResponse;
-import com.CRM.response.Product.ProductDTO;
+import com.CRM.response.Pagination.APIResponse;
+import com.CRM.response.Pagination.PagingResponse;
+import com.CRM.response.Product.ProductDetailResponse;
 import com.CRM.service.HelperService.HelperService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class ProductService extends HelperService<Product, Long> implements IPro
     private IProductRepository iProductRepository;
 
     @Override
-    public PageResponse<ProductDTO> getAllProducts(int page, int limit, String sortBy, String direction,
+    public PagingResponse<ProductDetailResponse> getAllProducts(int page, int limit, String sortBy, String direction,
             ProductFilter filter) {
         return getAll(
                 page,
@@ -29,8 +30,17 @@ public class ProductService extends HelperService<Product, Long> implements IPro
                 sortBy,
                 direction,
                 ProductSpecification.getAllProductFilter(filter),
-                ProductDTO.class,
+                ProductDetailResponse.class,
                 iProductRepository);
+    }
+
+    @Override
+    public APIResponse<ProductDetailResponse> getProductById(Long id) {
+        return getById(
+                id,
+                iProductRepository,
+                Product.class,
+                ProductDetailResponse.class);
     }
 
 }

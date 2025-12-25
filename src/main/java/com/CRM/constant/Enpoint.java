@@ -6,6 +6,7 @@ public class Enpoint {
 
     public static final class Product {
         public static final String BASE = API_PREFIX + "/products";
+        public static final String ID = "/detail/{id}";
     }
 
 }

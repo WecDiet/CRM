@@ -22,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public abstract class EntityBase implements Serializable {
+public abstract class BaseEntity implements Serializable {
     @CreatedDate
     @Column(name = "created_date", updatable = false, nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date createdDate;

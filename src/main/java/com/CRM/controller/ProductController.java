@@ -3,6 +3,7 @@ package com.CRM.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,5 +29,10 @@ public class ProductController {
             @ModelAttribute ProductFilter filter) {
         return ResponseEntity.ok(productService.getAllProducts(page, limit, sortBy, direction, filter));
 
+    }
+
+    @GetMapping(Enpoint.Product.ID)
+    public ResponseEntity<?> getProductById(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 }

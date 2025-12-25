@@ -29,7 +29,8 @@ public class WebSecurityConfig {
                                 .authorizeHttpRequests(request -> request
                                                 .requestMatchers(HttpMethod.GET,
                                                                 String.format("%s/*", Enpoint.API_PREFIX),
-                                                                String.format("%s/products/*", Enpoint.Product.BASE))
+                                                                String.format("%s/products/*", Enpoint.API_PREFIX),
+                                                                String.format("%s/detail/*", Enpoint.Product.BASE))
                                                 .permitAll());
                 // .anyRequest()
                 // .authenticated());
