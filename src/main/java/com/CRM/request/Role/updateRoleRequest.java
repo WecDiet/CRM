@@ -10,5 +10,5 @@ import lombok.ToString;
 public class updateRoleRequest {
     private String name;
     private String description;
-    private Boolean isActive;
+    private boolean inActive;
 }

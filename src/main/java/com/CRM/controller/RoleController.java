@@ -7,13 +7,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.CRM.constant.Enpoint;
 import com.CRM.request.Role.createRoleRequest;
+import com.CRM.request.Role.updateRoleRequest;
 import com.CRM.service.Role.RoleService;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -39,5 +43,15 @@ public class RoleController {
     @PostMapping(Enpoint.Role.CREATE)
     public ResponseEntity<?> createRole(@RequestBody createRoleRequest createRoleRequest) {
         return ResponseEntity.ok(roleService.createRole(createRoleRequest));
+    }
+
+    @PutMapping(Enpoint.Role.UPDATE)
+    public ResponseEntity<?> updateRole(@PathVariable Long id, @RequestBody updateRoleRequest updateRoleRequest) {
+        return ResponseEntity.ok(roleService.updateRole(id, updateRoleRequest));
+    }
+
+    @DeleteMapping(Enpoint.Role.DELETE)
+    public ResponseEntity<?> deleteRole(@PathVariable Long id) {
+        return ResponseEntity.ok(roleService.deleteRole(id));
     }
 }

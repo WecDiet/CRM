@@ -30,12 +30,6 @@ public class Category extends BaseEntity {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "slug", length = 100, nullable = false)
-    private String slug;
-
-    @Column(name = "description", length = 500, nullable = false)
-    private String description;
-
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Brand> brands;
 }

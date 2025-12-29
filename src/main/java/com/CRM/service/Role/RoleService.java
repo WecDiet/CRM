@@ -1,6 +1,5 @@
 package com.CRM.service.Role;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.CRM.model.Role;
 import com.CRM.repository.IRoleRepository;
-import com.CRM.request.Product.ProductFilter;
 import com.CRM.request.Role.createRoleRequest;
 import com.CRM.request.Role.updateRoleRequest;
 import com.CRM.response.Pagination.APIResponse;
@@ -19,7 +17,6 @@ import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Role.RoleResponse;
 import com.CRM.service.Helper.HelperService;
 
-import ch.qos.logback.core.model.Model;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -67,8 +64,7 @@ public class RoleService extends HelperService<Role, Long> implements IRoleServi
         role.setInActive(true);
         role.setCreatedDate(new Date());
         iRepository.save(role);
-        List<String> message = new ArrayList<>();
-        message.add("Create role successfully");
+        List<String> message = List.of("Role created successfully");
         return new APIResponse<>(true, message);
     }
 
@@ -79,17 +75,22 @@ public class RoleService extends HelperService<Role, Long> implements IRoleServi
             throw new IllegalArgumentException("Role not found");
         }
         modelMapper.map(updateRoleRequest, role);
+        role.setInActive(updateRoleRequest.isInActive());
         role.setModifiedDate(new Date());
         iRepository.save(role);
-        List<String> message = new ArrayList<>();
-        message.add("Update role successfully");
+        List<String> message = List.of("Role updated successfully");
         return new APIResponse<>(true, message);
     }
 
     @Override
     public APIResponse<Boolean> deleteRole(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRole'");
+        Role role = iRepository.findById(id).orElse(null);
+        if (role == null) {
+            throw new IllegalArgumentException("Role not found");
+        }
+        iRepository.delete(role);
+        List<String> message = List.of("Role deleted successfully");
+        return new APIResponse<>(true, message);
     }
 
 }

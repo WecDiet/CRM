@@ -3,7 +3,6 @@ package com.CRM.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -15,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,8 +55,10 @@ public class Voucher extends BaseEntity {
     @Column(name = "status", nullable = false)
     private boolean status;
 
-    // true = áp dụng cho tất cả sản phẩm, false = chỉ áp dụng cho sản phẩm được chỉ
-    // định
+    /*
+     * true = áp dụng cho tất cả sản phẩm,
+     * false = chỉ áp dụng cho sản phẩm được chỉ định
+     */
     @Column(name = "is_global", nullable = false)
     private boolean isGlobal;
 

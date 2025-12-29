@@ -50,6 +50,6 @@ public class Story extends BaseEntity {
     private List<Media> image = new ArrayList<>();
 
     @OneToOne
-    @JoinColumn(name = "collaboration_id", nullable = false, unique = true)
-    private Collaboration collaboration;
+    @JoinColumn(name = "collection_id", nullable = false, unique = true)
+    private Collection collection;
 }

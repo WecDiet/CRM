@@ -50,7 +50,7 @@ public class Brand extends BaseEntity {
     private String slug;
 
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Collaboration> collaborations = new ArrayList<>();
+    private List<Collection> collections = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "media_id") // FK trong bảng Product

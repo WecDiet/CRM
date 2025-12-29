@@ -1,9 +1,6 @@
 package com.CRM.model;
 
-import java.time.LocalDateTime;
 import java.util.Set;
-
-import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

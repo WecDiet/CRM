@@ -1,0 +1,12 @@
+package com.CRM.request.Category;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+public class categoryRequest {
+    private String name;
+}

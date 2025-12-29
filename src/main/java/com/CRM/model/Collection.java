@@ -26,7 +26,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Collaboration extends BaseEntity {
+public class Collection extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,6 +38,6 @@ public class Collaboration extends BaseEntity {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
-    @OneToOne(mappedBy = "collaboration", orphanRemoval = true, cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "collection", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private Story story;
 }
