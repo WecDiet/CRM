@@ -58,6 +58,9 @@ public class Product extends BaseEntity implements Serializable {
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Column(name = "product_style", length = 100)
+    private String productStyle;
+
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ProductDetail productDetail;
 }

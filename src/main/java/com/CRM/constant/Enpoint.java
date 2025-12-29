@@ -4,6 +4,14 @@ public class Enpoint {
 
     public static final String API_PREFIX = "/crm/api/v1";
 
+    public static final class Role {
+        public static final String BASE = API_PREFIX + "/roles";
+        public static final String ID = "/detail/{id}";
+        public static final String CREATE = "/new";
+        public static final String UPDATE = "/detail/{id}";
+        public static final String DELETE = "/detail/{id}";
+    }
+
     public static final class Product {
         public static final String BASE = API_PREFIX + "/products";
         public static final String ID = "/detail/{id}";

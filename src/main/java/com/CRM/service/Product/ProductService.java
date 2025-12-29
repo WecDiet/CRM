@@ -10,7 +10,7 @@ import com.CRM.request.Product.ProductFilter;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Product.ProductDetailResponse;
-import com.CRM.service.HelperService.HelperService;
+import com.CRM.service.Helper.HelperService;
 
 import lombok.RequiredArgsConstructor;
 

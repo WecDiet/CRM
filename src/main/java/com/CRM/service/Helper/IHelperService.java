@@ -1,4 +1,4 @@
-package com.CRM.service.HelperService;
+package com.CRM.service.Helper;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;

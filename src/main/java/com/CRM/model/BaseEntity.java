@@ -1,7 +1,6 @@
 package com.CRM.model;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -33,7 +32,4 @@ public abstract class BaseEntity implements Serializable {
 
     @Column(name = "in_active")
     private boolean inActive;
-
-    @Column(name = "is_deleted")
-    private boolean isDeleted;
 }

@@ -23,7 +23,7 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<?> getAllProduct(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam int limit,
             @RequestParam(defaultValue = "price") String sortBy,
             @RequestParam(defaultValue = "desc") String direction,
             @ModelAttribute ProductFilter filter) {

@@ -1,4 +1,4 @@
-package com.CRM.service.HelperService;
+package com.CRM.service.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +54,8 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                 Page<T> entityPage;
                 if (specification != null) {
                         if (repository instanceof JpaSpecificationExecutor) {
-                                entityPage = ((JpaSpecificationExecutor<T>) repository).findAll(specification,
+                                entityPage = ((JpaSpecificationExecutor<T>) repository).findAll(
+                                                specification,
                                                 pageable);
                         } else {
                                 throw new IllegalArgumentException(
@@ -127,9 +128,7 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
 
                 // Sequential với pre-allocated list
                 List<DTO> result = new ArrayList<>(size);
-                for (T entity : entities) {
-                        result.add(mapEntityToDto(entity, dtoClass));
-                }
+                entities.forEach(entity -> result.add(mapEntityToDto(entity, dtoClass)));
                 return result;
         }
 

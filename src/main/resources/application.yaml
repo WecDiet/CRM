@@ -1,6 +1,16 @@
 server:
   port: 8080
+api:
+  prefix: /api/v1
 
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    csrf:
+      enabled: true
+    enabled: true
+  api-docs:
+    enabled: true
 spring:
   application:
     name: CRM
