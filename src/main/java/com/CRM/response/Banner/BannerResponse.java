@@ -1,6 +1,7 @@
-package com.CRM.response.Role;
+package com.CRM.response.Banner;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -11,11 +12,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleResponse {
+public class BannerResponse {
     private Long id;
-    private String name;
-    private String description;
-    private Boolean inActive;
+    private String title;
+    private int seq;
+    private boolean inActive;
+    private List<String> images;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private Date createdDate;
     @JsonFormat(pattern = "dd-MM-yyyy")

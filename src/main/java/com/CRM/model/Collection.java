@@ -1,7 +1,5 @@
 package com.CRM.model;
 
-import java.util.UUID;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "collaboration")
+@Table(name = "collections")
 @Getter
 @Setter
 @NoArgsConstructor

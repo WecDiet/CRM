@@ -4,11 +4,16 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +47,7 @@ public class Media extends BaseEntity {
 
     // ID của thực thể liên quan (User/Product/Story...)
     @Column(name = "reference_id", length = 100)
-    private UUID referenceId;
+    private Long referenceId;
 
     // "USER", "PRODUCT", "STORY", "CITY", "SLIDER", "STORE" , "BANNER",
     // "COLLABORATION", "WAREHOUSE"
@@ -55,4 +60,5 @@ public class Media extends BaseEntity {
     // AVATAR: ảnh đại diện của người dùng (user profile).
     @Column(name = "type", length = 300)
     private String type;
+
 }

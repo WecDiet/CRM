@@ -49,7 +49,12 @@ public class WebSecurityConfig {
                                                                         String.format("%s/**", Enpoint.API_PREFIX),
                                                                         String.format("%s/roles", Enpoint.API_PREFIX),
                                                                         String.format("%s/categories",
-                                                                                        Enpoint.API_PREFIX))
+                                                                                        Enpoint.API_PREFIX),
+                                                                        String.format("%s/banners", Enpoint.API_PREFIX),
+                                                                        String.format("%s/brands",
+                                                                                        Enpoint.API_PREFIX)
+
+                                                        )
 
                                                         .permitAll()
                                                         .anyRequest()

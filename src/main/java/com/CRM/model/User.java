@@ -85,7 +85,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        if (this.role != null && "ROLE_CUSTOMER".equalsIgnoreCase(this.role.getName())) {
+        if (this.role != null && "role_customer".equalsIgnoreCase(this.role.getName())) {
             return this.email;
         }
         return this.username;
@@ -124,7 +124,7 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        authorityList.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+        authorityList.add(new SimpleGrantedAuthority("role_" + role.getName()));
         return authorityList;
     }
 

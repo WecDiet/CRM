@@ -73,13 +73,6 @@
             <version>1.39.0</version>
         </dependency>
 
-		<!-- OpenAPI/Swagger
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.8.0</version>
-		</dependency> -->
-
 		<!-- OpenAPI/Swagger -->
 		<dependency>
 			<groupId>org.springdoc</groupId>

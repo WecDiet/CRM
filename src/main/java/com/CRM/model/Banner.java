@@ -1,5 +1,7 @@
 package com.CRM.model;
 
+import java.util.List;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,6 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -29,12 +33,6 @@ public class Banner extends BaseEntity {
     @Column(name = "title", length = 100, nullable = false)
     private String title;
 
-    @Column(name = "link", length = 100, nullable = false)
-    private String link;
-
-    @Column(name = "status", nullable = false)
-    private boolean status; // Trạng thái hiển thị banner
-
     @Column(name = "seq", nullable = false)
     private int seq; // Số thứ tự của banner từ 1 -> 4
 
@@ -42,8 +40,8 @@ public class Banner extends BaseEntity {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "media_id") // FK trong bảng Product
-    private Media image;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "banner_media", joinColumns = @JoinColumn(name = "banner_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
+    private List<Media> images;
 
 }

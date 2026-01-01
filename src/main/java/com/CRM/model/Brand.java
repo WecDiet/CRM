@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -34,29 +35,24 @@ public class Brand extends BaseEntity {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "status", nullable = false)
-    private boolean status;
-
     @Column(name = "title_brand", length = 200)
     private String titleBrand;
 
     @Column(name = "is_highlighted")
     private boolean highlighted; // Trạng thái hiển thị brand thêm vào bộ sưu tập
 
-    @Column(name = "description", length = 2000)
-    private String description;
-
-    @Column(name = "slug", length = 100)
-    private String slug;
-
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Collection> collections = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "media_id") // FK trong bảng Product
+    @JoinTable(name = "brand_media", joinColumns = @JoinColumn(name = "brand_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
+    // @JoinColumn(name = "media_id") // FK trong bảng Product
     private Media image;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Product> products = new ArrayList<>();
 }
