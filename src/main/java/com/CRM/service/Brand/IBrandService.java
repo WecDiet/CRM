@@ -1,5 +1,7 @@
 package com.CRM.service.Brand;
 
+import java.util.UUID;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.request.Brand.brandRequest;
@@ -12,7 +14,7 @@ public interface IBrandService {
 
     APIResponse<Boolean> createBrand(brandRequest brandRequest, MultipartFile image, int width, int height);
 
-    APIResponse<Boolean> updateBrand(Long id, brandRequest brandRequest, MultipartFile image, int width, int height);
+    APIResponse<Boolean> updateBrand(UUID id, brandRequest brandRequest, MultipartFile image, int width, int height);
 
-    APIResponse<Boolean> deleteBrand(Long id);
+    APIResponse<Boolean> deleteBrand(UUID id);
 }

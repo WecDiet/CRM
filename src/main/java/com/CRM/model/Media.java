@@ -4,16 +4,11 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,8 +25,9 @@ import lombok.Setter;
 @Builder
 public class Media extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    private UUID id;
 
     @Column(name = "image_url", length = 500) // Trường image_url là địa chỉ ảnh (thường là URL trên Cloudinary)
     @JsonProperty("image_url")
@@ -47,7 +43,7 @@ public class Media extends BaseEntity {
 
     // ID của thực thể liên quan (User/Product/Story...)
     @Column(name = "reference_id", length = 100)
-    private Long referenceId;
+    private UUID referenceId;
 
     // "USER", "PRODUCT", "STORY", "CITY", "SLIDER", "STORE" , "BANNER",
     // "COLLABORATION", "WAREHOUSE"

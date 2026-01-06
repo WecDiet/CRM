@@ -2,9 +2,12 @@ package com.CRM.model;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
@@ -25,7 +28,9 @@ import lombok.Setter;
 @Builder
 public class Employee {
     @Id
-    private Long employeeId; // trùng với userId
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    private UUID id;
 
     @OneToOne
     @MapsId

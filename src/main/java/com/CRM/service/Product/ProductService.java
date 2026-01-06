@@ -1,8 +1,11 @@
 package com.CRM.service.Product;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.CRM.Util.Helper.HelperService;
 import com.CRM.model.Product;
 import com.CRM.repository.IProductRepository;
 import com.CRM.repository.Specification.Product.ProductSpecification;
@@ -10,13 +13,12 @@ import com.CRM.request.Product.ProductFilter;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Product.ProductDetailResponse;
-import com.CRM.service.Helper.HelperService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService extends HelperService<Product, Long> implements IProductService {
+public class ProductService extends HelperService<Product, UUID> implements IProductService {
 
     @Autowired
     private IProductRepository iProductRepository;
@@ -35,7 +37,7 @@ public class ProductService extends HelperService<Product, Long> implements IPro
     }
 
     @Override
-    public APIResponse<ProductDetailResponse> getProductById(Long id) {
+    public APIResponse<ProductDetailResponse> getProductById(UUID id) {
         return getById(
                 id,
                 iProductRepository,

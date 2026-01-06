@@ -1,6 +1,7 @@
 package com.CRM.model;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -24,8 +25,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Category extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    private UUID id;
 
     @Column(name = "name", length = 100, nullable = false)
     private String name;

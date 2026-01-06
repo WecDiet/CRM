@@ -1,4 +1,4 @@
-package com.CRM.service.Helper;
+package com.CRM.Util.Helper;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +19,12 @@ public interface IHelperService<T extends BaseEntity, K> {
 
         <RES> APIResponse<RES> getById(K id, JpaRepository<T, K> repository, Class<T> entityClass,
                         Class<RES> responseClass);
+
+        String randomCode();
+
+        <T, K> void cleanTrash(JpaRepository<T, K> repository,
+                        Specification<T> warningSpec, // Spec cho cảnh báo
+                        Specification<T> deleteSpec, // Spec cho xóa vĩnh viễn
+                        int warningMinutes, // thời gian thông báo trước
+                        String entityName);
 }

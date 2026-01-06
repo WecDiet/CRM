@@ -1,5 +1,7 @@
 package com.CRM.service.Category;
 
+import java.util.UUID;
+
 import com.CRM.request.Category.categoryRequest;
 import com.CRM.response.Category.CategoryResponse;
 import com.CRM.response.Pagination.APIResponse;
@@ -11,7 +13,7 @@ public interface ICategoryService {
 
     public APIResponse<Boolean> createCategory(categoryRequest categoryRequest);
 
-    public APIResponse<Boolean> updateCategory(Long id, categoryRequest updateCategoryRequest);
+    public APIResponse<Boolean> updateCategory(UUID id, categoryRequest updateCategoryRequest);
 
-    public APIResponse<Boolean> deleteCategory(Long id);
+    public APIResponse<Boolean> deleteCategory(UUID id);
 }

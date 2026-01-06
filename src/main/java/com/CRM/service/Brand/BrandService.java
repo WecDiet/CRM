@@ -3,10 +3,10 @@ package com.CRM.service.Brand;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -14,24 +14,23 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.CRM.Util.Helper.HelperService;
 import com.CRM.model.Brand;
 import com.CRM.model.Category;
 import com.CRM.model.Media;
 import com.CRM.repository.IBrandRepository;
 import com.CRM.repository.ICategoryRepository;
-import com.CRM.request.Banner.bannerRequest;
 import com.CRM.request.Brand.brandRequest;
 import com.CRM.response.Brand.BrandResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.service.Cloudinary.CloudinaryService;
-import com.CRM.service.Helper.HelperService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class BrandService extends HelperService<Brand, Long> implements IBrandService {
+public class BrandService extends HelperService<Brand, UUID> implements IBrandService {
 
     @Autowired
     private IBrandRepository iBrandRepository;
@@ -62,13 +61,16 @@ public class BrandService extends HelperService<Brand, Long> implements IBrandSe
     public APIResponse<Boolean> createBrand(brandRequest brandRequest, MultipartFile image, int width,
             int height) {
 
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null && attributes.getRequest() instanceof MultipartHttpServletRequest) {
-            MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) attributes.getRequest();
-            if (multipartRequest.getFileMap().size() > 1) {
-                throw new IllegalArgumentException("Only one image can be uploaded.");
-            }
-        }
+        // ServletRequestAttributes attributes = (ServletRequestAttributes)
+        // RequestContextHolder.getRequestAttributes();
+        // if (attributes != null && attributes.getRequest() instanceof
+        // MultipartHttpServletRequest) {
+        // MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest)
+        // attributes.getRequest();
+        // if (multipartRequest.getFileMap().size() > 1) {
+        // throw new IllegalArgumentException("Only one image can be uploaded.");
+        // }
+        // }
         if (iBrandRepository.existsByName(brandRequest.getName())) {
             throw new IllegalArgumentException("Brand already exists");
         }
@@ -85,10 +87,9 @@ public class BrandService extends HelperService<Brand, Long> implements IBrandSe
             throw new IllegalArgumentException("Brand image is required");
         }
 
-        String uploadedPublicId = null;
         try {
             Map uploadResult = cloudinaryService.uploadMedia(image, "crm/brands", width, height);
-            uploadedPublicId = (String) uploadResult.get("public_id");
+            String uploadedPublicId = (String) uploadResult.get("public_id");
             String mediaUrl = (String) uploadResult.get("secure_url");
 
             Media brandMedia = Media.builder()
@@ -112,7 +113,7 @@ public class BrandService extends HelperService<Brand, Long> implements IBrandSe
 
     @Override
     @Transactional
-    public APIResponse<Boolean> updateBrand(Long id, brandRequest brandRequest, MultipartFile image, int width,
+    public APIResponse<Boolean> updateBrand(UUID id, brandRequest brandRequest, MultipartFile image, int width,
             int height) {
         Brand brand = iBrandRepository.findById(id).orElse(null);
         if (brand == null) {
@@ -139,7 +140,7 @@ public class BrandService extends HelperService<Brand, Long> implements IBrandSe
                         .referenceId(brand.getId())
                         .referenceType("BRAND")
                         .altText(brand.getName())
-                        .type("MEDIA")
+                        .type("IMAGE")
                         .build();
                 brandMedia.setCreatedDate(new Date());
                 brandMedia.setModifiedDate(new Date());
@@ -155,7 +156,7 @@ public class BrandService extends HelperService<Brand, Long> implements IBrandSe
     }
 
     @Override
-    public APIResponse<Boolean> deleteBrand(Long id) {
+    public APIResponse<Boolean> deleteBrand(UUID id) {
         Brand brand = iBrandRepository.findById(id).orElse(null);
         if (brand == null) {
             throw new IllegalArgumentException("Brand not found !");

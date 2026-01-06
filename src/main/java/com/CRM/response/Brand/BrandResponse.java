@@ -1,5 +1,7 @@
 package com.CRM.response.Brand;
 
+import java.util.UUID;
+
 import com.CRM.response.Media.MediaResponse;
 
 import lombok.AllArgsConstructor;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BrandResponse {
-    private Long id;
+    private UUID id;
     private String name;
     private String titleBrand;
     private boolean highlighted;

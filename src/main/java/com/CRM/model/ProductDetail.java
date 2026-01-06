@@ -2,6 +2,7 @@ package com.CRM.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -29,8 +30,9 @@ import lombok.Setter;
 @Builder
 public class ProductDetail extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    private UUID id;
 
     // Khung
     @Column(name = "frame", length = 100)

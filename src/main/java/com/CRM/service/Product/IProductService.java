@@ -1,5 +1,7 @@
 package com.CRM.service.Product;
 
+import java.util.UUID;
+
 import com.CRM.request.Product.ProductFilter;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
@@ -10,5 +12,5 @@ public interface IProductService {
             int page, int limit, String sortBy, String direction,
             ProductFilter filter);
 
-    public APIResponse<ProductDetailResponse> getProductById(Long id);
+    public APIResponse<ProductDetailResponse> getProductById(UUID id);
 }

@@ -1,5 +1,7 @@
 package com.CRM.controller;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,13 +40,13 @@ public class CategoryController {
     }
 
     @PutMapping(Enpoint.Category.BASE)
-    public ResponseEntity<?> updateCategory(@RequestParam Long id,
+    public ResponseEntity<?> updateCategory(@RequestParam UUID id,
             @RequestBody categoryRequest updateCategoryRequest) {
         return ResponseEntity.ok(categoryService.updateCategory(id, updateCategoryRequest));
     }
 
     @DeleteMapping(Enpoint.Category.BASE)
-    public ResponseEntity<?> deleteCategory(@RequestParam Long id) {
+    public ResponseEntity<?> deleteCategory(@RequestParam UUID id) {
         return ResponseEntity.ok(categoryService.deleteCategory(id));
     }
 }

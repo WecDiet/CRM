@@ -22,6 +22,9 @@ import lombok.Setter;
 @Setter
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity implements Serializable {
+    @Column(nullable = false)
+    private String code; // để tạo mã động khi thực hiện xóa mềm (Soft Delete)
+
     @CreatedDate
     @Column(name = "created_date", updatable = false, nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date createdDate;
@@ -32,4 +35,11 @@ public abstract class BaseEntity implements Serializable {
 
     @Column(name = "in_active")
     private boolean inActive;
+
+    // Mặc định là 0 (chưa xóa). Khi xóa sẽ là timestamp (ví dụ: 1704321600)
+    @Column(name = "deleted_at", nullable = false)
+    private Long deletedAt = 0L;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 }

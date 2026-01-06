@@ -1,9 +1,12 @@
 package com.CRM.model;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -25,7 +28,9 @@ import lombok.Setter;
 @Builder
 public class Customer {
     @Id
-    private Long customerId; // trùng với userId
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    private UUID id;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)

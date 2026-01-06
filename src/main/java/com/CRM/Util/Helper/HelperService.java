@@ -1,10 +1,12 @@
-package com.CRM.service.Helper;
+package com.CRM.Util.Helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -29,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 public abstract class HelperService<T extends BaseEntity, K> implements IHelperService<T, K> {
 
         @Autowired
-        private ModelMapper modelMapper;
+        protected ModelMapper modelMapper;
 
         // Repository cụ thể sẽ được inject bởi class con
         @Autowired
@@ -49,7 +51,7 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                         JpaRepository<T, K> repository) {
 
                 validateInputs(page, limit, sortBy);
-                Sort sort = getCachedSort(sortBy, direction);
+                Sort sort = getSort(sortBy, direction);
                 Pageable pageable = PageRequest.of(page, limit, sort);
                 Page<T> entityPage;
                 if (specification != null) {
@@ -89,11 +91,19 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
         /**
          * Cache Sort objects
          */
-        private Sort getCachedSort(String sortBy, String direction) {
-                String key = sortBy + "_" + direction;
-                return SORT_CACHE.computeIfAbsent(key, k -> "desc".equalsIgnoreCase(direction)
-                                ? Sort.by(sortBy).descending()
-                                : Sort.by(sortBy).ascending());
+        private Sort getSort(String sortBy, String direction) {
+                // String key = sortBy + "_" + direction;
+                // return SORT_CACHE.computeIfAbsent(key, k ->
+                // "desc".equalsIgnoreCase(direction)
+                // ? Sort.by(sortBy).descending()
+                // : Sort.by(sortBy).ascending());
+
+                if (sortBy == null || sortBy.isBlank()) {
+                        return Sort.unsorted(); // Trả về trạng thái không sắp xếp nếu không có tham số
+                }
+                Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC
+                                : Sort.Direction.ASC;
+                return Sort.by(sortDirection, sortBy);
         }
 
         /**
@@ -153,4 +163,37 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                 RES response = modelMapper.map(entity, responseClass);
                 return new APIResponse<>(response, List.of("Get data successfully"));
         }
+
+        @Override
+        public String randomCode() {
+                long timestamp = System.currentTimeMillis() / 1000;
+                int code = ThreadLocalRandom.current().nextInt(100, 999);
+                return timestamp + String.valueOf(code);
+        }
+
+        @Override
+        public <T, K> void cleanTrash(
+                        JpaRepository<T, K> repository,
+                        Specification<T> warningSpec, // Spec cho cảnh báo
+                        Specification<T> deleteSpec, // Spec cho xóa vĩnh viễn
+                        int warningMinutes,
+                        String entityName) {
+                JpaSpecificationExecutor<T> executor = (JpaSpecificationExecutor<T>) repository;
+                List<T> warningItems = executor.findAll(warningSpec, PageRequest.of(0, 100)).getContent();
+                if (!warningItems.isEmpty()) {
+                        System.out.println("ALERT [" + entityName + "]: " + warningItems.size()
+                                        + " items will be PERMANENTLY DELETED in " + warningMinutes + " minutes!");
+                }
+
+                // // Công thức: Hiện tại - 30 ngày
+                // long deleteThreshold = currentTime - duration;
+                List<T> expiredItems = executor.findAll(deleteSpec, PageRequest.of(0, 10000)).getContent();
+
+                if (!expiredItems.isEmpty()) {
+                        repository.deleteAll(expiredItems);
+                        System.out.println("LOG [" + entityName + "]: Successfully purged "
+                                        + expiredItems.size() + " expired entries.");
+                }
+        }
+
 }

@@ -30,8 +30,9 @@ import lombok.Setter;
 @Builder
 public class Story extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    private UUID id;
 
     @Column(name = "name", length = 100, nullable = false)
     private String name;

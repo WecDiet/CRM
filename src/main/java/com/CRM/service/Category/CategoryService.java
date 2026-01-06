@@ -2,24 +2,25 @@ package com.CRM.service.Category;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.CRM.Util.Helper.HelperService;
 import com.CRM.model.Category;
 import com.CRM.repository.ICategoryRepository;
 import com.CRM.request.Category.categoryRequest;
 import com.CRM.response.Category.CategoryResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
-import com.CRM.service.Helper.HelperService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryService extends HelperService<Category, Long> implements ICategoryService {
+public class CategoryService extends HelperService<Category, UUID> implements ICategoryService {
 
     @Autowired
     private ICategoryRepository iCategoryRepository;
@@ -54,7 +55,7 @@ public class CategoryService extends HelperService<Category, Long> implements IC
     }
 
     @Override
-    public APIResponse<Boolean> updateCategory(Long id, categoryRequest updateCategoryRequest) {
+    public APIResponse<Boolean> updateCategory(UUID id, categoryRequest updateCategoryRequest) {
         Category category = iCategoryRepository.findById(id).orElse(null);
         if (category == null) {
             throw new IllegalArgumentException("Category not found with id: " + id);
@@ -68,7 +69,7 @@ public class CategoryService extends HelperService<Category, Long> implements IC
     }
 
     @Override
-    public APIResponse<Boolean> deleteCategory(Long id) {
+    public APIResponse<Boolean> deleteCategory(UUID id) {
         Category category = iCategoryRepository.findById(id).orElse(null);
         if (category == null) {
             throw new IllegalArgumentException("Category not found with id: " + id);

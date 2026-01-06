@@ -1,6 +1,7 @@
 package com.CRM.response.Role;
 
 import java.util.Date;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleResponse {
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
     private Boolean inActive;
@@ -20,4 +21,6 @@ public class RoleResponse {
     private Date createdDate;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private Date modifiedDate;
+    private Long deletedAt;
+    private boolean isDeleted;
 }

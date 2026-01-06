@@ -1,5 +1,7 @@
 package com.CRM.controller;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -8,7 +10,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +34,8 @@ public class BrandController {
             @RequestParam int limit,
             @RequestParam(defaultValue = "createdDate") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
-        return ResponseEntity.ok(brandService.getAllBrand(page, limit, sortBy, direction));
+        return ResponseEntity.ok(brandService.getAllBrand(page, limit, sortBy,
+                direction));
     }
 
     @PostMapping(Enpoint.Brand.CREATE)
@@ -42,21 +44,23 @@ public class BrandController {
             @RequestParam("media") MultipartFile media,
             @RequestParam("width") int width,
             @RequestParam("height") int height) {
-        return ResponseEntity.ok(brandService.createBrand(createRequest, media, width, height));
+        return ResponseEntity.ok(brandService.createBrand(createRequest, media,
+                width, height));
     }
 
     @PutMapping(Enpoint.Brand.UPDATE)
     public ResponseEntity<?> updateBrand(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @ModelAttribute brandRequest updateRequest,
             @RequestParam("media") MultipartFile media,
             @RequestParam("width") int width,
             @RequestParam("height") int height) {
-        return ResponseEntity.ok(brandService.updateBrand(id, updateRequest, media, width, height));
+        return ResponseEntity.ok(brandService.updateBrand(id, updateRequest, media,
+                width, height));
     }
 
     @DeleteMapping(Enpoint.Brand.DELETE)
-    public ResponseEntity<?> deleteBrand(@PathVariable Long id) {
+    public ResponseEntity<?> deleteBrand(@PathVariable UUID id) {
         return ResponseEntity.ok(brandService.deleteBrand(id));
     }
 
