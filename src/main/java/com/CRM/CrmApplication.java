@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableScheduling
+@EnableScheduling // bật tự động quét Scheduling
 @SpringBootApplication
 public class CrmApplication {
 

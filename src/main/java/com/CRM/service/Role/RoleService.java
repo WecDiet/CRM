@@ -117,6 +117,10 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
                 iRoleRepository);
     }
 
+    /*
+     * - Nó sẽ tự động chạy ngầm để quét những dữ liệu nào đạt tới thời gian hạn
+     * mức. Và đặc biệt là nó thông báo trước khi xóa cứng
+     */
     @Override
     @Transactional
     @Scheduled(fixedRate = 60 * 1000) // Quét mõi 1 phút / 1 lần

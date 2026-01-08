@@ -171,6 +171,7 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                 return timestamp + String.valueOf(code);
         }
 
+        // Clean dữ liệu rác nằm
         @Override
         public <T, K> void cleanTrash(
                         JpaRepository<T, K> repository,
@@ -178,17 +179,37 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                         Specification<T> deleteSpec, // Spec cho xóa vĩnh viễn
                         int warningMinutes,
                         String entityName) {
+                // JpaSpecificationExecutor<T> executor = (JpaSpecificationExecutor<T>)
+                // repository;
+                // List<T> warningItems = executor.findAll(warningSpec, PageRequest.of(0,
+                // 100)).getContent();
+                // if (!warningItems.isEmpty()) {
+                // System.out.println("ALERT [" + entityName + "]: " + warningItems.size()
+                // + " items will be PERMANENTLY DELETED in " + warningMinutes + " minutes!");
+                // }
+
+                // // // Công thức: Hiện tại - 30 ngày
+                // // long deleteThreshold = currentTime - duration;
+                // List<T> expiredItems = executor.findAll(deleteSpec, PageRequest.of(0,
+                // 2000)).getContent();
+
+                // if (!expiredItems.isEmpty()) {
+                // repository.deleteAll(expiredItems);
+                // System.out.println("LOG [" + entityName + "]: Successfully purged "
+                // + expiredItems.size() + " expired entries.");
+                // }
+
                 JpaSpecificationExecutor<T> executor = (JpaSpecificationExecutor<T>) repository;
-                List<T> warningItems = executor.findAll(warningSpec, PageRequest.of(0, 100)).getContent();
-                if (!warningItems.isEmpty()) {
-                        System.out.println("ALERT [" + entityName + "]: " + warningItems.size()
+                long warningCount = executor.count(warningSpec);
+                if (warningCount > 0) {
+                        System.out.println("ALERT [" + entityName + "]: " + warningCount
                                         + " items will be PERMANENTLY DELETED in " + warningMinutes + " minutes!");
                 }
 
                 // // Công thức: Hiện tại - 30 ngày
                 // long deleteThreshold = currentTime - duration;
-                List<T> expiredItems = executor.findAll(deleteSpec, PageRequest.of(0, 10000)).getContent();
-
+                List<T> expiredItems = executor.findAll(deleteSpec, PageRequest.of(0,
+                                2000)).getContent();
                 if (!expiredItems.isEmpty()) {
                         repository.deleteAll(expiredItems);
                         System.out.println("LOG [" + entityName + "]: Successfully purged "
