@@ -2,20 +2,20 @@ package com.CRM.service.Role;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.CRM.Util.Helper.HelperService;
+import com.CRM.enums.RestoreEnum;
 import com.CRM.model.Role;
 import com.CRM.repository.IRoleRepository;
-import com.CRM.repository.Specification.Role.RoleSpecification;
+import com.CRM.repository.Specification.RoleSpecification;
 import com.CRM.request.Role.createRoleRequest;
 import com.CRM.request.Role.updateRoleRequest;
 import com.CRM.response.Pagination.APIResponse;
@@ -60,13 +60,11 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
         if (createRoleRequest.getName().isEmpty()) {
             throw new IllegalArgumentException("Role name cannot be empty");
         }
-        if (!createRoleRequest.getName().isEmpty()) {
-            if (iRoleRepository.existsByName(createRoleRequest.getName())) {
-                throw new IllegalArgumentException("Role name already exists");
-            }
+        if (iRoleRepository.existsActiveByName(createRoleRequest.getName())) {
+            throw new IllegalArgumentException("Role name already exists and is active");
         }
         Role role = modelMapper.map(createRoleRequest, Role.class);
-        role.setInActive(true);
+        role.setInActive(false);
         role.setCreatedDate(new Date());
         role.setModifiedDate(new Date());
         role.setCode(randomCode());
@@ -98,7 +96,7 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
         if (role == null) {
             throw new IllegalArgumentException("Role not found");
         }
-        role.setInActive(false);
+        role.setInActive(true);
         role.setDeleted(true);
         role.setDeletedAt(System.currentTimeMillis() / 1000);
         iRoleRepository.save(role);
@@ -136,6 +134,44 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
                 RoleSpecification.warningThreshold(warningThreshold), // Truyền thời gian thông báo trước khi xóa
                 RoleSpecification.deleteThreshold(deleteThreshold), // Truyền thời gian sẽ bị xóa cứng
                 warningMinutes,
-                "ROLE");
+                "ROLE",
+                null);
+    }
+
+    @Override
+    public APIResponse<Boolean> restoreRole(String id, RestoreEnum action) {
+        // Tìm bản ghi trong thùng rác
+        Role roleInTrash = iRoleRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IllegalArgumentException("This role doesn't belong in the trash can."));
+
+        // Tìm bản ghi trùng đang hoạt động
+        Optional<Role> activeDuplicate = iRoleRepository.findActiveByName(roleInTrash.getName());
+
+        if (activeDuplicate.isPresent()) {
+            // Nếu user chưa xác nhận hành động (lần gọi đầu tiên)
+            if (action == null || action == RestoreEnum.RESTORE) {
+                throw new IllegalArgumentException("CONFLICT: A role with this name already exists.");
+            }
+
+            // Nếu user chọn Bỏ qua
+            if (action == RestoreEnum.CANCEL) {
+                return new APIResponse<>(false, List.of("Restore operation was cancelled."));
+            }
+
+            // Nếu user chọn Ghi đè (OVERWRITE)
+            if (action == RestoreEnum.OVERWRITE) {
+                // Xóa role đang active trước
+                iRoleRepository.delete(activeDuplicate.get());
+                iRoleRepository.flush(); // Xóa ngay để tránh trùng Unique Key khi save bên dưới
+            }
+        }
+        roleInTrash.setInActive(false);
+        roleInTrash.setDeleted(false);
+        roleInTrash.setDeletedAt(0L);
+
+        // roleInTrash.setCode(null);
+
+        iRoleRepository.save(roleInTrash);
+        return new APIResponse<>(true, List.of("Restored successfully."));
     }
 }

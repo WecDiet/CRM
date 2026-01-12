@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.CRM.constant.Enpoint;
+import com.CRM.enums.RestoreEnum;
 import com.CRM.request.Role.createRoleRequest;
 import com.CRM.request.Role.updateRoleRequest;
 import com.CRM.service.Role.RoleService;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,4 +68,10 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getAllRoleTrash(page, limit, sortBy, direction));
     }
 
+    @PatchMapping(Enpoint.Role.RESTORE)
+    public ResponseEntity<?> restoreRole(
+            @PathVariable String id,
+            @RequestParam(name = "action", required = false) RestoreEnum action) {
+        return ResponseEntity.ok(roleService.restoreRole(id, action));
+    }
 }

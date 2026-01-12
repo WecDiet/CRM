@@ -1,4 +1,4 @@
-package com.CRM.repository.Specification.Product;
+package com.CRM.repository.Specification;
 
 import java.util.ArrayList;
 import java.util.List;

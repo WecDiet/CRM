@@ -12,6 +12,7 @@ public class Enpoint {
         public static final String DELETE = "/detail/{id}";
         public static final String TRASH = "/trash";
         public static final String DELETE_MANY = TRASH + "/delete-many";
+        public static final String RESTORE = TRASH + "/{id}";
     }
 
     public static final class Category {
@@ -24,6 +25,9 @@ public class Enpoint {
         public static final String CREATE = "/new";
         public static final String UPDATE = "/{id}";
         public static final String DELETE = "/{id}";
+        public static final String TRASH = "/trash";
+        public static final String DELETE_MANY = TRASH + "/delete-many";
+        public static final String RESTORE = TRASH + "/{id}";
     }
 
     public static final class Banner {

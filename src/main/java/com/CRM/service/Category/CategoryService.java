@@ -46,9 +46,12 @@ public class CategoryService extends HelperService<Category, UUID> implements IC
             throw new IllegalArgumentException("Category name cannot be empty");
         }
         Category category = modelMapper.map(categoryRequest, Category.class);
+        category.setInActive(false);
         category.setCreatedDate(new Date());
-        category.setInActive(true);
         category.setModifiedDate(new Date());
+        category.setCode(randomCode());
+        category.setDeletedAt(0L);
+        category.setDeleted(false);
         iCategoryRepository.save(category);
         List<String> message = List.of("Category created successfully");
         return new APIResponse<>(true, message);

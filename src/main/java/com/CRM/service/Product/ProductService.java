@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.CRM.Util.Helper.HelperService;
 import com.CRM.model.Product;
 import com.CRM.repository.IProductRepository;
-import com.CRM.repository.Specification.Product.ProductSpecification;
+import com.CRM.repository.Specification.ProductSpecification;
 import com.CRM.request.Product.ProductFilter;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;

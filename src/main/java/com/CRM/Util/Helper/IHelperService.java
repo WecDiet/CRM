@@ -1,5 +1,7 @@
 package com.CRM.Util.Helper;
 
+import java.util.function.Consumer;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -26,5 +28,6 @@ public interface IHelperService<T extends BaseEntity, K> {
                         Specification<T> warningSpec, // Spec cho cảnh báo
                         Specification<T> deleteSpec, // Spec cho xóa vĩnh viễn
                         int warningMinutes, // thời gian thông báo trước
-                        String entityName);
+                        String entityName,
+                        Consumer<T> actionFunction);
 }

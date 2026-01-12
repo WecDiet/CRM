@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.constant.Enpoint;
+import com.CRM.enums.RestoreEnum;
 import com.CRM.request.Brand.brandRequest;
 import com.CRM.service.Brand.BrandService;
 
@@ -50,7 +52,7 @@ public class BrandController {
 
     @PutMapping(Enpoint.Brand.UPDATE)
     public ResponseEntity<?> updateBrand(
-            @PathVariable UUID id,
+            @PathVariable String id,
             @ModelAttribute brandRequest updateRequest,
             @RequestParam("media") MultipartFile media,
             @RequestParam("width") int width,
@@ -60,8 +62,23 @@ public class BrandController {
     }
 
     @DeleteMapping(Enpoint.Brand.DELETE)
-    public ResponseEntity<?> deleteBrand(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteBrand(@PathVariable String id) {
         return ResponseEntity.ok(brandService.deleteBrand(id));
+    }
+
+    @GetMapping(Enpoint.Brand.TRASH)
+    public ResponseEntity<?> getAllBrandTrash(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(defaultValue = "createdDate") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        return ResponseEntity.ok(brandService.getAllBrandTrash(page, limit, sortBy, direction));
+    }
+
+    @PatchMapping(Enpoint.Brand.RESTORE)
+    public ResponseEntity<?> restoreBrand(
+            @PathVariable String id,
+            @RequestParam(name = "action", required = false) RestoreEnum action) {
+        return ResponseEntity.ok(brandService.restoreBrand(id, action));
     }
 
 }

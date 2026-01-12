@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -178,26 +179,8 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                         Specification<T> warningSpec, // Spec cho cảnh báo
                         Specification<T> deleteSpec, // Spec cho xóa vĩnh viễn
                         int warningMinutes,
-                        String entityName) {
-                // JpaSpecificationExecutor<T> executor = (JpaSpecificationExecutor<T>)
-                // repository;
-                // List<T> warningItems = executor.findAll(warningSpec, PageRequest.of(0,
-                // 100)).getContent();
-                // if (!warningItems.isEmpty()) {
-                // System.out.println("ALERT [" + entityName + "]: " + warningItems.size()
-                // + " items will be PERMANENTLY DELETED in " + warningMinutes + " minutes!");
-                // }
-
-                // // // Công thức: Hiện tại - 30 ngày
-                // // long deleteThreshold = currentTime - duration;
-                // List<T> expiredItems = executor.findAll(deleteSpec, PageRequest.of(0,
-                // 2000)).getContent();
-
-                // if (!expiredItems.isEmpty()) {
-                // repository.deleteAll(expiredItems);
-                // System.out.println("LOG [" + entityName + "]: Successfully purged "
-                // + expiredItems.size() + " expired entries.");
-                // }
+                        String entityName,
+                        Consumer<T> actionFunction) {
 
                 JpaSpecificationExecutor<T> executor = (JpaSpecificationExecutor<T>) repository;
                 long warningCount = executor.count(warningSpec);
@@ -210,11 +193,25 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                 // long deleteThreshold = currentTime - duration;
                 List<T> expiredItems = executor.findAll(deleteSpec, PageRequest.of(0,
                                 2000)).getContent();
+
                 if (!expiredItems.isEmpty()) {
+                        if (actionFunction != null) {
+                                for (T item : expiredItems) {
+                                        try {
+                                                actionFunction.accept(item);
+                                        } catch (Exception e) {
+                                                // Log lỗi nhưng không chặn luồng xóa DB (hoặc tùy logic của bạn)
+                                                System.err.println("LOG [" + entityName
+                                                                + "]: Error cleaning up external resource for item: "
+                                                                + e.getMessage());
+                                        }
+                                }
+                        }
                         repository.deleteAll(expiredItems);
                         System.out.println("LOG [" + entityName + "]: Successfully purged "
                                         + expiredItems.size() + " expired entries.");
                 }
+
         }
 
 }
