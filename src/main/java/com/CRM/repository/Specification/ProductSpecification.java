@@ -9,7 +9,7 @@ import jakarta.persistence.criteria.Predicate;
 import com.CRM.model.Product;
 import com.CRM.request.Product.ProductFilter;
 
-public class ProductSpecification {
+public class ProductSpecification extends BaseSpecification {
 
     public static Specification<Product> getAllProductFilter(ProductFilter filter) {
         return (root, query, cb) -> {

@@ -18,12 +18,9 @@ import com.CRM.enums.RestoreEnum;
 import com.CRM.model.Brand;
 import com.CRM.model.Category;
 import com.CRM.model.Media;
-import com.CRM.model.Role;
 import com.CRM.repository.IBrandRepository;
 import com.CRM.repository.ICategoryRepository;
-import com.CRM.repository.IMediaRepository;
 import com.CRM.repository.Specification.BrandSpecification;
-import com.CRM.repository.Specification.MediaSpecification;
 import com.CRM.request.Brand.brandRequest;
 import com.CRM.response.Brand.BrandResponse;
 import com.CRM.response.Pagination.APIResponse;
@@ -170,7 +167,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
     @Override
     public APIResponse<Boolean> deleteBrand(String id) {
         Brand brand = iBrandRepository.findById(UUID.fromString(id)).orElseThrow(
-                () -> new IllegalArgumentException("Role not found"));
+                () -> new IllegalArgumentException("Brand not found"));
         Media brandMedia = brand.getImage();
         if (brandMedia != null && brandMedia.getPublicId() != null) {
             brandMedia.setInActive(true);

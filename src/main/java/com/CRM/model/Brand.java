@@ -48,7 +48,6 @@ public class Brand extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "brand_media", joinColumns = @JoinColumn(name = "brand_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    // @JoinColumn(name = "media_id") // FK trong bảng Product
     private Media image;
 
     @ManyToOne
