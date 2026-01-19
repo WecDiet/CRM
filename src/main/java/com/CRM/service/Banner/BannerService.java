@@ -20,10 +20,12 @@ import com.CRM.model.Brand;
 import com.CRM.model.Media;
 import com.CRM.repository.IBannerRepository;
 import com.CRM.repository.IBrandRepository;
+import com.CRM.repository.IMediaRepository;
 import com.CRM.repository.Specification.BannerSpecification;
 import com.CRM.repository.Specification.BrandSpecification;
 import com.CRM.request.Banner.bannerRequest;
 import com.CRM.response.Banner.BannerResponse;
+import com.CRM.response.Brand.BrandResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.service.Cloudinary.CloudinaryService;
@@ -43,92 +45,103 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private IMediaRepository iMediaRepository;
+
     @Override
-    public PagingResponse<BannerResponse> getAllBanners(int page, int limit, String sortBy, String direction) {
+    public PagingResponse<BannerResponse> getAllBanners(int page, int limit, String sortBy, String direction,
+            boolean active) {
         return getAll(
                 page,
                 limit,
                 sortBy,
                 direction,
-                BannerSpecification.getAllBanner(),
+                BannerSpecification.getAllBanner(active),
                 BannerResponse.class,
                 iBannerRepository);
     }
 
     @Transactional
     @Override
-    public APIResponse<Boolean> createBanner(bannerRequest bannerRequest, MultipartFile media, int width, int height)
-            throws NotFoundException {
-
-        // ServletRequestAttributes attributes = (ServletRequestAttributes)
-        // RequestContextHolder.getRequestAttributes();
-        // if (attributes != null && attributes.getRequest() instanceof
-        // MultipartHttpServletRequest) {
-        // MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest)
-        // attributes.getRequest();
-        // if (multipartRequest.getFileMap().size() > 4) {
-        // throw new IllegalArgumentException("Max four image can be uploaded.");
-        // }
-        // }
-        if (iBannerRepository.existsByTitle(bannerRequest.getTitle())) {
-            throw new IllegalArgumentException("Banner title already exists");
+    public APIResponse<Boolean> createBanner(bannerRequest bannerRequest, MultipartFile media, int width, int height) {
+        if (iBannerRepository.existsActiveByName(bannerRequest.getName())) {
+            throw new IllegalArgumentException("Banner name already exists and is active");
         }
 
-        Brand brand = iBrandRepository.findById(bannerRequest.getBrandID())
-                .orElseThrow(() -> new NotFoundException());
-        Banner banner = modelMapper.map(bannerRequest, Banner.class);
-        banner.setBrand(brand);
-        banner.setInActive(false);
-        banner.setCreatedDate(new Date());
-        banner.setModifiedDate(new Date());
-        banner.setCode(randomCode());
-        banner.setDeletedAt(0L);
-        banner.setDeleted(false);
+        Brand brand = iBrandRepository.findById(UUID.fromString(bannerRequest.getBrand()))
+                .orElseThrow(() -> new IllegalArgumentException("Brand not found !"));
 
-        banner = iBannerRepository.save(banner);
-
+        if (!"collection".equalsIgnoreCase(brand.getCategory().getName().trim())) {
+            throw new IllegalArgumentException(
+                    "Banner creation is only permitted for Brands in the 'Collection' category.");
+        }
         // 3. Xử lý Upload Media
         if (media == null || media.isEmpty()) {
             throw new IllegalArgumentException("Banner image is required");
         }
 
         try {
-            Map uploadResult = cloudinaryService.uploadMedia(media, "crm/banners", width, height);
+            // 3. Upload lên Cloudinary trước
+            Map uploadResult = cloudinaryService.uploadMedia(media, "crm/banners", width,
+                    height);
             String uploadedPublicId = (String) uploadResult.get("public_id");
             String mediaUrl = (String) uploadResult.get("secure_url");
+
+            Banner banner = modelMapper.map(bannerRequest, Banner.class);
+            banner.setBrand(brand);
+            banner.setInActive(bannerRequest.isActive());
+            banner.setCreatedDate(new Date());
+            banner.setModifiedDate(new Date());
+            banner.setCode(randomCode());
+            banner.setDeletedAt(0L);
+            banner.setDeleted(false);
 
             Media bannerMedia = Media.builder()
                     .imageUrl(mediaUrl)
                     .publicId(uploadedPublicId)
-                    .referenceId(banner.getId())
                     .referenceType("BANNER")
-                    .altText(banner.getTitle())
+                    .altText(banner.getName())
                     .type("MEDIA")
                     .build();
-            bannerMedia.setInActive(false);
+            bannerMedia.setInActive(bannerRequest.isActive());
             bannerMedia.setCreatedDate(new Date());
             bannerMedia.setModifiedDate(new Date());
             bannerMedia.setCode(randomCode());
             bannerMedia.setDeletedAt(0L);
             bannerMedia.setDeleted(false);
+
             banner.setImage(bannerMedia);
+            iBannerRepository.save(banner);
+            return new APIResponse<>(true, "Banner created successfully");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to upload image, please try again.");
+            // 6. NẾU LỖI: Xóa ảnh trên Cloudinary để tránh rác dữ liệu
+            Media mediaException = new Media();
+            String uploadedPublicId = mediaException.getPublicId();
+            if (uploadedPublicId != null) {
+                try {
+                    cloudinaryService.deleteMedia(uploadedPublicId); // Giả sử bạn có hàm này
+                } catch (Exception deleteEx) {
+                    // Log lỗi xóa ảnh nhưng vẫn throw lỗi chính để rollback DB
+                    System.err.println("Failed to cleanup Cloudinary image: " +
+                            uploadedPublicId);
+                }
+            }
+
+            // Throw lỗi để @Transactional thực hiện rollback Database
+            throw new RuntimeException("Failed to create banner: " + e.getMessage());
         }
-        iBannerRepository.save(banner);
-        return new APIResponse<>(true, List.of("Banner created successfully"));
     }
 
     @Override
     public APIResponse<Boolean> updateBanner(String id, bannerRequest bannerRequest, MultipartFile media, int width,
-            int height) throws NotFoundException {
+            int height) {
         Banner banner = iBannerRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IllegalArgumentException("Banner not found. "));
-        Brand brand = iBrandRepository.findById(bannerRequest.getBrandID())
+        Brand brand = iBrandRepository.findById(UUID.fromString(bannerRequest.getBrand()))
                 .orElseThrow(() -> new IllegalArgumentException("Brand not found. "));
 
         modelMapper.map(bannerRequest, banner);
@@ -142,20 +155,21 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
                     banner.setImage(new Media());
                 }
 
-                Map uploadResult = cloudinaryService.uploadMedia(media, "crm/banner", width, height);
+                // Map uploadResult = cloudinaryService.uploadMedia(media, "crm/banner", width,
+                // height);
 
-                String uploadedPublicId = (String) uploadResult.get("public_id");
-                String mediaUrl = (String) uploadResult.get("secure_url");
-                Media bannerMedia = Media.builder()
-                        .imageUrl(mediaUrl)
-                        .publicId(uploadedPublicId)
-                        .referenceId(banner.getId())
-                        .referenceType("BANNER")
-                        .altText(banner.getTitle())
-                        .type("MEDIA")
-                        .build();
-                bannerMedia.setModifiedDate(new Date());
-                banner.setImage(bannerMedia);
+                // String uploadedPublicId = (String) uploadResult.get("public_id");
+                // String mediaUrl = (String) uploadResult.get("secure_url");
+                // Media bannerMedia = Media.builder()
+                // .imageUrl(mediaUrl)
+                // .publicId(uploadedPublicId)
+                // .referenceId(banner.getId())
+                // .referenceType("BANNER")
+                // .altText(banner.getName())
+                // .type("MEDIA")
+                // .build();
+                // bannerMedia.setModifiedDate(new Date());
+                // banner.setImage(bannerMedia);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -163,25 +177,28 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
             }
         }
         iBannerRepository.save(banner);
-        return new APIResponse<>(true, List.of("Banner updated successfully"));
+        return new APIResponse<>(true, "Banner updated successfully");
     }
 
     @Override
-    public APIResponse<Boolean> deleteBanner(String id) throws NotFoundException {
-        Banner bannerDelete = iBannerRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> (new IllegalArgumentException("Banner not found")));
-        Media bannerMedia = bannerDelete.getImage();
+    public APIResponse<Boolean> deleteBanner(String id) {
+        Banner banner = iBannerRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IllegalArgumentException("Banner not found !"));
+
+        Media bannerMedia = banner.getImage();
         if (bannerMedia != null && bannerMedia.getPublicId() != null) {
-            bannerMedia.setInActive(true);
+            bannerMedia.setInActive(false);
             bannerMedia.setDeleted(true);
             bannerMedia.setDeletedAt(System.currentTimeMillis() / 1000);
+            iMediaRepository.save(bannerMedia);
         }
 
-        bannerDelete.setInActive(true);
-        bannerDelete.setDeleted(true);
-        bannerDelete.setDeletedAt(System.currentTimeMillis() / 1000);
-        iBannerRepository.save(bannerDelete);
-        return new APIResponse<>(true, List.of("Banner deleted successfully and moved to Recybin"));
+        banner.setInActive(false);
+        banner.setDeleted(true);
+        banner.setDeletedAt(System.currentTimeMillis() / 1000);
+
+        iBannerRepository.save(banner);
+        return new APIResponse<>(true, "Banner deleted successfully and move to Recybin");
     }
 
     @Override
@@ -191,8 +208,7 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
                 limit,
                 sortBy,
                 direction,
-                BannerSpecification.getAllBannerTrash(),
-                BannerResponse.class,
+                BannerSpecification.getAllBannerTrash(), BannerResponse.class,
                 iBannerRepository);
     }
 
@@ -200,7 +216,6 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
     @Transactional
     @Scheduled(fixedRate = 60 * 1000) // Quét mõi 1 phút / 1 lần
     public void autoCleanBannerTrash() {
-        // TODO Auto-generated method stub
         long currentTime = System.currentTimeMillis() / 1000;
         long duration = 2L * 60; // 2 phút xóa
         int warningMinutes = 1; // 1 phút cảnh báo
@@ -223,21 +238,22 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
 
     @Override
     public APIResponse<Boolean> restoreBanner(String id, RestoreEnum action) {
+        // Tìm bản ghi trong thùng rác
         Banner bannerInTrash = iBannerRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new IllegalArgumentException("This brand doesn't belong in the trash can."));
+                .orElseThrow(() -> new IllegalArgumentException("This banner doesn't belong in the trash can."));
 
         // Tìm bản ghi trùng đang hoạt động
-        Optional<Banner> activeDuplicate = iBannerRepository.findActiveByTitle(bannerInTrash.getTitle());
+        Optional<Banner> activeDuplicate = iBannerRepository.findActiveByName(bannerInTrash.getName());
 
         if (activeDuplicate.isPresent()) {
             // Nếu user chưa xác nhận hành động (lần gọi đầu tiên)
             if (action == null || action == RestoreEnum.RESTORE) {
-                throw new IllegalArgumentException("CONFLICT: A Banner with this title already exists.");
+                throw new IllegalArgumentException("CONFLICT: A brand with this name already exists.");
             }
 
             // Nếu user chọn Bỏ qua
             if (action == RestoreEnum.CANCEL) {
-                return new APIResponse<>(false, List.of("Restore operation was cancelled."));
+                return new APIResponse<>(false, "Restore operation was cancelled.");
             }
 
             // Nếu user chọn Ghi đè (OVERWRITE)
@@ -246,14 +262,15 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
                 iBannerRepository.delete(activeDuplicate.get());
                 iBannerRepository.flush(); // Xóa ngay để tránh trùng Unique Key khi save bên dưới
             }
-
         }
-        bannerInTrash.setInActive(false);
+        bannerInTrash.setInActive(true);
         bannerInTrash.setDeleted(false);
         bannerInTrash.setDeletedAt(0L);
 
+        // roleInTrash.setCode(null);
+
         iBannerRepository.save(bannerInTrash);
-        return new APIResponse<>(true, List.of("Restored successfully."));
+        return new APIResponse<>(true, "Restored successfully.");
     }
 
 }

@@ -44,7 +44,7 @@ public class Product extends BaseEntity implements Serializable {
     @Column(name = "code", length = 100)
     private String code;
 
-    @Column(name = "description", length = 5000)
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "price")
@@ -62,8 +62,8 @@ public class Product extends BaseEntity implements Serializable {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "product_style", length = 100)
-    private String productStyle;
+    @Column(name = "style", length = 100)
+    private String style;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ProductDetail productDetail;

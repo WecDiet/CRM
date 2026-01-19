@@ -9,4 +9,5 @@ import lombok.ToString;
 @ToString
 public class categoryRequest {
     private String name;
+    private boolean active;
 }

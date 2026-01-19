@@ -31,8 +31,8 @@ public class Banner extends BaseEntity {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "title", length = 100, nullable = false)
-    private String title;
+    @Column(name = "name", length = 100, nullable = false)
+    private String name;
 
     @Column(name = "seq", nullable = false)
     private int seq; // Số thứ tự của banner từ 1 -> 4

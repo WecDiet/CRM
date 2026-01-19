@@ -11,7 +11,8 @@ import lombok.ToString;
 @ToString
 public class brandRequest {
     private String name;
-    private String titleBrand;
+    private String description;
+    private String category;
+    private boolean active;
     private boolean highlighted;
-    private UUID category;
 }

@@ -1,7 +1,6 @@
 package com.CRM.response.Banner;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 import com.CRM.response.Media.MediaResponse;
@@ -16,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BannerResponse {
     private UUID id;
-    private String title;
+    private String name;
     private int seq;
     private boolean inActive;
     private MediaResponse image;

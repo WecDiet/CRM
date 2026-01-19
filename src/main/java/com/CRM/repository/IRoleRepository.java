@@ -15,9 +15,6 @@ public interface IRoleRepository extends JpaRepository<Role, UUID>, JpaSpecifica
 
     boolean existsByCode(String code);
 
-    // @Query("SELECT r FROM roles r WHERE r.name = :name AND r.isDeleted = false")
-    // Optional<Role> findActiveByName(@Param("name") String name);
-
     // Tối ưu việc tên Hoa và Thường
     @Query("SELECT r FROM Role r WHERE LOWER(r.name) = LOWER(:name) AND r.isDeleted = false")
     Optional<Role> findActiveByName(@Param("name") String name);

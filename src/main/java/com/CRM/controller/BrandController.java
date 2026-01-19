@@ -33,11 +33,13 @@ public class BrandController {
     @GetMapping
     public ResponseEntity<?> getAllBrands(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam int limit,
+            @RequestParam(defaultValue = "5") int limit,
             @RequestParam(defaultValue = "createdDate") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
+            @RequestParam(defaultValue = "desc") String direction,
+            @RequestParam(defaultValue = "collection") String categoryName,
+            @RequestParam(defaultValue = "true") boolean active) {
         return ResponseEntity.ok(brandService.getAllBrand(page, limit, sortBy,
-                direction));
+                direction, categoryName, active));
     }
 
     @PostMapping(Enpoint.Brand.CREATE)
@@ -67,7 +69,8 @@ public class BrandController {
     }
 
     @GetMapping(Enpoint.Brand.TRASH)
-    public ResponseEntity<?> getAllBrandTrash(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<?> getAllBrandTrash(
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int limit,
             @RequestParam(defaultValue = "createdDate") String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {

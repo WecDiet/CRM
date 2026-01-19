@@ -27,8 +27,9 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping(Enpoint.Category.BASE)
-    public ResponseEntity<?> getAllCategories(@RequestParam(defaultValue = "0") int page,
-            @RequestParam int limit,
+    public ResponseEntity<?> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int limit,
             @RequestParam(defaultValue = "createdDate") String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {
         return ResponseEntity.ok(categoryService.getAllCategory(page, limit, sortBy, direction));
@@ -40,13 +41,13 @@ public class CategoryController {
     }
 
     @PutMapping(Enpoint.Category.BASE)
-    public ResponseEntity<?> updateCategory(@RequestParam UUID id,
+    public ResponseEntity<?> updateCategory(@RequestParam String id,
             @RequestBody categoryRequest updateCategoryRequest) {
         return ResponseEntity.ok(categoryService.updateCategory(id, updateCategoryRequest));
     }
 
     @DeleteMapping(Enpoint.Category.BASE)
-    public ResponseEntity<?> deleteCategory(@RequestParam UUID id) {
+    public ResponseEntity<?> deleteCategory(@RequestParam String id) {
         return ResponseEntity.ok(categoryService.deleteCategory(id));
     }
 }

@@ -22,8 +22,12 @@ import lombok.Setter;
 @Setter
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity implements Serializable {
+    /*
+     * để tạo mã động khi thực hiện xóa mềm (Soft Delete) tránh việc Unique key bị
+     * trùng
+     */
     @Column(nullable = false)
-    private String code; // để tạo mã động khi thực hiện xóa mềm (Soft Delete)
+    private String code;
 
     @CreatedDate
     @Column(name = "created_date", updatable = false, nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

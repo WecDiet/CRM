@@ -1,36 +1,22 @@
 package com.CRM.model;
 
-import java.util.UUID;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "addresses")
+@MappedSuperclass
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Address extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private UUID id;
 
     @Column(name = "street", length = 200)
     private String street;
@@ -53,8 +39,8 @@ public class Address extends BaseEntity {
     @Column(name = "description", length = 5000)
     private String description;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    // @ManyToOne(cascade = CascadeType.ALL)
+    // @JoinColumn(name = "user_id", nullable = false)
+    // private User user;
 
 }

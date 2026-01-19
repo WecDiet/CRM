@@ -130,8 +130,8 @@ public class User extends BaseEntity implements UserDetails {
         return authorityList;
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Address> addresses = new ArrayList<>();
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    // private List<Address> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Token> tokens;

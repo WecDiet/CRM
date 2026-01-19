@@ -1,7 +1,6 @@
 package com.CRM.service.Role;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,8 +15,7 @@ import com.CRM.enums.RestoreEnum;
 import com.CRM.model.Role;
 import com.CRM.repository.IRoleRepository;
 import com.CRM.repository.Specification.RoleSpecification;
-import com.CRM.request.Role.createRoleRequest;
-import com.CRM.request.Role.updateRoleRequest;
+import com.CRM.request.Role.roleRequest;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Role.RoleResponse;
@@ -56,7 +54,7 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
     }
 
     @Override
-    public APIResponse<Boolean> createRole(createRoleRequest createRoleRequest) {
+    public APIResponse<Boolean> createRole(roleRequest createRoleRequest) {
         if (createRoleRequest.getName().isEmpty()) {
             throw new IllegalArgumentException("Role name cannot be empty");
         }
@@ -64,35 +62,33 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
             throw new IllegalArgumentException("Role name already exists and is active");
         }
         Role role = modelMapper.map(createRoleRequest, Role.class);
-        role.setInActive(false);
+        role.setInActive(createRoleRequest.isActive());
         role.setCreatedDate(new Date());
         role.setModifiedDate(new Date());
         role.setCode(randomCode());
         role.setDeletedAt(0L);
         role.setDeleted(false);
         iRoleRepository.save(role);
-        List<String> message = List.of("Role created successfully");
-        return new APIResponse<>(true, message);
+        return new APIResponse<>(true, "Role created successfully");
     }
 
     @Override
-    public APIResponse<Boolean> updateRole(UUID id, updateRoleRequest updateRoleRequest) {
-        Role role = iRoleRepository.findById(id).orElse(null);
+    public APIResponse<Boolean> updateRole(String id, roleRequest updateRoleRequest) {
+        Role role = iRoleRepository.findById(UUID.fromString(id)).orElse(null);
         if (role == null) {
             throw new IllegalArgumentException("Role not found");
         }
         modelMapper.map(updateRoleRequest, role);
-        role.setInActive(updateRoleRequest.isInActive());
+        role.setInActive(updateRoleRequest.isActive());
         role.setModifiedDate(new Date());
         iRoleRepository.save(role);
-        List<String> message = List.of("Role updated successfully");
-        return new APIResponse<>(true, message);
+        return new APIResponse<>(true, "Role updated successfully");
     }
 
     @Override
     @Transactional
-    public APIResponse<Boolean> deleteRole(UUID id) {
-        Role role = iRoleRepository.findById(id).orElse(null);
+    public APIResponse<Boolean> deleteRole(String id) {
+        Role role = iRoleRepository.findById(UUID.fromString(id)).orElse(null);
         if (role == null) {
             throw new IllegalArgumentException("Role not found");
         }
@@ -100,7 +96,7 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
         role.setDeleted(true);
         role.setDeletedAt(System.currentTimeMillis() / 1000);
         iRoleRepository.save(role);
-        return new APIResponse<>(true, List.of("Role deleted successfully"));
+        return new APIResponse<>(true, "Role deleted successfully");
     }
 
     @Override
@@ -155,7 +151,7 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
 
             // Nếu user chọn Bỏ qua
             if (action == RestoreEnum.CANCEL) {
-                return new APIResponse<>(false, List.of("Restore operation was cancelled."));
+                return new APIResponse<>(false, "Restore operation was cancelled.");
             }
 
             // Nếu user chọn Ghi đè (OVERWRITE)
@@ -172,6 +168,6 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
         // roleInTrash.setCode(null);
 
         iRoleRepository.save(roleInTrash);
-        return new APIResponse<>(true, List.of("Restored successfully."));
+        return new APIResponse<>(true, "Restored successfully.");
     }
 }

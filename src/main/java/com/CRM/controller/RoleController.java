@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.CRM.constant.Enpoint;
 import com.CRM.enums.RestoreEnum;
-import com.CRM.request.Role.createRoleRequest;
-import com.CRM.request.Role.updateRoleRequest;
+import com.CRM.request.Role.roleRequest;
 import com.CRM.service.Role.RoleService;
 
 import lombok.RequiredArgsConstructor;
@@ -46,17 +45,17 @@ public class RoleController {
     }
 
     @PostMapping(Enpoint.Role.CREATE)
-    public ResponseEntity<?> createRole(@RequestBody createRoleRequest createRoleRequest) {
+    public ResponseEntity<?> createRole(@RequestBody roleRequest createRoleRequest) {
         return ResponseEntity.ok(roleService.createRole(createRoleRequest));
     }
 
     @PutMapping(Enpoint.Role.UPDATE)
-    public ResponseEntity<?> updateRole(@PathVariable UUID id, @RequestBody updateRoleRequest updateRoleRequest) {
+    public ResponseEntity<?> updateRole(@PathVariable String id, @RequestBody roleRequest updateRoleRequest) {
         return ResponseEntity.ok(roleService.updateRole(id, updateRoleRequest));
     }
 
     @DeleteMapping(Enpoint.Role.DELETE)
-    public ResponseEntity<?> deleteRole(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteRole(@PathVariable String id) {
         return ResponseEntity.ok(roleService.deleteRole(id));
     }
 

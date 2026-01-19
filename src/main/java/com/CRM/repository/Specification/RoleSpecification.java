@@ -4,7 +4,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.CRM.model.Role;
 
-public class RoleSpecification extends BaseSpecification {
+public class RoleSpecification {
     public static Specification<Role> getAllRoles() {
         return BaseSpecification.getAll();
     }

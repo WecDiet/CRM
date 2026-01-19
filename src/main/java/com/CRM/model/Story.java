@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -48,9 +49,8 @@ public class Story extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "story_media", joinColumns = @JoinColumn(name = "story_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    private List<Media> image = new ArrayList<>();
+    private List<Media> images = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "collection_id", nullable = false, unique = true)
-    private Collection collection;
+    @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Brand> brands = new ArrayList<>();
 }

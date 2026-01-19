@@ -12,7 +12,8 @@ import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Role.RoleResponse;
 
 public interface IBrandService {
-    PagingResponse<BrandResponse> getAllBrand(int page, int limit, String sortBy, String direction);
+    PagingResponse<BrandResponse> getAllBrand(int page, int limit, String sortBy, String direction,
+            String categotyName, boolean active);
 
     APIResponse<Boolean> createBrand(brandRequest brandRequest, MultipartFile image, int width, int height);
 

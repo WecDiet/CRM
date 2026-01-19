@@ -1,7 +1,6 @@
 package com.CRM.service.Brand;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,78 +45,92 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
     private CloudinaryService cloudinaryService;
 
     @Override
-    public PagingResponse<BrandResponse> getAllBrand(int page, int limit, String sortBy, String direction) {
+    public PagingResponse<BrandResponse> getAllBrand(int page, int limit, String sortBy, String direction,
+            String categotyName, boolean active) {
+
         return getAll(
                 page,
                 limit,
                 sortBy,
                 direction,
-                BrandSpecification.getAllBrand(),
+                BrandSpecification.getAllBrandByCategory(categotyName, active),
                 BrandResponse.class,
                 iBrandRepository);
     }
 
     @Override
-    @Transactional
-    public APIResponse<Boolean> createBrand(brandRequest brandRequest, MultipartFile image, int width,
-            int height) {
-
-        // ServletRequestAttributes attributes = (ServletRequestAttributes)
-        // RequestContextHolder.getRequestAttributes();
-        // if (attributes != null && attributes.getRequest() instanceof
-        // MultipartHttpServletRequest) {
-        // MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest)
-        // attributes.getRequest();
-        // if (multipartRequest.getFileMap().size() > 1) {
-        // throw new IllegalArgumentException("Only one image can be uploaded.");
-        // }
-        // }
-        if (iBrandRepository.existsActiveByName(brandRequest.getName())) {
-            throw new IllegalArgumentException("Brand name already exists and is active");
-        }
-
-        Category category = iCategoryRepository.findById(brandRequest.getCategory())
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
-        Brand brand = modelMapper.map(brandRequest, Brand.class);
-        brand.setCategory(category);
-        brand.setInActive(false);
-        brand.setCreatedDate(new Date());
-        brand.setModifiedDate(new Date());
-        brand.setCode(randomCode());
-        brand.setDeletedAt(0L);
-        brand.setDeleted(false);
-
-        brand = iBrandRepository.save(brand);
+    @Transactional(rollbackFor = Exception.class) // Đảm bảo rollback khi có bất kỳ exception nào
+    public APIResponse<Boolean> createBrand(brandRequest brandRequest, MultipartFile image, int width, int height) {
+        // 1. Kiểm tra ảnh trước khi làm bất cứ việc gì để tránh lãng phí tài nguyên
         if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("Brand image is required");
         }
 
+        Category category = iCategoryRepository.findById(UUID.fromString(brandRequest.getCategory()))
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+        // 2. Kiểm tra nghiệp vụ (Tên tồn tại, Category tồn tại)
+        if (iBrandRepository.existsActiveByName(brandRequest.getName())) {
+            throw new IllegalArgumentException("Brand name already exists and is active");
+        }
+
         try {
-            Map uploadResult = cloudinaryService.uploadMedia(image, "crm/brands", width, height);
+            // 3. Upload lên Cloudinary trước
+            Map uploadResult = cloudinaryService.uploadMedia(image, "crm/brands", width,
+                    height);
             String uploadedPublicId = (String) uploadResult.get("public_id");
             String mediaUrl = (String) uploadResult.get("secure_url");
 
+            // 4. Map dữ liệu vào Entity
+            Brand brand = modelMapper.map(brandRequest, Brand.class);
+            brand.setCategory(category);
+            brand.setInActive(brandRequest.isActive());
+            brand.setCreatedDate(new Date());
+            brand.setModifiedDate(new Date());
+            brand.setCode(randomCode());
+            brand.setDeletedAt(0L);
+            brand.setDeleted(false);
+
+            // Tạo Media entity
             Media brandMedia = Media.builder()
                     .imageUrl(mediaUrl)
                     .publicId(uploadedPublicId)
-                    .referenceId(brand.getId())
                     .referenceType("BRAND")
                     .altText(brand.getName())
-                    .type("MEDIA")
+                    .type("IMAGE")
                     .build();
-            brandMedia.setInActive(false);
+            // Set metadata cho Media (nên dùng BaseEntity listener để tự động phần này)
+            brandMedia.setInActive(brandRequest.isActive());
             brandMedia.setCreatedDate(new Date());
             brandMedia.setModifiedDate(new Date());
             brandMedia.setCode(randomCode());
             brandMedia.setDeletedAt(0L);
             brandMedia.setDeleted(false);
+
+            // Gán media vào brand
             brand.setImage(brandMedia);
+
+            // 5. Lưu vào database (Chỉ lưu 1 lần duy nhất nhờ CascadeType.ALL)
+            iBrandRepository.save(brand);
+
+            return new APIResponse<>(true, "Brand created successfully");
+
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to upload image, please try again.");
+            // 6. NẾU LỖI: Xóa ảnh trên Cloudinary để tránh rác dữ liệu
+            Media media = new Media();
+            String uploadedPublicId = media.getPublicId();
+            if (uploadedPublicId != null) {
+                try {
+                    cloudinaryService.deleteMedia(uploadedPublicId); // Giả sử bạn có hàm này
+                } catch (Exception deleteEx) {
+                    // Log lỗi xóa ảnh nhưng vẫn throw lỗi chính để rollback DB
+                    System.err.println("Failed to cleanup Cloudinary image: " +
+                            uploadedPublicId);
+                }
+            }
+
+            // Throw lỗi để @Transactional thực hiện rollback Database
+            throw new RuntimeException("Failed to create brand: " + e.getMessage());
         }
-        iBrandRepository.save(brand);
-        return new APIResponse<>(true, List.of("Brand created successfully"));
     }
 
     @Override
@@ -128,11 +141,8 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
         if (brand == null) {
             throw new IllegalArgumentException("Brand not found !");
         }
-        Category category = iCategoryRepository.findById(brandRequest.getCategory())
+        Category category = iCategoryRepository.findById(UUID.fromString(brandRequest.getCategory()))
                 .orElseThrow(() -> new IllegalArgumentException("Category not found !"));
-        modelMapper.map(brandRequest, brand);
-        brand.setCategory(category);
-        brand.setModifiedDate(new Date());
 
         if (image != null && !image.isEmpty()) {
             try {
@@ -140,45 +150,65 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
                     cloudinaryService.deleteMedia(brand.getImage().getPublicId());
                     brand.setImage(new Media());
                 }
-                Map uploadResult = cloudinaryService.uploadMedia(image, "crm/brands", width, height);
+                // 3. Upload lên Cloudinary trước
+                Map uploadResult = cloudinaryService.uploadMedia(image, "crm/brands", width,
+                        height);
                 String uploadedPublicId = (String) uploadResult.get("public_id");
                 String mediaUrl = (String) uploadResult.get("secure_url");
+
+                // 4. Map dữ liệu vào Entity
+                modelMapper.map(brandRequest, brand);
+                brand.setCategory(category);
+                brand.setModifiedDate(new Date());
+                brand.setInActive(brandRequest.isActive());
+
+                // Tạo Media entity
                 Media brandMedia = Media.builder()
                         .imageUrl(mediaUrl)
                         .publicId(uploadedPublicId)
-                        .referenceId(brand.getId())
                         .referenceType("BRAND")
                         .altText(brand.getName())
-                        .type("IMAGE")
+                        .type("MEDIA")
                         .build();
+                // Set metadata cho Media (nên dùng BaseEntity listener để tự động phần này)
+                brandMedia.setInActive(false);
                 brandMedia.setCreatedDate(new Date());
                 brandMedia.setModifiedDate(new Date());
+                brandMedia.setCode(randomCode());
+                brandMedia.setDeletedAt(0L);
+                brandMedia.setDeleted(false);
+
+                // Gán media vào brand
                 brand.setImage(brandMedia);
+
+                // 5. Lưu vào database (Chỉ lưu 1 lần duy nhất nhờ CascadeType.ALL)
+                iBrandRepository.save(brand);
+
+                return new APIResponse<>(true, "Brand updated successfully");
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException("Failed to upload image, please try again.");
             }
         }
         iBrandRepository.save(brand);
-        return new APIResponse<>(true, List.of("Brand updated successfully"));
-
+        return new APIResponse<>(true, "Brand updated successfully");
     }
 
     @Override
     public APIResponse<Boolean> deleteBrand(String id) {
         Brand brand = iBrandRepository.findById(UUID.fromString(id)).orElseThrow(
-                () -> new IllegalArgumentException("Brand not found"));
+                () -> new IllegalArgumentException("Role not found"));
         Media brandMedia = brand.getImage();
         if (brandMedia != null && brandMedia.getPublicId() != null) {
-            brandMedia.setInActive(true);
+            brandMedia.setInActive(false);
             brandMedia.setDeleted(true);
             brandMedia.setDeletedAt(System.currentTimeMillis() / 1000);
         }
-        brand.setInActive(true);
+        brand.setInActive(false);
         brand.setDeleted(true);
         brand.setDeletedAt(System.currentTimeMillis() / 1000);
         iBrandRepository.save(brand);
-        return new APIResponse<>(true, List.of("Brand deleted successfully and moved to Recybin"));
+        return new APIResponse<>(true, "Brand deleted successfully and moved to Recybin");
     }
 
     @Override
@@ -234,7 +264,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
 
             // Nếu user chọn Bỏ qua
             if (action == RestoreEnum.CANCEL) {
-                return new APIResponse<>(false, List.of("Restore operation was cancelled."));
+                return new APIResponse<>(false, "Restore operation was cancelled.");
             }
 
             // Nếu user chọn Ghi đè (OVERWRITE)
@@ -244,14 +274,14 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
                 iBrandRepository.flush(); // Xóa ngay để tránh trùng Unique Key khi save bên dưới
             }
         }
-        brandInTrash.setInActive(false);
+        brandInTrash.setInActive(true);
         brandInTrash.setDeleted(false);
         brandInTrash.setDeletedAt(0L);
 
         // roleInTrash.setCode(null);
 
         iBrandRepository.save(brandInTrash);
-        return new APIResponse<>(true, List.of("Restored successfully."));
+        return new APIResponse<>(true, "Restored successfully.");
     }
 
 }

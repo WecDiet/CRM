@@ -46,40 +46,37 @@ public class CategoryService extends HelperService<Category, UUID> implements IC
             throw new IllegalArgumentException("Category name cannot be empty");
         }
         Category category = modelMapper.map(categoryRequest, Category.class);
-        category.setInActive(false);
+        category.setInActive(categoryRequest.isActive());
         category.setCreatedDate(new Date());
         category.setModifiedDate(new Date());
         category.setCode(randomCode());
         category.setDeletedAt(0L);
         category.setDeleted(false);
         iCategoryRepository.save(category);
-        List<String> message = List.of("Category created successfully");
-        return new APIResponse<>(true, message);
+        return new APIResponse<>(true, "Category created successfully");
     }
 
     @Override
-    public APIResponse<Boolean> updateCategory(UUID id, categoryRequest updateCategoryRequest) {
-        Category category = iCategoryRepository.findById(id).orElse(null);
+    public APIResponse<Boolean> updateCategory(String id, categoryRequest updateCategoryRequest) {
+        Category category = iCategoryRepository.findById(UUID.fromString(id)).orElse(null);
         if (category == null) {
             throw new IllegalArgumentException("Category not found with id: " + id);
         }
         modelMapper.map(updateCategoryRequest, category);
-        category.setInActive(true);
+        category.setInActive(updateCategoryRequest.isActive());
         category.setModifiedDate(new Date());
         iCategoryRepository.save(category);
-        List<String> message = List.of("Category updated successfully");
-        return new APIResponse<>(true, message);
+        return new APIResponse<>(true, "Category updated successfully");
     }
 
     @Override
-    public APIResponse<Boolean> deleteCategory(UUID id) {
-        Category category = iCategoryRepository.findById(id).orElse(null);
+    public APIResponse<Boolean> deleteCategory(String id) {
+        Category category = iCategoryRepository.findById(UUID.fromString(id)).orElse(null);
         if (category == null) {
             throw new IllegalArgumentException("Category not found with id: " + id);
         }
         iCategoryRepository.delete(category);
-        List<String> message = List.of("Category deleted successfully");
-        return new APIResponse<>(true, message);
+        return new APIResponse<>(true, "Category deleted successfully");
     }
 
 }

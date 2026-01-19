@@ -37,17 +37,15 @@ public class Brand extends BaseEntity {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "title_brand", length = 200)
-    private String titleBrand;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
     @Column(name = "is_highlighted")
     private boolean highlighted; // Trạng thái hiển thị brand thêm vào bộ sưu tập
 
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Collection> collections = new ArrayList<>();
-
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "brand_media", joinColumns = @JoinColumn(name = "brand_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
+    // @JoinColumn(name = "media_id") // FK trong bảng Product
     private Media image;
 
     @ManyToOne
@@ -56,4 +54,8 @@ public class Brand extends BaseEntity {
 
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Product> products = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "story_id")
+    private Story story;
 }

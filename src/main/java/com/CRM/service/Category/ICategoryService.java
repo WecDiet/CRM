@@ -13,7 +13,7 @@ public interface ICategoryService {
 
     public APIResponse<Boolean> createCategory(categoryRequest categoryRequest);
 
-    public APIResponse<Boolean> updateCategory(UUID id, categoryRequest updateCategoryRequest);
+    public APIResponse<Boolean> updateCategory(String id, categoryRequest updateCategoryRequest);
 
-    public APIResponse<Boolean> deleteCategory(UUID id);
+    public APIResponse<Boolean> deleteCategory(String id);
 }

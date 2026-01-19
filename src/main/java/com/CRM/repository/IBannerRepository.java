@@ -10,15 +10,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.CRM.model.Banner;
+import com.CRM.model.Brand;
 
 @Repository
 public interface IBannerRepository extends JpaRepository<Banner, UUID>, JpaSpecificationExecutor<Banner> {
-    boolean existsByTitle(String title);
+    boolean existsByName(String name);
 
-    @Query("SELECT b FROM Banner b WHERE LOWER(b.title) = LOWER(:title) AND b.isDeleted = false")
-    Optional<Banner> findActiveByTitle(@Param("title") String title);
+    @Query("SELECT b FROM Banner b WHERE LOWER(b.name) = LOWER(:name) AND b.isDeleted = false")
+    Optional<Banner> findActiveByName(@Param("name") String name);
 
-    @Query("SELECT COUNT(b) > 0 FROM Banner b WHERE b.title = :title AND b.isDeleted = false")
-    boolean existsActiveByTitle(@Param("title") String title);
+    @Query("SELECT COUNT(b) > 0 FROM Banner b WHERE b.name = :name AND b.isDeleted = false")
+    boolean existsActiveByName(@Param("name") String name);
 
 }

@@ -76,5 +76,5 @@ public class ProductDetail extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "product_image", joinColumns = @JoinColumn(name = "product_detail_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    private List<Media> image = new ArrayList<>();
+    private List<Media> images = new ArrayList<>();
 }

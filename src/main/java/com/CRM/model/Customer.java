@@ -26,7 +26,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Customer {
+public class Customer extends Address {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")

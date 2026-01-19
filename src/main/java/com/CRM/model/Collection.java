@@ -19,26 +19,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "collections")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Collection extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private UUID id;
+// @Entity
+// @Table(name = "collections")
+// @Getter
+// @Setter
+// @NoArgsConstructor
+// @AllArgsConstructor
+// @Builder
+// public class Collection extends BaseEntity {
+// @Id
+// @GeneratedValue(strategy = GenerationType.UUID)
+// @Column(name = "id")
+// private UUID id;
 
-    @Column(name = "status", nullable = false)
-    private boolean status;
+// @Column(name = "status", nullable = false)
+// private boolean status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id", nullable = false)
-    private Brand brand;
+// @ManyToOne(fetch = FetchType.LAZY)
+// @JoinColumn(name = "brand_id", nullable = false)
+// private Brand brand;
 
-    @OneToOne(mappedBy = "collection", orphanRemoval = true, cascade = CascadeType.REMOVE)
-    private Story story;
-}
+// @OneToOne(mappedBy = "collection", orphanRemoval = true, cascade =
+// CascadeType.REMOVE)
+// private Story story;
+// }

@@ -38,9 +38,6 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
         @Autowired
         protected JpaRepository<T, K> repository;
 
-        // Cache cho Sort objects để tránh tạo mới mỗi lần
-        private static final Map<String, Sort> SORT_CACHE = new ConcurrentHashMap<>();
-
         @Override
         public <DTO> PagingResponse<DTO> getAll(
                         int page,
@@ -89,16 +86,7 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                 );
         }
 
-        /**
-         * Cache Sort objects
-         */
         private Sort getSort(String sortBy, String direction) {
-                // String key = sortBy + "_" + direction;
-                // return SORT_CACHE.computeIfAbsent(key, k ->
-                // "desc".equalsIgnoreCase(direction)
-                // ? Sort.by(sortBy).descending()
-                // : Sort.by(sortBy).ascending());
-
                 if (sortBy == null || sortBy.isBlank()) {
                         return Sort.unsorted(); // Trả về trạng thái không sắp xếp nếu không có tham số
                 }
@@ -159,10 +147,10 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                         Class<RES> responseClass) {
                 T entity = repository.findById(id).orElse(null);
                 if (entity == null) {
-                        return new APIResponse<>(null, List.of("Entity not found"));
+                        return new APIResponse<>(null, "Entity not found");
                 }
                 RES response = modelMapper.map(entity, responseClass);
-                return new APIResponse<>(response, List.of("Get data successfully"));
+                return new APIResponse<>(response, "Get data successfully");
         }
 
         @Override
