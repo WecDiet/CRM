@@ -34,7 +34,7 @@ public class ProductController {
     }
 
     @GetMapping(Enpoint.Product.ID)
-    public ResponseEntity<?> getProductById(@PathVariable UUID id) {
+    public ResponseEntity<?> getProductById(@PathVariable String id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 }

@@ -37,12 +37,11 @@ public class ProductService extends HelperService<Product, UUID> implements IPro
     }
 
     @Override
-    public APIResponse<ProductDetailResponse> getProductById(UUID id) {
+    public APIResponse<ProductDetailResponse> getProductById(String id) {
         return getById(
-                id,
+                UUID.fromString(id),
                 iProductRepository,
                 Product.class,
                 ProductDetailResponse.class);
     }
-
 }

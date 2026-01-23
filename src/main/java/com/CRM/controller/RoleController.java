@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.CRM.constant.Enpoint;
 import com.CRM.enums.RestoreEnum;
-import com.CRM.request.Role.roleRequest;
+import com.CRM.request.Role.RoleRequest;
 import com.CRM.service.Role.RoleService;
 
 import lombok.RequiredArgsConstructor;
@@ -45,12 +45,12 @@ public class RoleController {
     }
 
     @PostMapping(Enpoint.Role.CREATE)
-    public ResponseEntity<?> createRole(@RequestBody roleRequest createRoleRequest) {
+    public ResponseEntity<?> createRole(@RequestBody RoleRequest createRoleRequest) {
         return ResponseEntity.ok(roleService.createRole(createRoleRequest));
     }
 
     @PutMapping(Enpoint.Role.UPDATE)
-    public ResponseEntity<?> updateRole(@PathVariable String id, @RequestBody roleRequest updateRoleRequest) {
+    public ResponseEntity<?> updateRole(@PathVariable String id, @RequestBody RoleRequest updateRoleRequest) {
         return ResponseEntity.ok(roleService.updateRole(id, updateRoleRequest));
     }
 

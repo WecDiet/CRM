@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.CRM.constant.Enpoint;
-import com.CRM.request.Category.categoryRequest;
+import com.CRM.request.Category.CategoryRequest;
 import com.CRM.service.Category.CategoryService;
 
 import lombok.RequiredArgsConstructor;
@@ -36,13 +36,13 @@ public class CategoryController {
     }
 
     @PostMapping(Enpoint.Category.BASE)
-    public ResponseEntity<?> createCategory(@RequestBody categoryRequest categoryRequest) {
+    public ResponseEntity<?> createCategory(@RequestBody CategoryRequest categoryRequest) {
         return ResponseEntity.ok(categoryService.createCategory(categoryRequest));
     }
 
     @PutMapping(Enpoint.Category.BASE)
     public ResponseEntity<?> updateCategory(@RequestParam String id,
-            @RequestBody categoryRequest updateCategoryRequest) {
+            @RequestBody CategoryRequest updateCategoryRequest) {
         return ResponseEntity.ok(categoryService.updateCategory(id, updateCategoryRequest));
     }
 

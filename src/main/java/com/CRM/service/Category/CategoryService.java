@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.CRM.Util.Helper.HelperService;
 import com.CRM.model.Category;
 import com.CRM.repository.ICategoryRepository;
-import com.CRM.request.Category.categoryRequest;
+import com.CRM.request.Category.CategoryRequest;
 import com.CRM.response.Category.CategoryResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
@@ -41,7 +41,7 @@ public class CategoryService extends HelperService<Category, UUID> implements IC
     }
 
     @Override
-    public APIResponse<Boolean> createCategory(categoryRequest categoryRequest) {
+    public APIResponse<Boolean> createCategory(CategoryRequest categoryRequest) {
         if (categoryRequest.getName() == null) {
             throw new IllegalArgumentException("Category name cannot be empty");
         }
@@ -57,7 +57,7 @@ public class CategoryService extends HelperService<Category, UUID> implements IC
     }
 
     @Override
-    public APIResponse<Boolean> updateCategory(String id, categoryRequest updateCategoryRequest) {
+    public APIResponse<Boolean> updateCategory(String id, CategoryRequest updateCategoryRequest) {
         Category category = iCategoryRepository.findById(UUID.fromString(id)).orElse(null);
         if (category == null) {
             throw new IllegalArgumentException("Category not found with id: " + id);

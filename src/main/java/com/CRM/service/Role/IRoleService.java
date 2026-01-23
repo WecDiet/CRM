@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.CRM.enums.RestoreEnum;
-import com.CRM.request.Role.roleRequest;
-import com.CRM.request.Role.roleRequest;
+import com.CRM.request.Role.RoleRequest;
+import com.CRM.request.Role.RoleRequest;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Role.RoleResponse;
@@ -16,9 +16,9 @@ public interface IRoleService {
 
     APIResponse<RoleResponse> getRoleById(UUID id);
 
-    APIResponse<Boolean> createRole(roleRequest createRoleRequest);
+    APIResponse<Boolean> createRole(RoleRequest createRoleRequest);
 
-    APIResponse<Boolean> updateRole(String id, roleRequest updateRoleRequest);
+    APIResponse<Boolean> updateRole(String id, RoleRequest updateRoleRequest);
 
     APIResponse<Boolean> deleteRole(String id);
 

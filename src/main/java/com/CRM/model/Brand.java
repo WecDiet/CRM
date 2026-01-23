@@ -45,17 +45,17 @@ public class Brand extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "brand_media", joinColumns = @JoinColumn(name = "brand_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    // @JoinColumn(name = "media_id") // FK trong bảng Product
     private Media image;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Product> products = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "story_id")
     private Story story;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "brand_style", joinColumns = @JoinColumn(name = "brand_id"), inverseJoinColumns = @JoinColumn(name = "product_style_id"))
+    private List<ProductStyle> productStyles = new ArrayList<>();
 }

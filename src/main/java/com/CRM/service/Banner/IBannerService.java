@@ -6,7 +6,7 @@ import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.enums.RestoreEnum;
-import com.CRM.request.Banner.bannerRequest;
+import com.CRM.request.Banner.BannerRequest;
 import com.CRM.response.Banner.BannerResponse;
 import com.CRM.response.Brand.BrandResponse;
 import com.CRM.response.Pagination.APIResponse;
@@ -16,9 +16,9 @@ public interface IBannerService {
         PagingResponse<BannerResponse> getAllBanners(int page, int limit, String sortBy, String direction,
                         boolean active);
 
-        APIResponse<Boolean> createBanner(bannerRequest bannerRequest, MultipartFile media, int width, int height);
+        APIResponse<Boolean> createBanner(BannerRequest bannerRequest, MultipartFile media, int width, int height);
 
-        APIResponse<Boolean> updateBanner(String id, bannerRequest bannerRequest, MultipartFile media, int width,
+        APIResponse<Boolean> updateBanner(String id, BannerRequest bannerRequest, MultipartFile media, int width,
                         int height);
 
         APIResponse<Boolean> deleteBanner(String id);

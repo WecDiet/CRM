@@ -52,6 +52,8 @@ public class WebSecurityConfig {
                                                                                         Enpoint.API_PREFIX),
                                                                         String.format("%s/banners", Enpoint.API_PREFIX),
                                                                         String.format("%s/brands",
+                                                                                        Enpoint.API_PREFIX),
+                                                                        String.format("%s/warehouses",
                                                                                         Enpoint.API_PREFIX)
 
                                                         )

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import com.CRM.repository.IBrandRepository;
 import com.CRM.repository.IMediaRepository;
 import com.CRM.repository.Specification.BannerSpecification;
 import com.CRM.repository.Specification.BrandSpecification;
-import com.CRM.request.Banner.bannerRequest;
+import com.CRM.request.Banner.BannerRequest;
 import com.CRM.response.Banner.BannerResponse;
 import com.CRM.response.Brand.BrandResponse;
 import com.CRM.response.Pagination.APIResponse;
@@ -67,7 +68,7 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
 
     @Transactional
     @Override
-    public APIResponse<Boolean> createBanner(bannerRequest bannerRequest, MultipartFile media, int width, int height) {
+    public APIResponse<Boolean> createBanner(BannerRequest bannerRequest, MultipartFile media, int width, int height) {
         if (iBannerRepository.existsActiveByName(bannerRequest.getName())) {
             throw new IllegalArgumentException("Banner name already exists and is active");
         }
@@ -86,10 +87,10 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
 
         try {
             // 3. Upload lên Cloudinary trước
-            Map uploadResult = cloudinaryService.uploadMedia(media, "crm/banners", width,
-                    height);
-            String uploadedPublicId = (String) uploadResult.get("public_id");
-            String mediaUrl = (String) uploadResult.get("secure_url");
+            // Map uploadResult = cloudinaryService.uploadMedia(media, "crm/banners", width,
+            // height);
+            // String uploadedPublicId = (String) uploadResult.get("public_id");
+            // String mediaUrl = (String) uploadResult.get("secure_url");
 
             Banner banner = modelMapper.map(bannerRequest, Banner.class);
             banner.setBrand(brand);
@@ -100,22 +101,30 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
             banner.setDeletedAt(0L);
             banner.setDeleted(false);
 
-            Media bannerMedia = Media.builder()
-                    .imageUrl(mediaUrl)
-                    .publicId(uploadedPublicId)
-                    .referenceType("BANNER")
-                    .altText(banner.getName())
-                    .type("MEDIA")
-                    .build();
-            bannerMedia.setInActive(bannerRequest.isActive());
-            bannerMedia.setCreatedDate(new Date());
-            bannerMedia.setModifiedDate(new Date());
-            bannerMedia.setCode(randomCode());
-            bannerMedia.setDeletedAt(0L);
-            bannerMedia.setDeleted(false);
+            banner = iBannerRepository.save(banner);
 
-            banner.setImage(bannerMedia);
-            iBannerRepository.save(banner);
+            CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
+                    .uploadMedia(media, "crm/banners", width, height, 1).thenApply(uploadResult -> {
+                        String uploadedPublicId = (String) uploadResult.get("public_id");
+                        String mediaUrl = (String) uploadResult.get("secure_url");
+                        Media bannerMedia = Media.builder()
+                                .imageUrl(mediaUrl)
+                                .publicId(uploadedPublicId)
+                                .referenceType("BANNER")
+                                .altText(banner.getName())
+                                .type("MEDIA")
+                                .build();
+                        bannerMedia.setInActive(bannerRequest.isActive());
+                        bannerMedia.setCreatedDate(new Date());
+                        bannerMedia.setModifiedDate(new Date());
+                        bannerMedia.setCode(randomCode());
+                        bannerMedia.setDeletedAt(0L);
+                        bannerMedia.setDeleted(false);
+
+                        banner.setImage(bannerMedia);
+
+                        return uploadResult;
+                    });
             return new APIResponse<>(true, "Banner created successfully");
         } catch (Exception e) {
             // 6. NẾU LỖI: Xóa ảnh trên Cloudinary để tránh rác dữ liệu
@@ -137,7 +146,7 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
     }
 
     @Override
-    public APIResponse<Boolean> updateBanner(String id, bannerRequest bannerRequest, MultipartFile media, int width,
+    public APIResponse<Boolean> updateBanner(String id, BannerRequest bannerRequest, MultipartFile media, int width,
             int height) {
         Banner banner = iBannerRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IllegalArgumentException("Banner not found. "));

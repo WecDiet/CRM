@@ -15,7 +15,7 @@ import com.CRM.enums.RestoreEnum;
 import com.CRM.model.Role;
 import com.CRM.repository.IRoleRepository;
 import com.CRM.repository.Specification.RoleSpecification;
-import com.CRM.request.Role.roleRequest;
+import com.CRM.request.Role.RoleRequest;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Role.RoleResponse;
@@ -54,7 +54,7 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
     }
 
     @Override
-    public APIResponse<Boolean> createRole(roleRequest createRoleRequest) {
+    public APIResponse<Boolean> createRole(RoleRequest createRoleRequest) {
         if (createRoleRequest.getName().isEmpty()) {
             throw new IllegalArgumentException("Role name cannot be empty");
         }
@@ -73,7 +73,7 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
     }
 
     @Override
-    public APIResponse<Boolean> updateRole(String id, roleRequest updateRoleRequest) {
+    public APIResponse<Boolean> updateRole(String id, RoleRequest updateRoleRequest) {
         Role role = iRoleRepository.findById(UUID.fromString(id)).orElse(null);
         if (role == null) {
             throw new IllegalArgumentException("Role not found");
@@ -92,7 +92,7 @@ public class RoleService extends HelperService<Role, UUID> implements IRoleServi
         if (role == null) {
             throw new IllegalArgumentException("Role not found");
         }
-        role.setInActive(true);
+        role.setInActive(false);
         role.setDeleted(true);
         role.setDeletedAt(System.currentTimeMillis() / 1000);
         iRoleRepository.save(role);

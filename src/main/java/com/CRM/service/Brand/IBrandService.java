@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.enums.RestoreEnum;
-import com.CRM.request.Brand.brandRequest;
+import com.CRM.request.Brand.BrandRequest;
 import com.CRM.response.Brand.BrandResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
@@ -15,9 +15,9 @@ public interface IBrandService {
     PagingResponse<BrandResponse> getAllBrand(int page, int limit, String sortBy, String direction,
             String categotyName, boolean active);
 
-    APIResponse<Boolean> createBrand(brandRequest brandRequest, MultipartFile image, int width, int height);
+    APIResponse<Boolean> createBrand(BrandRequest brandRequest, MultipartFile image, int width, int height);
 
-    APIResponse<Boolean> updateBrand(String id, brandRequest brandRequest, MultipartFile image, int width, int height);
+    APIResponse<Boolean> updateBrand(String id, BrandRequest brandRequest, MultipartFile image, int width, int height);
 
     APIResponse<Boolean> deleteBrand(String id);
 

@@ -36,11 +36,4 @@ public class Address extends BaseEntity {
     @Column(name = "is_default")
     private boolean isDefault; // Địa chỉ mặc định
 
-    @Column(name = "description", length = 5000)
-    private String description;
-
-    // @ManyToOne(cascade = CascadeType.ALL)
-    // @JoinColumn(name = "user_id", nullable = false)
-    // private User user;
-
 }

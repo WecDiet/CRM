@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class roleRequest {
+public class RoleRequest {
     private String name;
     private String description;
     private boolean active;

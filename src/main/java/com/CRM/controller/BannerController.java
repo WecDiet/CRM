@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.constant.Enpoint;
-import com.CRM.request.Banner.bannerRequest;
+import com.CRM.request.Banner.BannerRequest;
 import com.CRM.service.Banner.BannerService;
 
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class BannerController {
 
     @PostMapping(Enpoint.Banner.CREATE)
     public ResponseEntity<?> createBanner(
-            @ModelAttribute bannerRequest bannerRequest,
+            @ModelAttribute BannerRequest bannerRequest,
             @RequestParam("media") MultipartFile media,
             @RequestParam("width") int width,
             @RequestParam("height") int height) throws NotFoundException {

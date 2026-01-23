@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.constant.Enpoint;
 import com.CRM.enums.RestoreEnum;
-import com.CRM.request.Brand.brandRequest;
+import com.CRM.request.Brand.BrandRequest;
 import com.CRM.service.Brand.BrandService;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class BrandController {
 
     @PostMapping(Enpoint.Brand.CREATE)
     public ResponseEntity<?> createBrand(
-            @ModelAttribute brandRequest createRequest,
+            @ModelAttribute BrandRequest createRequest,
             @RequestParam("media") MultipartFile media,
             @RequestParam("width") int width,
             @RequestParam("height") int height) {
@@ -55,7 +55,7 @@ public class BrandController {
     @PutMapping(Enpoint.Brand.UPDATE)
     public ResponseEntity<?> updateBrand(
             @PathVariable String id,
-            @ModelAttribute brandRequest updateRequest,
+            @ModelAttribute BrandRequest updateRequest,
             @RequestParam("media") MultipartFile media,
             @RequestParam("width") int width,
             @RequestParam("height") int height) {

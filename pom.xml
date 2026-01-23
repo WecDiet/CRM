@@ -80,6 +80,14 @@
 			<version>3.0.0</version>
 		</dependency>
 
+		<!-- Source: https://mvnrepository.com/artifact/io.github.breninsul/named-limited-virtual-thread-executor -->
+		<dependency>
+			<groupId>io.github.breninsul</groupId>
+			<artifactId>named-limited-virtual-thread-executor</artifactId>
+			<version>1.0.3</version>
+			<scope>compile</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

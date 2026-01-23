@@ -20,7 +20,7 @@ import com.CRM.model.Media;
 import com.CRM.repository.IBrandRepository;
 import com.CRM.repository.ICategoryRepository;
 import com.CRM.repository.Specification.BrandSpecification;
-import com.CRM.request.Brand.brandRequest;
+import com.CRM.request.Brand.BrandRequest;
 import com.CRM.response.Brand.BrandResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
@@ -60,7 +60,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
 
     @Override
     @Transactional(rollbackFor = Exception.class) // Đảm bảo rollback khi có bất kỳ exception nào
-    public APIResponse<Boolean> createBrand(brandRequest brandRequest, MultipartFile image, int width, int height) {
+    public APIResponse<Boolean> createBrand(BrandRequest brandRequest, MultipartFile image, int width, int height) {
         // 1. Kiểm tra ảnh trước khi làm bất cứ việc gì để tránh lãng phí tài nguyên
         if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("Brand image is required");
@@ -94,6 +94,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             Media brandMedia = Media.builder()
                     .imageUrl(mediaUrl)
                     .publicId(uploadedPublicId)
+                    .referenceId(brand.getId())
                     .referenceType("BRAND")
                     .altText(brand.getName())
                     .type("IMAGE")
@@ -135,7 +136,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
 
     @Override
     @Transactional
-    public APIResponse<Boolean> updateBrand(String id, brandRequest brandRequest, MultipartFile image, int width,
+    public APIResponse<Boolean> updateBrand(String id, BrandRequest brandRequest, MultipartFile image, int width,
             int height) {
         Brand brand = iBrandRepository.findById(UUID.fromString(id)).orElse(null);
         if (brand == null) {

@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class categoryRequest {
+public class CategoryRequest {
     private String name;
     private boolean active;
 }
