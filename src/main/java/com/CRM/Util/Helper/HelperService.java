@@ -68,22 +68,34 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                 // Lazy mapping - chỉ map khi cần
                 List<DTO> dtoList = mapEntitiesToDtos(entityPage.getContent(), dtoClass);
                 // Build PaginationInfo
-                PaginationInfo paginationInfo = new PaginationInfo(
-                                entityPage.getNumber(), // currentPage
-                                entityPage.getSize(), // pageSize
-                                entityPage.getTotalElements(), // totalElements
-                                entityPage.getTotalPages(), // totalPages
-                                entityPage.isFirst(), // first
-                                entityPage.isLast(), // last
-                                entityPage.hasNext(), // hasNext
-                                entityPage.hasPrevious() // hasPrevious
-                );
-                return new PagingResponse<>(
-                                true, // success
-                                "Get data successfully", // message
-                                dtoList, // data
-                                paginationInfo // pagination
-                );
+                // PaginationInfo paginationInfo = new PaginationInfo(
+                // entityPage.getNumber(), // currentPage
+                // entityPage.getSize(), // pageSize
+                // entityPage.getTotalElements(), // totalElements
+                // entityPage.getTotalPages(), // totalPages
+                // entityPage.isFirst(), // first
+                // entityPage.isLast(), // last
+                // entityPage.hasNext(), // hasNext
+                // entityPage.hasPrevious() // hasPrevious
+                // );
+
+                PaginationInfo paginationInfo = PaginationInfo.builder()
+                                .currentPage(entityPage.getNumber())
+                                .pageSize(entityPage.getSize())
+                                .totalElements(entityPage.getTotalElements())
+                                .totalPages(entityPage.getTotalPages())
+                                .first(entityPage.isFirst())
+                                .last(entityPage.isLast())
+                                .hasNext(entityPage.hasNext())
+                                .hasPrevious(entityPage.hasPrevious())
+                                .build();
+
+                return PagingResponse.<DTO>builder()
+                                .success(true)
+                                .message("Get data successfully")
+                                .data(dtoList)
+                                .pagination(paginationInfo)
+                                .build();
         }
 
         private Sort getSort(String sortBy, String direction) {
@@ -147,10 +159,16 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                         Class<RES> responseClass) {
                 T entity = repository.findById(id).orElse(null);
                 if (entity == null) {
-                        return new APIResponse<>(null, "Entity not found");
+                        return APIResponse.<RES>builder()
+                                        .message("Entity not found")
+                                        .data(null)
+                                        .build();
                 }
                 RES response = modelMapper.map(entity, responseClass);
-                return new APIResponse<>(response, "Get data successfully");
+                return APIResponse.<RES>builder()
+                                .message("Get data successfully")
+                                .data(response)
+                                .build();
         }
 
         @Override

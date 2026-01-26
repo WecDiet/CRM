@@ -13,4 +13,12 @@ public class WarehouseSpecification {
     public static Specification<Warehouse> getAllWarehouseTrash() {
         return BaseSpecification.getAllTrash();
     }
+
+    public static Specification<Warehouse> deleteThreshold(long threshold) {
+        return BaseSpecification.deleteThreshold(threshold);
+    }
+
+    public static Specification<Warehouse> warningThreshold(long threshold) {
+        return BaseSpecification.warningThreshold(threshold);
+    }
 }

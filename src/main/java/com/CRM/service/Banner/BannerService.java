@@ -85,12 +85,14 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
             throw new IllegalArgumentException("Banner image is required");
         }
 
+        String uploadedPublicId = null;
         try {
-            // 3. Upload lên Cloudinary trước
-            // Map uploadResult = cloudinaryService.uploadMedia(media, "crm/banners", width,
-            // height);
-            // String uploadedPublicId = (String) uploadResult.get("public_id");
-            // String mediaUrl = (String) uploadResult.get("secure_url");
+            CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
+                    .uploadMedia(media, "crm/banner", width, height);
+
+            Map<String, Object> uploadResult = uploadFuture.join();
+            uploadedPublicId = (String) uploadResult.get("public_id");
+            String mediaUrl = (String) uploadResult.get("secure_url");
 
             Banner banner = modelMapper.map(bannerRequest, Banner.class);
             banner.setBrand(brand);
@@ -101,38 +103,25 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
             banner.setDeletedAt(0L);
             banner.setDeleted(false);
 
-            banner = iBannerRepository.save(banner);
-
-            CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
-                    .uploadMedia(media, "crm/banners", width, height, 1).thenApply(uploadResult -> {
-                        String uploadedPublicId = (String) uploadResult.get("public_id");
-                        String mediaUrl = (String) uploadResult.get("secure_url");
-                        Media bannerMedia = Media.builder()
-                                .imageUrl(mediaUrl)
-                                .publicId(uploadedPublicId)
-                                .referenceType("BANNER")
-                                .altText(banner.getName())
-                                .type("MEDIA")
-                                .build();
-                        bannerMedia.setInActive(bannerRequest.isActive());
-                        bannerMedia.setCreatedDate(new Date());
-                        bannerMedia.setModifiedDate(new Date());
-                        bannerMedia.setCode(randomCode());
-                        bannerMedia.setDeletedAt(0L);
-                        bannerMedia.setDeleted(false);
-
-                        banner.setImage(bannerMedia);
-
-                        return uploadResult;
-                    });
+            Media bannerMedia = Media.builder()
+                    .imageUrl(mediaUrl)
+                    .publicId(uploadedPublicId)
+                    .referenceId(banner.getId())
+                    .referenceType("BANNER")
+                    .altText(banner.getName())
+                    .type("MEDIA")
+                    .build();
+            banner.setImage(bannerMedia);
+            iBannerRepository.save(banner);
             return new APIResponse<>(true, "Banner created successfully");
+
         } catch (Exception e) {
             // 6. NẾU LỖI: Xóa ảnh trên Cloudinary để tránh rác dữ liệu
-            Media mediaException = new Media();
-            String uploadedPublicId = mediaException.getPublicId();
+            // Media mediaException = new Media();
+            // uploadedPublicId = mediaException.getPublicId();
             if (uploadedPublicId != null) {
                 try {
-                    cloudinaryService.deleteMedia(uploadedPublicId); // Giả sử bạn có hàm này
+                    cloudinaryService.deleteMedia(uploadedPublicId).join(); // Giả sử bạn có hàm này
                 } catch (Exception deleteEx) {
                     // Log lỗi xóa ảnh nhưng vẫn throw lỗi chính để rollback DB
                     System.err.println("Failed to cleanup Cloudinary image: " +

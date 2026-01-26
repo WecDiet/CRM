@@ -1,12 +1,11 @@
 package com.CRM.request.Role;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
-@Getter
-@Setter
-@ToString
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RoleRequest {
     private String name;
     private String description;

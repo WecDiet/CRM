@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
@@ -23,14 +24,17 @@ public class CloudinaryService implements ICloudinaryService {
 
     private final Cloudinary cloudinary;
 
+    private final ExecutorService uploadExecutor = Executors.newVirtualThreadPerTaskExecutor();
+
+    private final Semaphore uploadSemaphore = new Semaphore(10);
+
     @Override
     public CompletableFuture<Map<String, Object>> uploadMedia(MultipartFile media, String folderName, int width,
-            int height, int quality) {
+            int height) {
         return CompletableFuture.supplyAsync(() -> {
             try {
 
-                Semaphore uploadSemaphore = new Semaphore(quality);
-                uploadSemaphore.acquire(quality); // Giới hạn số luồng upload cùng lúc
+                uploadSemaphore.acquire(); // Giới hạn số luồng upload cùng lúc
 
                 // 1. Kiểm tra tính hợp lệ (Size, Extension) bằng Utils của bạn
                 FileUploadUtils.assertAllowed(media, FileUploadUtils.MEDIA_PATTERN);
@@ -90,16 +94,31 @@ public class CloudinaryService implements ICloudinaryService {
             } catch (Exception e) {
                 throw new RuntimeException("Lỗi upload Cloudinary: " + e.getMessage());
             } finally {
-                uploadSemaphore.release(quality); // Giải phóng semaphore sau khi hoàn thành upload
+                uploadSemaphore.release(); // Giải phóng semaphore sau khi hoàn thành upload
             }
 
-        }, Executors.newVirtualThreadPerTaskExecutor());
+        }, uploadExecutor);
     }
 
     @Override
     public CompletableFuture<Void> deleteMedia(String publicId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteMedia'");
+        return CompletableFuture.runAsync(() -> {
+            try {
+                if (publicId == null || publicId.isEmpty()) {
+                    throw new IllegalArgumentException("Public ID cannot be null or empty");
+                }
+
+                // Assume resource type is image
+                String resourceType = "image";
+
+                // Delete from Cloudinary
+                cloudinary.uploader().destroy(publicId, ObjectUtils.asMap(
+                        "resource_type", resourceType,
+                        "invalidate", true));
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to delete file from Cloudinary", e);
+            }
+        }, uploadExecutor);
     }
 
     // @Override

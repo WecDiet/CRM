@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.Util.Helper.HelperService;
@@ -50,6 +55,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     }
 
     @Override
+    @Transactional
     public APIResponse<Boolean> createWarehouse(WarehouseRequest warehouseRequest, List<MultipartFile> images,
             int width,
             int height) {
@@ -74,7 +80,10 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
             if (images != null && !images.isEmpty()) {
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
-                        Map uploadResult = cloudinaryService.uploadMedia(image, "crm/warehouses", width, height);
+                        CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
+                                .uploadMedia(image, "crm/warehouses", width, height);
+
+                        Map<String, Object> uploadResult = uploadFuture.join();
                         String uploadedPublicId = (String) uploadResult.get("public_id");
                         String mediaUrl = (String) uploadResult.get("secure_url");
 
@@ -154,9 +163,38 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     }
 
     @Override
+    @Transactional
+    @Scheduled(fixedRate = 60 * 1000) // Quét mõi 1 phút / 1 lần
     public void autoCleanWarehouseTrash() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'autoCleanWarehouseTrash'");
+        long currentTime = System.currentTimeMillis() / 1000;
+        long duration = 2L * 60;
+        int warningMinutes = 1;
+        Long warningThreshold = currentTime - (duration - (warningMinutes * 60L));
+        long deleteThreshold = currentTime - duration;
+
+        cleanTrash(iWarehouseRepository,
+                WarehouseSpecification.warningThreshold(warningThreshold),
+                WarehouseSpecification.deleteThreshold(deleteThreshold), warningMinutes,
+                "WAREHOUSE",
+                (warehouse) -> {
+                    List<Media> images = warehouse.getImages();
+                    AtomicInteger success = new AtomicInteger();
+                    AtomicInteger failed = new AtomicInteger();
+                    List<CompletableFuture<Void>> futures = images.stream()
+                            .map(Media::getPublicId)
+                            .filter(Objects::nonNull)
+                            .map(publicId -> cloudinaryService.deleteMedia(publicId).exceptionally(ex -> {
+                                failed.incrementAndGet();
+                                System.out.println("Failed to delete media with public ID: " + publicId + ". Error: "
+                                        + ex.getMessage());
+                                return null;
+                            })).toList();
+                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+                    if (success.get() > 0) {
+                        images.clear();
+                    }
+
+                });
     }
 
     @Override

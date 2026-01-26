@@ -5,12 +5,14 @@ import java.util.List;
 import com.CRM.response.Pagination.Info.PaginationInfo;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PagingResponse<T> {
     private boolean success;
     private String message;

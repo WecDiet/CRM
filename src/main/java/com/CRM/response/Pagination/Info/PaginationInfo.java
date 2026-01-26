@@ -1,12 +1,14 @@
 package com.CRM.response.Pagination.Info;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PaginationInfo {
     private int currentPage; // Trang hiện tại (0-based)
     private int pageSize; // Số item mỗi trang

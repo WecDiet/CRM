@@ -16,8 +16,7 @@ public interface ICloudinaryService {
 
     // File saveToTemp(MultipartFile media);
 
-    CompletableFuture<Map<String, Object>> uploadMedia(MultipartFile media, String folderName, int width, int height,
-            int quality);
+    CompletableFuture<Map<String, Object>> uploadMedia(MultipartFile media, String folderName, int width, int height);
 
     CompletableFuture<Void> deleteMedia(String publicId);
 }

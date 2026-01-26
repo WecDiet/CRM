@@ -2,13 +2,12 @@ package com.CRM.request.Product;
 
 import java.math.BigDecimal;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
-@Getter
-@Setter
-@ToString
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductFilter {
     private String name; // tìm theo tên sản phẩm (like)
 

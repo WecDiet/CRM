@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,17 +33,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BrandService extends HelperService<Brand, UUID> implements IBrandService {
 
-    @Autowired
-    private IBrandRepository iBrandRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
-    private ICategoryRepository iCategoryRepository;
-
-    @Autowired
-    private CloudinaryService cloudinaryService;
+    private final IBrandRepository iBrandRepository;
+    private final ModelMapper modelMapper;
+    private final ICategoryRepository iCategoryRepository;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public PagingResponse<BrandResponse> getAllBrand(int page, int limit, String sortBy, String direction,
@@ -73,17 +67,25 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             throw new IllegalArgumentException("Brand name already exists and is active");
         }
 
+        String uploadedPublicId = null;
         try {
             // 3. Upload lên Cloudinary trước
-            Map uploadResult = cloudinaryService.uploadMedia(image, "crm/brands", width,
-                    height);
-            String uploadedPublicId = (String) uploadResult.get("public_id");
+            // Map uploadResult = cloudinaryService.uploadMedia(image, "crm/brands", width,
+            // height);
+            // String uploadedPublicId = (String) uploadResult.get("public_id");
+            // String mediaUrl = (String) uploadResult.get("secure_url");
+
+            CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
+                    .uploadMedia(image, "crm/brands", width, height);
+
+            Map<String, Object> uploadResult = uploadFuture.join();
+            uploadedPublicId = (String) uploadResult.get("public_id");
             String mediaUrl = (String) uploadResult.get("secure_url");
 
-            // 4. Map dữ liệu vào Entity
             Brand brand = modelMapper.map(brandRequest, Brand.class);
             brand.setCategory(category);
             brand.setInActive(brandRequest.isActive());
+            brand.setHighlighted(brandRequest.isHighlighted());
             brand.setCreatedDate(new Date());
             brand.setModifiedDate(new Date());
             brand.setCode(randomCode());
@@ -113,15 +115,18 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             // 5. Lưu vào database (Chỉ lưu 1 lần duy nhất nhờ CascadeType.ALL)
             iBrandRepository.save(brand);
 
-            return new APIResponse<>(true, "Brand created successfully");
+            return APIResponse.<Boolean>builder()
+                    .message("Brand created successfully")
+                    .data(true)
+                    .build();
 
         } catch (Exception e) {
             // 6. NẾU LỖI: Xóa ảnh trên Cloudinary để tránh rác dữ liệu
-            Media media = new Media();
-            String uploadedPublicId = media.getPublicId();
+            // Media media = new Media();
+            // String uploadedPublicId = media.getPublicId();
             if (uploadedPublicId != null) {
                 try {
-                    cloudinaryService.deleteMedia(uploadedPublicId); // Giả sử bạn có hàm này
+                    cloudinaryService.deleteMedia(uploadedPublicId).join(); // Giả sử bạn có hàm này
                 } catch (Exception deleteEx) {
                     // Log lỗi xóa ảnh nhưng vẫn throw lỗi chính để rollback DB
                     System.err.println("Failed to cleanup Cloudinary image: " +
@@ -152,8 +157,10 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
                     brand.setImage(new Media());
                 }
                 // 3. Upload lên Cloudinary trước
-                Map uploadResult = cloudinaryService.uploadMedia(image, "crm/brands", width,
-                        height);
+                CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
+                        .uploadMedia(image, "crm/brands", width, height);
+
+                Map<String, Object> uploadResult = uploadFuture.join();
                 String uploadedPublicId = (String) uploadResult.get("public_id");
                 String mediaUrl = (String) uploadResult.get("secure_url");
 
@@ -162,6 +169,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
                 brand.setCategory(category);
                 brand.setModifiedDate(new Date());
                 brand.setInActive(brandRequest.isActive());
+                brand.setHighlighted(brandRequest.isHighlighted());
 
                 // Tạo Media entity
                 Media brandMedia = Media.builder()
@@ -172,7 +180,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
                         .type("MEDIA")
                         .build();
                 // Set metadata cho Media (nên dùng BaseEntity listener để tự động phần này)
-                brandMedia.setInActive(false);
+                brandMedia.setInActive(brandRequest.isActive());
                 brandMedia.setCreatedDate(new Date());
                 brandMedia.setModifiedDate(new Date());
                 brandMedia.setCode(randomCode());
@@ -192,7 +200,10 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             }
         }
         iBrandRepository.save(brand);
-        return new APIResponse<>(true, "Brand updated successfully");
+        return APIResponse.<Boolean>builder()
+                .message("Brand updated successfully")
+                .data(true)
+                .build();
     }
 
     @Override
@@ -209,7 +220,10 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
         brand.setDeleted(true);
         brand.setDeletedAt(System.currentTimeMillis() / 1000);
         iBrandRepository.save(brand);
-        return new APIResponse<>(true, "Brand deleted successfully and moved to Recybin");
+        return APIResponse.<Boolean>builder()
+                .message("Brand deleted successfully")
+                .data(true)
+                .build();
     }
 
     @Override
@@ -282,7 +296,9 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
         // roleInTrash.setCode(null);
 
         iBrandRepository.save(brandInTrash);
-        return new APIResponse<>(true, "Restored successfully.");
+        return APIResponse.<Boolean>builder()
+                .message("Restored successfully")
+                .data(true)
+                .build();
     }
-
 }

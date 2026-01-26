@@ -1,13 +1,11 @@
 package com.CRM.request.Warehouse;
 
-import jakarta.persistence.Column;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
-@Getter
-@Setter
-@ToString
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class WarehouseRequest {
     private String name;
 
