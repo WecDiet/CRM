@@ -24,7 +24,7 @@ public class WarehouseResponse {
 
     private String country;
 
-    private boolean active;
+    private boolean inActive;
 
     private List<MediaResponse> images;
 }

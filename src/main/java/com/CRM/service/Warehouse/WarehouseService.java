@@ -45,7 +45,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     @Override
     public PagingResponse<WarehouseResponse> getAllWarehouses(int page, int limit, String sortBy, String direction,
             boolean active, WarehouseRequest filter) {
-        System.out.println("Active là : " + active);
+        System.out.println("Active at Service : " + active);
         return getAll(
                 page,
                 limit,

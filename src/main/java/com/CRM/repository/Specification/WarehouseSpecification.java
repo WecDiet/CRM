@@ -10,8 +10,6 @@ import org.springframework.data.jpa.domain.Specification;
 import com.CRM.model.Warehouse;
 import com.CRM.request.Warehouse.WarehouseRequest;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Path;
 
 public class WarehouseSpecification {
 
@@ -34,17 +32,64 @@ public class WarehouseSpecification {
     public static Specification<Warehouse> getAllWarehouseFilter(WarehouseRequest filter, boolean active) {
         return (root, query, criteriaBuilder) -> {
             if (filter == null) {
+                System.out.println("Active at Specification NULL: " + active);
                 return criteriaBuilder.and(
                         criteriaBuilder.equal(root.get("inActive"), true),
                         criteriaBuilder.equal(root.get("isDeleted"), false),
                         criteriaBuilder.equal(root.get("deletedAt"), 0L));
             }
 
+            // TRƯỜNG HỢP 2: Nếu filter != null
             List<Predicate> predicates = new ArrayList<>();
 
+            // 1. Lọc theo tên (Name) - Tìm kiếm gần đúng (Like) và không phân biệt hoa thường
             if (filter.getName() != null && !filter.getName().trim().isEmpty()) {
-                predicates.add(hasFieldLike("name", filter.getName()));
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("name")),
+                            "%" + filter.getName().trim().toLowerCase() + "%"
+                ));
             }
+
+            if (filter.getStreet() != null && !filter.getStreet().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("street")), 
+                            "%" + filter.getStreet().trim().toLowerCase() + "%"));
+            }
+
+            if (filter.getWard() != null && !filter.getWard().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("ward")), 
+                            "%" + filter.getWard().trim().toLowerCase() + "%"));
+                
+            }
+
+            if (filter.getDistrict() != null && !filter.getDistrict().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("district")), 
+                            "%" + filter.getDistrict().trim().toLowerCase() + "%"));
+            }
+
+            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("city")), 
+                            "%" + filter.getCity().trim().toLowerCase() + "%"));
+            }
+
+            if (filter.getCountry() != null && !filter.getCountry().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("country")), 
+                            "%" + filter.getCountry().toLowerCase() + "%"));
+            }
+
+            System.out.println("Active at Specification NOTNULL: " + active);
+            predicates.add(criteriaBuilder.equal(root.get("inActive"), active));
+
+            // 4. Luôn áp dụng điều kiện chưa bị xóa (Soft Delete)
+            predicates.add(criteriaBuilder.equal(root.get("isDeleted"), false));
+            predicates.add(criteriaBuilder.equal(root.get("deletedAt"), 0L));
+
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
 
@@ -53,38 +98,11 @@ public class WarehouseSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             // Mặc định luôn lọc isDeleted = false
-            Specification<Warehouse> spec = Specification.where(isFieldEqual("isDeleted", true))
-                    .and(isFieldEqual("deletedAt", 0L))
-                    .and(isFieldEqual("inActive", false));
-            if (filter != null) {
-                spec = spec.and(hasFieldLike("name", filter.getName()))
-                        .and(hasFieldLike("street", filter.getStreet()))
-                        .and(hasFieldLike("ward", filter.getWard()))
-                        .and(hasFieldLike("district", filter.getDistrict()))
-                        .and(hasFieldLike("city", filter.getCity()))
-                        .and(hasFieldLike("country", filter.getCountry()));
-            }
-            predicates.add(criteriaBuilder.equal(root.get("inActive"), false));
-            predicates.add(criteriaBuilder.equal(root.get("isDeleted"), true));
-            predicates.add(criteriaBuilder.greaterThan(root.get("deletedAt"), 0L));
+
 
             return predicates.isEmpty() ? criteriaBuilder.conjunction()
                     : criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
-    }
-
-    public static Specification<Warehouse> hasFieldLike(String fieldName, String value) {
-        return (root, query, cb) -> {
-            if (value == null || value.trim().isEmpty()) {
-                return null; // Spring Data JPA sẽ bỏ qua filter này
-            }
-            return cb.like(cb.lower(root.get(fieldName)), "%" + value.trim().toLowerCase() + "%");
-        };
-    }
-
-    // 2. Mảnh ghép lọc cố định (Equal)
-    public static <T> Specification<Warehouse> isFieldEqual(String fieldName, T value) {
-        return (root, query, cb) -> value == null ? null : cb.equal(root.get(fieldName), value);
     }
 
 }

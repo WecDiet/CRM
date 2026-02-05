@@ -35,6 +35,7 @@ public class WarehouseController {
             @RequestParam(defaultValue = "true") boolean active,
             @ModelAttribute WarehouseRequest filter) {
 
+                System.out.println("Active at Controller: " + active);
         return ResponseEntity.ok(warehouseService.getAllWarehouses(page, limit, sortBy, direction, active, filter));
     }
 
