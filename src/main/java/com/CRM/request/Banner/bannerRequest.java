@@ -5,7 +5,6 @@ import java.util.UUID;
 import lombok.*;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BannerRequest {

@@ -11,21 +11,25 @@ import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Warehouse.WarehouseResponse;
 
 public interface IWarehouseService {
-    PagingResponse<WarehouseResponse> getAllWarehouses(int page, int limit, String sortBy, String direction);
+        PagingResponse<WarehouseResponse> getAllWarehouses(int page, int limit, String sortBy, String direction,
+                        boolean active, WarehouseRequest filter);
 
-    APIResponse<Boolean> createWarehouse(WarehouseRequest warehouseRequest, List<MultipartFile> images, int width,
-            int height);
+        APIResponse<Boolean> createWarehouse(WarehouseRequest warehouseRequest, boolean active,
+                        List<MultipartFile> images, int width,
+                        int height);
 
-    APIResponse<Boolean> updateWarehouse(String id, WarehouseRequest warehouseRequest, List<MultipartFile> images,
-            int width,
-            int height);
+        APIResponse<Boolean> updateWarehouse(String id, boolean active, WarehouseRequest warehouseRequest,
+                        List<MultipartFile> images,
+                        int width,
+                        int height);
 
-    APIResponse<Boolean> deleteWarehouse(String id);
+        APIResponse<Boolean> deleteWarehouse(String id);
 
-    PagingResponse<WarehouseResponse> getAllWarehouseTrash(int page, int limit, String sortBy, String direction);
+        PagingResponse<WarehouseResponse> getAllWarehouseTrash(int page, int limit, String sortBy, String direction,
+                        WarehouseRequest filter);
 
-    void autoCleanWarehouseTrash();
+        void autoCleanWarehouseTrash();
 
-    APIResponse<Boolean> restoreWarehouse(String id, RestoreEnum action);
+        APIResponse<Boolean> restoreWarehouse(String id, RestoreEnum action);
 
 }

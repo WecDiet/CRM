@@ -43,20 +43,25 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     private final CloudinaryService cloudinaryService;
 
     @Override
-    public PagingResponse<WarehouseResponse> getAllWarehouses(int page, int limit, String sortBy, String direction) {
+    public PagingResponse<WarehouseResponse> getAllWarehouses(int page, int limit, String sortBy, String direction,
+            boolean active, WarehouseRequest filter) {
+        System.out.println("Active là : " + active);
         return getAll(
                 page,
                 limit,
                 sortBy,
                 direction,
-                WarehouseSpecification.getAllWarehouse(),
+                WarehouseSpecification.getAllWarehouseFilter(filter, active),
+                // WarehouseSpecification.getAllWarehouse(),
                 WarehouseResponse.class,
                 iWarehouseRepository);
     }
 
     @Override
     @Transactional
-    public APIResponse<Boolean> createWarehouse(WarehouseRequest warehouseRequest, List<MultipartFile> images,
+    public APIResponse<Boolean> createWarehouse(WarehouseRequest warehouseRequest,
+            boolean active,
+            List<MultipartFile> images,
             int width,
             int height) {
         if (warehouseRequest.getName().isEmpty()) {
@@ -68,7 +73,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
 
         try {
             Warehouse warehouse = modelMapper.map(warehouseRequest, Warehouse.class);
-            warehouse.setInActive(warehouseRequest.isActive());
+            warehouse.setInActive(active);
             warehouse.setCreatedDate(new Date());
             warehouse.setModifiedDate(new Date());
             warehouse.setCode(randomCode());
@@ -78,11 +83,13 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
             List<Media> imageList = new ArrayList<>();
 
             if (images != null && !images.isEmpty()) {
+                if (images.size() > 5) {
+                    throw new IllegalArgumentException("You can upload a maximum of 5 images.");
+                }
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
                         CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
                                 .uploadMedia(image, "crm/warehouses", width, height);
-
                         Map<String, Object> uploadResult = uploadFuture.join();
                         String uploadedPublicId = (String) uploadResult.get("public_id");
                         String mediaUrl = (String) uploadResult.get("secure_url");
@@ -96,7 +103,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                                 .type("IMAGE")
                                 .build();
 
-                        media.setInActive(warehouseRequest.isActive());
+                        media.setInActive(active);
                         media.setCreatedDate(new Date());
                         media.setModifiedDate(new Date());
                         media.setCode(randomCode());
@@ -121,7 +128,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     }
 
     @Override
-    public APIResponse<Boolean> updateWarehouse(String id, WarehouseRequest warehouseRequest,
+    public APIResponse<Boolean> updateWarehouse(String id, boolean active, WarehouseRequest warehouseRequest,
             List<MultipartFile> images,
             int width, int height) {
         // TODO Auto-generated method stub
@@ -150,14 +157,14 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     }
 
     @Override
-    public PagingResponse<WarehouseResponse> getAllWarehouseTrash(int page, int limit, String sortBy,
-            String direction) {
+    public PagingResponse<WarehouseResponse> getAllWarehouseTrash(int page, int limit, String sortBy, String direction,
+            WarehouseRequest filter) {
         return getAll(
                 page,
                 limit,
                 sortBy,
                 direction,
-                WarehouseSpecification.getAllWarehouseTrash(),
+                WarehouseSpecification.getAllWarehouseTrashFilter(filter),
                 WarehouseResponse.class,
                 iWarehouseRepository);
     }

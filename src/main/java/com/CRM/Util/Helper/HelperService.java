@@ -67,18 +67,6 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                 }
                 // Lazy mapping - chỉ map khi cần
                 List<DTO> dtoList = mapEntitiesToDtos(entityPage.getContent(), dtoClass);
-                // Build PaginationInfo
-                // PaginationInfo paginationInfo = new PaginationInfo(
-                // entityPage.getNumber(), // currentPage
-                // entityPage.getSize(), // pageSize
-                // entityPage.getTotalElements(), // totalElements
-                // entityPage.getTotalPages(), // totalPages
-                // entityPage.isFirst(), // first
-                // entityPage.isLast(), // last
-                // entityPage.hasNext(), // hasNext
-                // entityPage.hasPrevious() // hasPrevious
-                // );
-
                 PaginationInfo paginationInfo = PaginationInfo.builder()
                                 .currentPage(entityPage.getNumber())
                                 .pageSize(entityPage.getSize())

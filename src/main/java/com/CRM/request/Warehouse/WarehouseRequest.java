@@ -3,7 +3,6 @@ package com.CRM.request.Warehouse;
 import lombok.*;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class WarehouseRequest {
@@ -18,7 +17,5 @@ public class WarehouseRequest {
     private String city;
 
     private String country;
-
-    private boolean active;
 
 }

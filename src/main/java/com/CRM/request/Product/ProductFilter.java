@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import lombok.*;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductFilter {

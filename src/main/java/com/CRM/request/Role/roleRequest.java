@@ -3,7 +3,6 @@ package com.CRM.request.Role;
 import lombok.*;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleRequest {

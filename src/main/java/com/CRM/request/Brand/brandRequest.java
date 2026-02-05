@@ -3,7 +3,6 @@ package com.CRM.request.Brand;
 import lombok.*;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BrandRequest {
