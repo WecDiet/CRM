@@ -1,6 +1,7 @@
 package com.CRM.response.Warehouse;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.CRM.response.Media.MediaResponse;
 
@@ -12,6 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WarehouseResponse {
+
+    private UUID id;
+    
     private String name;
 
     private String street;

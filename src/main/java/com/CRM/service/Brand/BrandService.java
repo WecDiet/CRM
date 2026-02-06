@@ -284,7 +284,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
 
             // Nếu user chọn Ghi đè (OVERWRITE)
             if (action == RestoreEnum.OVERWRITE) {
-                // Xóa role đang active trước
+                // Xóa brand đang active trước
                 iBrandRepository.delete(activeDuplicate.get());
                 iBrandRepository.flush(); // Xóa ngay để tránh trùng Unique Key khi save bên dưới
             }

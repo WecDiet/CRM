@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,14 +46,12 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     @Override
     public PagingResponse<WarehouseResponse> getAllWarehouses(int page, int limit, String sortBy, String direction,
             boolean active, WarehouseRequest filter) {
-        System.out.println("Active at Service : " + active);
         return getAll(
                 page,
                 limit,
                 sortBy,
                 direction,
                 WarehouseSpecification.getAllWarehouseFilter(filter, active),
-                // WarehouseSpecification.getAllWarehouse(),
                 WarehouseResponse.class,
                 iWarehouseRepository);
     }
@@ -131,8 +130,75 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     public APIResponse<Boolean> updateWarehouse(String id, boolean active, WarehouseRequest warehouseRequest,
             List<MultipartFile> images,
             int width, int height) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateWarehouse'");
+        Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IllegalArgumentException("Warehouse not found with id: " + id));
+
+        if (warehouseRequest.getName().isEmpty()) {
+            throw new IllegalArgumentException("Warehouse name cannot be empty.");
+        }
+
+        if (warehouseRequest.getWard().isEmpty()) {
+            throw new IllegalArgumentException("Ward cannot be empty.");
+        }
+
+        try {
+            modelMapper.map(warehouseRequest, warehouse);
+            warehouse.setInActive(active);
+            warehouse.setModifiedDate(new Date());
+
+            List<Media> imageList = new ArrayList<>();
+            if (images != null && !images.isEmpty()) {
+                if (warehouse.getImages() != null) {
+                    int totalImages = warehouse.getImages().size() + images.size();
+                    if (totalImages > 10) {
+                        throw new IllegalArgumentException(
+                                "You can upload a maximum of 10 images. Current images: "
+                                        + warehouse.getImages().size());
+                    }
+                    warehouse.getImages().stream()
+                            .map(Media::getPublicId)
+                            .filter(Objects::nonNull)
+                            .forEach(cloudinaryService::deleteMedia);
+                }
+    
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
+                                .uploadMedia(image, "crm/warehouses", width, height);
+                        Map<String, Object> uploadResult = uploadFuture.join();
+                        String uploadedPublicId = (String) uploadResult.get("public_id");
+                        String mediaUrl = (String) uploadResult.get("secure_url");
+    
+                        Media media = Media.builder()
+                                .imageUrl(mediaUrl)
+                                .publicId(uploadedPublicId)
+                                .referenceType("WAREHOUSE")
+                                .referenceId(warehouse.getId())
+                                .altText(warehouse.getName())
+                                .type("IMAGE")
+                                .build();
+    
+                        media.setInActive(active);
+                        media.setCreatedDate(new Date());
+                        media.setModifiedDate(new Date());
+                        media.setCode(randomCode());
+                        media.setDeletedAt(0L);
+                        media.setDeleted(false);
+    
+                        warehouse.getImages().add(media);
+                    }
+                }
+            }
+
+            if (!imageList.isEmpty()) {
+                warehouse.setImages(imageList);
+                iWarehouseRepository.save(warehouse);
+            }
+            return new APIResponse<>(true, "Warehouse updated successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error updating warehouse: " + e.getMessage());
+        }
     }
 
     @Override
@@ -199,15 +265,46 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                     CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
                     if (success.get() > 0) {
                         images.clear();
-                    }
-
+                    } 
                 });
     }
 
     @Override
     public APIResponse<Boolean> restoreWarehouse(String id, RestoreEnum action) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'restoreWarehouse'");
+        // Tìm bản ghi trong thùng rác
+        Warehouse warehouseInTrash = iWarehouseRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IllegalArgumentException("This warehouse doesn't belong in the trash can."));
+
+        // Tìm bản ghi trùng đang hoạt động
+        Optional<Warehouse> activeDuplicate = iWarehouseRepository.findActiveByName(warehouseInTrash.getName());
+
+        if (activeDuplicate.isPresent()) {
+            // Nếu user chưa xác nhận hành động (lần gọi đầu tiên)
+            if (action == null || action == RestoreEnum.RESTORE) {
+                throw new IllegalArgumentException("CONFLICT: A warehouse with this name already exists.");
+            }
+
+            // Nếu user chọn Bỏ qua
+            if (action == RestoreEnum.CANCEL) {
+                return new APIResponse<>(false, "Restore operation was cancelled.");
+            }
+
+            // Nếu user chọn Ghi đè (OVERWRITE)
+            if (action == RestoreEnum.OVERWRITE) {
+                // Xóa warehouse đang active trước
+                iWarehouseRepository.delete(activeDuplicate.get());
+                iWarehouseRepository.flush(); // Xóa ngay để tránh trùng Unique Key khi save bên dưới
+            }
+        }
+        warehouseInTrash.setInActive(true);
+        warehouseInTrash.setDeleted(false);
+        warehouseInTrash.setDeletedAt(0L);
+
+        iWarehouseRepository.save(warehouseInTrash);
+        return APIResponse.<Boolean>builder()
+                .message("Restored successfully")
+                .data(true)
+                .build();
     }
 
 }

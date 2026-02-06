@@ -6,14 +6,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.constant.Enpoint;
-import com.CRM.request.Product.ProductFilter;
+import com.CRM.enums.RestoreEnum;
 import com.CRM.request.Warehouse.WarehouseRequest;
 import com.CRM.service.Warehouse.WarehouseService;
 
@@ -34,8 +37,6 @@ public class WarehouseController {
             @RequestParam(defaultValue = "asc") String direction,
             @RequestParam(defaultValue = "true") boolean active,
             @ModelAttribute WarehouseRequest filter) {
-
-                System.out.println("Active at Controller: " + active);
         return ResponseEntity.ok(warehouseService.getAllWarehouses(page, limit, sortBy, direction, active, filter));
     }
 
@@ -64,4 +65,23 @@ public class WarehouseController {
     public ResponseEntity<?> deleteWarehouse(@RequestParam("id") String id) {
         return ResponseEntity.ok(warehouseService.deleteWarehouse(id));
     }
+
+    @PatchMapping(Enpoint.Warehouse.RESTORE)
+    public ResponseEntity<?> restoreWarehouse(
+            @PathVariable String id,
+            @RequestParam(name = "action", required = false) RestoreEnum action) {
+        return ResponseEntity.ok(warehouseService.restoreWarehouse(id, action));
+    }
+
+    @PutMapping(Enpoint.Warehouse.UPDATE)
+    public ResponseEntity<?> updateWarehouse(
+            @PathVariable String id,
+            @ModelAttribute WarehouseRequest warehouseRequest,
+            @RequestParam("active") boolean active,
+            @RequestParam("images") List<MultipartFile> images,
+            @RequestParam("width") int width,
+            @RequestParam("height") int height) {
+        return ResponseEntity.ok(warehouseService.updateWarehouse(id, active, warehouseRequest, images, width, height));
+    }
+
 }
