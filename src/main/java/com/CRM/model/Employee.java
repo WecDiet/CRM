@@ -29,13 +29,15 @@ import lombok.Setter;
 public class Employee extends Address {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
     private UUID id;
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "employee_id")
     private User user;
+
+    @Column(name = "employee_code", length = 50, nullable = false, unique = true)
+    private String employeeCode;
 
     @Column(name = "hire_date", nullable = false)
     private Date hireDate;

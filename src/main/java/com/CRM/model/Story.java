@@ -12,9 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,9 +41,6 @@ public class Story extends BaseEntity {
 
     @Column(name = "status", nullable = false)
     private boolean status;
-
-    @Column(name = "slug", length = 100, nullable = false, unique = true)
-    private String slug;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "story_media", joinColumns = @JoinColumn(name = "story_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))

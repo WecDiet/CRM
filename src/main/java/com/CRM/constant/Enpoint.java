@@ -49,6 +49,11 @@ public class Enpoint {
         public static final String RESTORE = TRASH + "/{id}";
     }
 
+    public static final class Inventory {
+        public static final String BASE = API_PREFIX + "/inventories";
+        public static final String UPDATE = "/{id}";
+    }
+
     public static final class Product {
         public static final String BASE = API_PREFIX + "/products";
         public static final String ID = "/detail/{id}";

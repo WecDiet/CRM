@@ -1,5 +1,6 @@
 package com.CRM.model;
 
+
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -18,35 +19,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "inventories")
+@Table(name = "permissions")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Inventory extends BaseEntity {
-
+public class Permission extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(nullable = false, unique = true)
+    private String name; // Tự động generate: PRODUCT_DELETE, USER_CREATE
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "warehouse_id", nullable = false)
-    private Warehouse warehouse;
+    @JoinColumn(name = "operation_id")
+    private Operation operation;
 
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity;
-
-    @Column(name = "type")
-    private String type; // Nhập kho, Xuất kho, Điều chuyển
-
-    @Column(name = "reference_code")
-    private String referenceCode; // Mã tham chiếu liên quan đến giao dịch kho hàng (nếu có) 
-
-    @Column(name = "note", columnDefinition = "TEXT")
-    private String note;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "object_id")
+    private SecurityObject object;
 }

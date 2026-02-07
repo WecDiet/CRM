@@ -1,5 +1,6 @@
 package com.CRM.model;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,6 +11,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -29,14 +33,21 @@ public class Role extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
     private UUID id;
 
-    @Column(name = "name", length = 40, nullable = false)
+    @Column(name = "name", length = 40, nullable = false, unique = true)
     private String name;
 
-    @Column(name = "description", length = 250, nullable = false)
+    @Column(name = "description", length = 250)
     private String description;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "role_permissions",
+        joinColumns = @JoinColumn(name = "role_id"),
+        inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<Permission> permissions = new HashSet<>();
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<User> users;

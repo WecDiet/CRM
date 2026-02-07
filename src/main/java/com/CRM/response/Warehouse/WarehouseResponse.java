@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WarehouseResponse {
-
     private UUID id;
     
     private String name;

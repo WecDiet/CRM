@@ -2,7 +2,9 @@ package com.CRM.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -33,12 +36,10 @@ import lombok.Setter;
         @Index(name = "idx_user_email", columnList = "email"),
         @Index(name = "idx_user_username", columnList = "username"),
         @Index(name = "idx_user_phone", columnList = "phoneNumber"),
-        @Index(name = "idx_user_slug", columnList = "slug"),
         @Index(name = "idx_user_role", columnList = "role_id"),
         @Index(name = "idx_user_status_email", columnList = "status,email"),
         @Index(name = "idx_user_status_username", columnList = "status,username"),
         @Index(name = "idx_users_status", columnList = "status"),
-        @Index(name = "idx_users_slug", columnList = "slug", unique = true),
         @Index(name = "idx_users_lastname_middlename_firstname", columnList = "last_name, middle_name, first_name")
 })
 @Getter
@@ -60,9 +61,6 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "last_name", length = 45, nullable = false)
     private String lastName;
-
-    @Column(name = "slug", length = 150, nullable = false)
-    private String slug;
 
     @Column(name = "email", length = 200, nullable = false, unique = true)
     private String email;
@@ -118,9 +116,17 @@ public class User extends BaseEntity implements UserDetails {
         return UserDetails.super.isEnabled();
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_direct_permissions",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<Permission> directPermissions = new HashSet<>();
 
     // Lấy danh sách quyền của user
     @Override

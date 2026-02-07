@@ -1,4 +1,4 @@
-package com.CRM.response.Product;
+package com.CRM.response.ProductStyle;
 
 import java.util.UUID;
 
@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDetailResponse {
+public class ProductStyleResponse {
     private UUID id;
     private String name;
     private String code;
-    private String description;
-    private Double price;
-    private boolean status;
 }

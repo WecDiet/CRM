@@ -18,13 +18,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "media")
+@Table(name = "medias")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 public class Media extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

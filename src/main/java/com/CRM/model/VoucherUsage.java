@@ -1,5 +1,7 @@
 package com.CRM.model;
 
+import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -10,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,36 +20,34 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Entity
-@Table(name = "inventories")
+@Table(name = "voucher_usages")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Inventory extends BaseEntity {
-
+public class VoucherUsage {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    // Ai là người dùng?
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
+
+    // Dùng voucher nào?
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_id", nullable = false)
+    private Voucher voucher;
+
+    // Dùng vào lúc nào?
+    @Column(name = "used_at", nullable = false)
+    private LocalDateTime usedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "warehouse_id", nullable = false)
-    private Warehouse warehouse;
-
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity;
-
-    @Column(name = "type")
-    private String type; // Nhập kho, Xuất kho, Điều chuyển
-
-    @Column(name = "reference_code")
-    private String referenceCode; // Mã tham chiếu liên quan đến giao dịch kho hàng (nếu có) 
-
-    @Column(name = "note", columnDefinition = "TEXT")
-    private String note;
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order; 
 }
