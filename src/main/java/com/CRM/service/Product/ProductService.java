@@ -1,15 +1,18 @@
 package com.CRM.service.Product;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.Util.Helper.HelperService;
 import com.CRM.model.Product;
 import com.CRM.repository.IProductRepository;
 import com.CRM.repository.Specification.ProductSpecification;
 import com.CRM.request.Product.ProductFilter;
+import com.CRM.request.Product.ProductRquest;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Product.ProductDetailResponse;
@@ -43,5 +46,11 @@ public class ProductService extends HelperService<Product, UUID> implements IPro
                 iProductRepository,
                 Product.class,
                 ProductDetailResponse.class);
+    }
+
+    @Override
+    public APIResponse<Boolean> createProduct(ProductRquest productRquest, List<MultipartFile> medias) {
+
+       return null;
     }
 }

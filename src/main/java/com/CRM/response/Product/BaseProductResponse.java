@@ -1,7 +1,5 @@
 package com.CRM.response.Product;
 
-import java.util.UUID;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductResponse {
-    private UUID id;
+public class BaseProductResponse {
+    private String name;
+    private String code;
+    private Double price;
 }

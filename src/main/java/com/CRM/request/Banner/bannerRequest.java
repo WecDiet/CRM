@@ -11,5 +11,4 @@ public class BannerRequest {
     private String name;
     private int seq; // Số thứ tự của banner từ 1 -> 4
     private String brand;
-    private boolean active;
 }

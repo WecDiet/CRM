@@ -46,21 +46,17 @@ public class BrandController {
     public ResponseEntity<?> createBrand(
             @ModelAttribute BrandRequest createRequest,
             @RequestParam("media") MultipartFile media,
-            @RequestParam("width") int width,
-            @RequestParam("height") int height) {
-        return ResponseEntity.ok(brandService.createBrand(createRequest, media,
-                width, height));
+            @RequestParam("active") boolean active) {
+        return ResponseEntity.ok(brandService.createBrand(createRequest, media, active));
     }
 
     @PutMapping(Enpoint.Brand.UPDATE)
     public ResponseEntity<?> updateBrand(
             @PathVariable String id,
             @ModelAttribute BrandRequest updateRequest,
-            @RequestParam("media") MultipartFile media,
-            @RequestParam("width") int width,
-            @RequestParam("height") int height) {
-        return ResponseEntity.ok(brandService.updateBrand(id, updateRequest, media,
-                width, height));
+            @RequestParam("active") boolean active,
+            @RequestParam("media") MultipartFile media) {
+        return ResponseEntity.ok(brandService.updateBrand(id, updateRequest, media, active));
     }
 
     @DeleteMapping(Enpoint.Brand.DELETE)

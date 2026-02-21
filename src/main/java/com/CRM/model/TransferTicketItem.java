@@ -18,35 +18,31 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "inventories")
+@Table(name = "transfer_ticket_items")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Inventory extends BaseEntity {
-
+public class TransferTicketItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transfer_ticket_id", nullable = false)
+    private TransferTicket transferTicket;
+
+    // Sản phẩm cụ thể được điều chuyển
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
-    private Store store;
+    // 2. Số lượng thực xuất (Số lượng thực tế rời kho tổng)
+    @Column(name = "quantity_sent")
+    private Integer quantitySent;
 
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity;
-
-    @Column(name = "type")
-    private String type; // Nhập kho, Xuất kho, Điều chuyển
-
-    @Column(name = "reference_code")
-    private String referenceCode; // Mã tham chiếu liên quan đến giao dịch kho hàng (nếu có) 
-
-    @Column(name = "note", columnDefinition = "TEXT")
-    private String note;
+    // 4. Ghi chú riêng cho từng dòng sản phẩm (VD: hàng dễ vỡ, lưu ý date)
+    @Column(columnDefinition = "TEXT")
+    private String note; 
 }

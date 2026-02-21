@@ -54,6 +54,25 @@ public class Enpoint {
         public static final String UPDATE = "/{id}";
     }
 
+    public static final class Voucher {
+        public static final String BASE = API_PREFIX + "/vouchers";
+        public static final String ID = "/detail/{id}";
+        public static final String CREATE = "/new";
+        public static final String UPDATE = "/{id}";
+        public static final String DELETE = "/{id}";
+        public static final String TRASH = "/trash";
+        public static final String RESTORE = TRASH + "/{id}";
+    }
+
+        public static final class Supplier {
+        public static final String BASE = API_PREFIX + "/suppliers";
+        public static final String ID = "/detail/{id}";
+        public static final String CREATE = "/new";
+        public static final String UPDATE = "/{id}";
+        public static final String DELETE = "/{id}";
+        public static final String TRASH = "/trash";
+        public static final String RESTORE = TRASH + "/{id}";
+    }
     public static final class Product {
         public static final String BASE = API_PREFIX + "/products";
         public static final String ID = "/detail/{id}";

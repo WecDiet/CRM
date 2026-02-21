@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,10 +42,20 @@ public class BannerController {
     public ResponseEntity<?> createBanner(
             @ModelAttribute BannerRequest bannerRequest,
             @RequestParam("media") MultipartFile media,
-            @RequestParam("width") int width,
-            @RequestParam("height") int height) throws NotFoundException {
-        return ResponseEntity.ok(bannerService.createBanner(bannerRequest, media, width, height));
+            @RequestParam("active") boolean active) throws NotFoundException {
+        return ResponseEntity.ok(bannerService.createBanner(bannerRequest, media, active));
     }
+
+
+    @PutMapping(Enpoint.Banner.UPDATE)
+    public ResponseEntity<?> updateBanner(
+        @PathVariable String id,
+        @ModelAttribute BannerRequest bannerRequest,
+        @RequestParam("media") MultipartFile media,
+        @RequestParam("active") boolean active 
+    ){
+        return ResponseEntity.ok(bannerService.updateBanner(id, bannerRequest, media, active));
+    }   
 
     @DeleteMapping(Enpoint.Banner.DELETE)
     public ResponseEntity<?> deleteBanner(@PathVariable String id) {

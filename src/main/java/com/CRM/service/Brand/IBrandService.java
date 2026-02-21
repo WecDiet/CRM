@@ -15,9 +15,9 @@ public interface IBrandService {
     PagingResponse<BrandResponse> getAllBrand(int page, int limit, String sortBy, String direction,
             String categotyName, boolean active);
 
-    APIResponse<Boolean> createBrand(BrandRequest brandRequest, MultipartFile image, int width, int height);
+    APIResponse<Boolean> createBrand(BrandRequest brandRequest, MultipartFile image, boolean active);
 
-    APIResponse<Boolean> updateBrand(String id, BrandRequest brandRequest, MultipartFile image, int width, int height);
+    APIResponse<Boolean> updateBrand(String id, BrandRequest brandRequest, MultipartFile image, boolean active);
 
     APIResponse<Boolean> deleteBrand(String id);
 

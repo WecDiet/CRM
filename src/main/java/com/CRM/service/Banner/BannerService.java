@@ -1,7 +1,6 @@
 package com.CRM.service.Banner;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,7 +8,6 @@ import java.util.concurrent.CompletableFuture;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,10 +21,8 @@ import com.CRM.repository.IBannerRepository;
 import com.CRM.repository.IBrandRepository;
 import com.CRM.repository.IMediaRepository;
 import com.CRM.repository.Specification.BannerSpecification;
-import com.CRM.repository.Specification.BrandSpecification;
 import com.CRM.request.Banner.BannerRequest;
 import com.CRM.response.Banner.BannerResponse;
-import com.CRM.response.Brand.BrandResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.service.Cloudinary.CloudinaryService;
@@ -68,7 +64,7 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
 
     @Transactional
     @Override
-    public APIResponse<Boolean> createBanner(BannerRequest bannerRequest, MultipartFile media, int width, int height) {
+    public APIResponse<Boolean> createBanner(BannerRequest bannerRequest, MultipartFile media, boolean active) {
         if (iBannerRepository.existsActiveByName(bannerRequest.getName())) {
             throw new IllegalArgumentException("Banner name already exists and is active");
         }
@@ -88,7 +84,7 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
         String uploadedPublicId = null;
         try {
             CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
-                    .uploadMedia(media, "crm/banner", width, height);
+                    .uploadMedia(media, "crm/banner");
 
             Map<String, Object> uploadResult = uploadFuture.join();
             uploadedPublicId = (String) uploadResult.get("public_id");
@@ -96,7 +92,7 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
 
             Banner banner = modelMapper.map(bannerRequest, Banner.class);
             banner.setBrand(brand);
-            banner.setInActive(bannerRequest.isActive());
+            banner.setInActive(active);
             banner.setCreatedDate(new Date());
             banner.setModifiedDate(new Date());
             banner.setCode(randomCode());
@@ -135,47 +131,65 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
     }
 
     @Override
-    public APIResponse<Boolean> updateBanner(String id, BannerRequest bannerRequest, MultipartFile media, int width,
-            int height) {
-        Banner banner = iBannerRepository.findById(UUID.fromString(id))
+    public APIResponse<Boolean> updateBanner(String id, BannerRequest bannerRequest, MultipartFile media, boolean active) {
+        Map<String, Object> uploadImage = null;
+        try {
+            Banner banner = iBannerRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IllegalArgumentException("Banner not found. "));
-        Brand brand = iBrandRepository.findById(UUID.fromString(bannerRequest.getBrand()))
+            Brand brand = iBrandRepository.findById(UUID.fromString(bannerRequest.getBrand()))
                 .orElseThrow(() -> new IllegalArgumentException("Brand not found. "));
-
-        modelMapper.map(bannerRequest, banner);
-        banner.setBrand(brand);
-        banner.setModifiedDate(new Date());
-
-        if (media != null && !media.isEmpty()) {
-            try {
-                if (banner.getImage() != null) {
-                    cloudinaryService.deleteMedia(banner.getImage().getPublicId());
-                    banner.setImage(new Media());
+            modelMapper.map(bannerRequest, banner);
+            banner.setBrand(brand);
+            banner.setInActive(active);
+            banner.setModifiedDate(new Date());
+            String oldImage = (banner.getImage() != null) ? banner.getImage().getPublicId() : null;
+             if (media != null && !media.isEmpty()) {
+                try {
+                    uploadImage = cloudinaryService.uploadMedia(media, "crm/banners").join();
+                } catch (Exception e) {
+                    // Nếu upload thất bại, ta ném lỗi để dừng hàm, giữ nguyên ảnh cũ
+                    throw new RuntimeException("If uploading a new image fails, the system will retain the old image. Detail: " + e.getMessage());
                 }
 
-                // Map uploadResult = cloudinaryService.uploadMedia(media, "crm/banner", width,
-                // height);
+                if (uploadImage != null) {
+                    Media bannerMedia = banner.getImage();
+                    if (bannerMedia == null) {
+                        bannerMedia = Media.builder()
+                            .imageUrl((String) uploadImage.get("secure_url"))
+                            .publicId((String) uploadImage.get("public_id"))
+                            .referenceId(brand.getId())
+                            .referenceType("BANNER")
+                            .altText(brand.getName())
+                            .type("MEDIA")
+                            .build();
+                    }else{
+                        bannerMedia.setImageUrl((String) uploadImage.get("secure_url"));
+                        bannerMedia.setPublicId((String) uploadImage.get("public_id"));
+                        bannerMedia.setAltText(brand.getName());
+                    }
 
-                // String uploadedPublicId = (String) uploadResult.get("public_id");
-                // String mediaUrl = (String) uploadResult.get("secure_url");
-                // Media bannerMedia = Media.builder()
-                // .imageUrl(mediaUrl)
-                // .publicId(uploadedPublicId)
-                // .referenceId(banner.getId())
-                // .referenceType("BANNER")
-                // .altText(banner.getName())
-                // .type("MEDIA")
-                // .build();
-                // bannerMedia.setModifiedDate(new Date());
-                // banner.setImage(bannerMedia);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("Failed to upload image, please try again.");
+                    bannerMedia.setInActive(active);
+                    bannerMedia.setModifiedDate(new Date());
+                    banner.setImage(bannerMedia);
+                }
             }
+            iBannerRepository.save(banner);
+            if (oldImage != null && uploadImage != null) {
+                final String finalDeleteId = oldImage;
+                CompletableFuture.runAsync(() -> {
+                    cloudinaryService.deleteMedia(finalDeleteId);
+            });
         }
-        iBannerRepository.save(banner);
         return new APIResponse<>(true, "Banner updated successfully");
+        } catch (Exception e) {
+            // --- ROLLBACK: Nếu DB lỗi, xóa ảnh mới vừa up lên Cloudinary ---
+            if (uploadImage != null) {
+                String publicIdRolback = (String) uploadImage.get("public_id");
+                cloudinaryService.deleteMedia(publicIdRolback);
+                System.err.println("Database error. Rolled back uploaded image: ");
+            }
+            return new APIResponse<>(false, "Update failed: " + e.getMessage());
+        }
     }
 
     @Override

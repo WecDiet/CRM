@@ -1,5 +1,7 @@
 package com.CRM.request.Warehouse;
 
+import java.util.List;
+
 import lombok.*;
 
 @Data
@@ -17,5 +19,7 @@ public class WarehouseRequest {
     private String city;
 
     private String country;
+
+    private List<String> idsImageDelete;
 
 }

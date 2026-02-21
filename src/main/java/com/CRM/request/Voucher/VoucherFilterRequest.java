@@ -1,27 +1,21 @@
 package com.CRM.request.Voucher;
 
 import java.math.BigDecimal;
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
-@ToString
-public class VoucherRequest {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class VoucherFilterRequest {
     private String name;
-    private String couponCode;
-    private String description;
+    private String code;
     private String discountType;
     private BigDecimal discount;
     private Boolean isGlobal;
-    private Integer quantity;
-    private Integer limitPerUser;
-    private BigDecimal minOrderValue;
-    private Set<UUID> productIds;
     
     // start date
     private Integer startDay;

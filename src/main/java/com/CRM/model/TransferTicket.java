@@ -1,6 +1,5 @@
 package com.CRM.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +11,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -23,28 +21,31 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "styles")
+@Table(name = "transfer_tickets")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductStyle {
-    @Id
+public class TransferTicket extends BaseEntity {
+    @Id 
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "name", length = 100, nullable = false)
-    private String name;
+    @Column(name = "transfer_code", length = 200)
+    private String ticketCode;
 
-    @Column(name = "sku_code", length = 100)
-    private String skuCode;
+    @ManyToOne(fetch = FetchType.LAZY) 
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse; // Thường là Kho Tổng
+
+    @ManyToOne(fetch = FetchType.LAZY) 
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;   // Cửa hàng chỉ định
+
+    @OneToMany(mappedBy = "transferTicket", cascade = CascadeType.ALL)
+    private List<TransferTicketItem> items;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id", nullable = false)
-    private Brand brand;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "style_product", joinColumns = @JoinColumn(name = "product_style_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
-    private List<Product> products = new ArrayList<>();
+    @Column(name = "status")
+    private String status; // PENDING, IN_TRANSIT, COMPLETED
 }

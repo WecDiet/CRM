@@ -15,13 +15,10 @@ public interface IWarehouseService {
                         boolean active, WarehouseRequest filter);
 
         APIResponse<Boolean> createWarehouse(WarehouseRequest warehouseRequest, boolean active,
-                        List<MultipartFile> images, int width,
-                        int height);
+                        List<MultipartFile> images);
 
         APIResponse<Boolean> updateWarehouse(String id, boolean active, WarehouseRequest warehouseRequest,
-                        List<MultipartFile> images,
-                        int width,
-                        int height);
+                        List<MultipartFile> images);
 
         APIResponse<Boolean> deleteWarehouse(String id);
 

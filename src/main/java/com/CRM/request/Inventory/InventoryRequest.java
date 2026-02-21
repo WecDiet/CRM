@@ -10,6 +10,6 @@ import lombok.ToString;
 public class InventoryRequest {
     private int quantity;
     private String type; // Nhập kho, Xuất kho, Điều chuyển
-    private String warehouseId;
+    private String storeId;
     private String note;
 }

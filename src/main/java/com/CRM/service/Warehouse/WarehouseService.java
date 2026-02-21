@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -60,9 +62,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     @Transactional
     public APIResponse<Boolean> createWarehouse(WarehouseRequest warehouseRequest,
             boolean active,
-            List<MultipartFile> images,
-            int width,
-            int height) {
+            List<MultipartFile> images) {
         if (warehouseRequest.getName().isEmpty()) {
             throw new IllegalArgumentException("Warehouse name cannot be empty.");
         }
@@ -88,7 +88,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
                         CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
-                                .uploadMedia(image, "crm/warehouses", width, height);
+                                .uploadMedia(image, "crm/warehouses");
                         Map<String, Object> uploadResult = uploadFuture.join();
                         String uploadedPublicId = (String) uploadResult.get("public_id");
                         String mediaUrl = (String) uploadResult.get("secure_url");
@@ -128,76 +128,98 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
 
     @Override
     public APIResponse<Boolean> updateWarehouse(String id, boolean active, WarehouseRequest warehouseRequest,
-            List<MultipartFile> images,
-            int width, int height) {
-        Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new IllegalArgumentException("Warehouse not found with id: " + id));
+            List<MultipartFile> images) {
 
-        if (warehouseRequest.getName().isEmpty()) {
-            throw new IllegalArgumentException("Warehouse name cannot be empty.");
-        }
-
-        if (warehouseRequest.getWard().isEmpty()) {
-            throw new IllegalArgumentException("Ward cannot be empty.");
-        }
+        List<Map<String, Object>> uploadedResults = new ArrayList<>();
+        
+        List<String> imageDeleteIds = new ArrayList<>();
 
         try {
+            Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IllegalArgumentException("Warehouse not found with id: " + id));
+
+            if (warehouseRequest.getName().isEmpty()) {
+                throw new IllegalArgumentException("Warehouse name cannot be empty.");
+            }
+
+            if (warehouseRequest.getWard().isEmpty()) {
+                throw new IllegalArgumentException("Ward cannot be empty.");
+            }
+
+            int currentImageSize = (warehouse.getImages() != null) ? warehouse.getImages().size() : 0;
+            int imageDeleteSize = (warehouseRequest.getIdsImageDelete() != null) ? warehouseRequest.getIdsImageDelete().size() : 0;
+            int newImageSize = (images != null) ? images.size() : 0;
+
+            if ((currentImageSize - imageDeleteSize + newImageSize) > 5 ) {
+                throw new IllegalArgumentException("The total number of photos after updating must not exceed 5.");
+            }
+
+            if (images != null && !images.isEmpty()) {
+                List<CompletableFuture<Map<String, Object>>> futures = images.stream()
+                                    .filter(image -> !image.isEmpty())
+                                    .map(image -> cloudinaryService.uploadMedia(image, "crm/warehouses"))
+                                    .collect(Collectors.toList());
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
+                uploadedResults = futures.stream()
+                                .map(CompletableFuture::join)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+            }
+
             modelMapper.map(warehouseRequest, warehouse);
             warehouse.setInActive(active);
             warehouse.setModifiedDate(new Date());
 
-            List<Media> imageList = new ArrayList<>();
-            if (images != null && !images.isEmpty()) {
-                if (warehouse.getImages() != null) {
-                    int totalImages = warehouse.getImages().size() + images.size();
-                    if (totalImages > 10) {
-                        throw new IllegalArgumentException(
-                                "You can upload a maximum of 10 images. Current images: "
-                                        + warehouse.getImages().size());
-                    }
-                    warehouse.getImages().stream()
-                            .map(Media::getPublicId)
-                            .filter(Objects::nonNull)
-                            .forEach(cloudinaryService::deleteMedia);
+
+            // Xóa ảnh cũ trong List của Entity (Hibernate sẽ tự đánh dấu xóa trong DB)
+            if (warehouse.getImages() != null && warehouseRequest.getIdsImageDelete() != null && !warehouseRequest.getIdsImageDelete().isEmpty()) {
+                // Lọc ra những ảnh thực sự có trong DB để chuẩn bị xóa trên Cloudinary
+                imageDeleteIds = warehouse.getImages().stream()
+                                .map(Media::getPublicId)
+                                .filter(warehouseRequest.getIdsImageDelete()::contains)
+                                .collect(Collectors.toList());
+                
+                // Xóa khỏi danh sách liên kết
+                warehouse.getImages().removeIf(image -> warehouseRequest.getIdsImageDelete().contains(image.getPublicId()));
+            }
+
+            if (!uploadedResults.isEmpty()) {
+                if (warehouse.getImages() == null) {
+                    warehouse.setImages(new ArrayList<>());
                 }
-    
-                for (MultipartFile image : images) {
-                    if (!image.isEmpty()) {
-                        CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
-                                .uploadMedia(image, "crm/warehouses", width, height);
-                        Map<String, Object> uploadResult = uploadFuture.join();
-                        String uploadedPublicId = (String) uploadResult.get("public_id");
-                        String mediaUrl = (String) uploadResult.get("secure_url");
-    
-                        Media media = Media.builder()
-                                .imageUrl(mediaUrl)
-                                .publicId(uploadedPublicId)
-                                .referenceType("WAREHOUSE")
-                                .referenceId(warehouse.getId())
-                                .altText(warehouse.getName())
-                                .type("IMAGE")
-                                .build();
-    
-                        media.setInActive(active);
-                        media.setCreatedDate(new Date());
-                        media.setModifiedDate(new Date());
-                        media.setCode(randomCode());
-                        media.setDeletedAt(0L);
-                        media.setDeleted(false);
-    
-                        warehouse.getImages().add(media);
-                    }
+                
+                for(Map<String, Object> uploadImages : uploadedResults){
+                    Media newImage = Media.builder()
+                                    .imageUrl((String) uploadImages.get("secure_url"))
+                                    .publicId((String) uploadImages.get("public_id"))
+                                    .referenceId(warehouse.getId())
+                                    .referenceType("WAREHOUSE")
+                                    .altText(warehouse.getName())
+                                    .type("IMAGE")
+                                    .build();
+                    warehouse.getImages().add(newImage);
+                }
+
+                iWarehouseRepository.save(warehouse);
+
+                if (!imageDeleteIds.isEmpty()) {
+                    final List<String> finalDeleteIds = new ArrayList<>(imageDeleteIds);
+                    CompletableFuture.runAsync(() -> {
+                        finalDeleteIds.forEach(cloudinaryService::deleteMedia);
+                    }).exceptionally(ex -> {
+                        System.err.println("Cloudinary delete failed: " + ex.getMessage());
+                        return null;
+                    });
                 }
             }
 
-            if (!imageList.isEmpty()) {
-                warehouse.setImages(imageList);
-                iWarehouseRepository.save(warehouse);
-            }
-            return new APIResponse<>(true, "Warehouse updated successfully.");
+            return new APIResponse<>(true, "Updated Warehouse successfully");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error updating warehouse: " + e.getMessage());
+            if (!uploadedResults.isEmpty()) {
+                uploadedResults.forEach(image -> cloudinaryService.deleteMedia((String) image.get("public_id")));
+            }
+            throw new RuntimeException("Update warehouse failed: " + e.getMessage());
         }
     }
 

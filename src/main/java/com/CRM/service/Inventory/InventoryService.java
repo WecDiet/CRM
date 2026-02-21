@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.CRM.Util.Helper.HelperService;
 import com.CRM.model.Inventory;
-import com.CRM.model.Warehouse;
+import com.CRM.model.Store;
 import com.CRM.repository.IInventoryRepository;
-import com.CRM.repository.IWarehouseRepository;
+import com.CRM.repository.IStoreRepository;
 import com.CRM.repository.Specification.InventorySpecification;
 import com.CRM.request.Inventory.InventoryRequest;
 import com.CRM.response.Inventory.InventoryResponse;
@@ -25,7 +25,7 @@ public class InventoryService extends HelperService<Inventory, UUID> implements 
 
     private final IInventoryRepository iInventoryRepository;
 
-    private final IWarehouseRepository iWarehouseRepository;
+    private final IStoreRepository iStoreRepository;
 
     private final ModelMapper modelMapper;
 
@@ -47,11 +47,9 @@ public class InventoryService extends HelperService<Inventory, UUID> implements 
             () -> new RuntimeException("Inventory not found")
         );
 
-        Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(inventoryRequest.getWarehouseId())).orElseThrow(() ->
-            new RuntimeException("Warehouse not found")
-        );
+        Store store = iStoreRepository.findById(UUID.fromString(inventoryRequest.getStoreId())).orElseThrow(() -> new IllegalArgumentException("Store not found"));
         modelMapper.map(inventoryRequest, inventory);
-        inventory.setWarehouse(warehouse);
+        inventory.setStore(store);
         inventory.setInActive(true);
         inventory.setDeleted(false);
         inventory.setModifiedDate(new Date());

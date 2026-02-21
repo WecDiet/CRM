@@ -5,8 +5,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.CRM.model.Voucher;
+import com.CRM.model.Store;
 
-public interface IVoucherRepository extends JpaRepository<Voucher, UUID>, JpaSpecificationExecutor<Voucher> {
-    boolean existsByCouponCode(String couponCode);
+public interface IStoreRepository extends JpaRepository<Store, UUID>, JpaSpecificationExecutor<Store>{
+    
 }

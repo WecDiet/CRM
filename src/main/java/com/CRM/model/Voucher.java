@@ -2,11 +2,14 @@ package com.CRM.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,6 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -32,7 +36,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class Voucher extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
@@ -41,8 +44,8 @@ public class Voucher extends BaseEntity {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "code", length = 100, nullable = false)
-    private String code;
+    @Column(name = "coupon_code", length = 100, nullable = false)
+    private String couponCode;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -52,10 +55,6 @@ public class Voucher extends BaseEntity {
 
     @Column(name = "discount", nullable = false)
     private BigDecimal discount;
-
-    // Nếu voucher bị xóa vào thùng rác và hoặc đã xóa vĩnh viễn thì mặc dù customer có mã cũng không dùng được
-    @Column(name = "status", nullable = false)
-    private boolean status;
 
     /*
      * true = áp dụng cho tất cả sản phẩm,
@@ -70,7 +69,7 @@ public class Voucher extends BaseEntity {
 
     @Column(name = "expiration_date", nullable = false)
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime expirationDate;
+    private LocalDateTime expirationDate; // Ngày hết hạn
 
     // 1. Tổng số lượng voucher phát hành (Ví dụ: chỉ có 100 mã)
     @Column(name = "quantity", nullable = false)
@@ -103,5 +102,9 @@ public class Voucher extends BaseEntity {
     // Một Voucher có thể được ghi nhận trong nhiều lần sử dụng (VoucherUsage)
     @OneToMany(mappedBy = "voucher")
     private Set<VoucherUsage> usages;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "voucher_image", joinColumns = @JoinColumn(name = "voucher_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
+    private Media image;
 
 }

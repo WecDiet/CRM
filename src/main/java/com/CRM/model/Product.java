@@ -40,6 +40,9 @@ public class Product extends BaseEntity implements Serializable {
     @Column(name = "status", nullable = false)
     private boolean status;
 
+    @Column(name= "sku_code", nullable = false)
+    private String skuCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_style_id", nullable = false)
     private ProductStyle productStyle;

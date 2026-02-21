@@ -55,10 +55,8 @@ public class WarehouseController {
     public ResponseEntity<?> createWarehouse(
             @ModelAttribute WarehouseRequest warehouseRequest,
             @RequestParam("active") boolean active,
-            @RequestParam("images") List<MultipartFile> images,
-            @RequestParam("width") int width,
-            @RequestParam("height") int height) {
-        return ResponseEntity.ok(warehouseService.createWarehouse(warehouseRequest, active, images, width, height));
+            @RequestParam("images") List<MultipartFile> images) {
+        return ResponseEntity.ok(warehouseService.createWarehouse(warehouseRequest, active, images));
     }
 
     @DeleteMapping(Enpoint.Warehouse.DELETE)
@@ -78,10 +76,8 @@ public class WarehouseController {
             @PathVariable String id,
             @ModelAttribute WarehouseRequest warehouseRequest,
             @RequestParam("active") boolean active,
-            @RequestParam("images") List<MultipartFile> images,
-            @RequestParam("width") int width,
-            @RequestParam("height") int height) {
-        return ResponseEntity.ok(warehouseService.updateWarehouse(id, active, warehouseRequest, images, width, height));
+            @RequestParam("images") List<MultipartFile> images) {
+        return ResponseEntity.ok(warehouseService.updateWarehouse(id, active, warehouseRequest, images));
     }
 
 }

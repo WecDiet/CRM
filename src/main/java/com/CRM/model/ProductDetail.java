@@ -36,10 +36,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductDetail extends BaseEntity {
+public class ProductDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
     private UUID id;
 
     @Column(name = "name", length = 500, nullable = false)
@@ -50,6 +49,7 @@ public class ProductDetail extends BaseEntity {
 
     @Column(name = "price")
     private BigDecimal price;
+    
     // Khung
     @Column(name = "frame", length = 100)
     private String frame;
