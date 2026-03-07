@@ -18,7 +18,7 @@ public interface IWarehouseService {
                         List<MultipartFile> images);
 
         APIResponse<Boolean> updateWarehouse(String id, boolean active, WarehouseRequest warehouseRequest,
-                        List<MultipartFile> images);
+                        List<MultipartFile> images,List<String> idsImageDelete);
 
         APIResponse<Boolean> deleteWarehouse(String id);
 

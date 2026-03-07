@@ -30,4 +30,5 @@ public interface IHelperService<T extends BaseEntity, K> {
                         int warningMinutes, // thời gian thông báo trước
                         String entityName,
                         Consumer<T> actionFunction);
+        String generateUniqueCode();
 }

@@ -104,7 +104,7 @@ public class Voucher extends BaseEntity {
     private Set<VoucherUsage> usages;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "voucher_image", joinColumns = @JoinColumn(name = "voucher_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    private Media image;
+    @JoinTable(name = "voucher_image", joinColumns = @JoinColumn(name = "voucher_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
+    private Image image;
 
 }

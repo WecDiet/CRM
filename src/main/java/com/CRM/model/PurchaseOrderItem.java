@@ -40,6 +40,9 @@ public class PurchaseOrderItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Column(name = "product_name", nullable = false)
+    private String productName; // Tên sản phẩm (lưu trực tiếp để tránh phụ thuộc vào bảng Product)
+    
     @Column(name = "unit_price")
     private BigDecimal unitPrice;     // Giá nhập từ NCC trên 1 đơn vị sản phẩm
     

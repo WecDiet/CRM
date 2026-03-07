@@ -6,11 +6,13 @@ import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -27,7 +29,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 public class Banner extends BaseEntity {
 
     @Id
@@ -41,12 +42,12 @@ public class Banner extends BaseEntity {
     @Column(name = "seq", nullable = false)
     private int seq; // Số thứ tự của banner từ 1 -> 4
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "banner_media", joinColumns = @JoinColumn(name = "banner_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    private Media image;
+    @JoinTable(name = "banner_media", joinColumns = @JoinColumn(name = "banner_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
+    private Image image;
 
 }

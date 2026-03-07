@@ -82,6 +82,6 @@ public class Supplier extends BaseEntity {
     private Set<PurchaseOrder> purchaseOrders = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "media_id")
-    private Media image;
+    @JoinColumn(name = "image_id")
+    private Image image;
 }

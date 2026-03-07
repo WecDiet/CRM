@@ -16,7 +16,7 @@ import com.CRM.Util.Helper.HelperService;
 import com.CRM.enums.RestoreEnum;
 import com.CRM.model.Banner;
 import com.CRM.model.Brand;
-import com.CRM.model.Media;
+import com.CRM.model.Image;
 import com.CRM.repository.IBannerRepository;
 import com.CRM.repository.IBrandRepository;
 import com.CRM.repository.IMediaRepository;
@@ -99,7 +99,7 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
             banner.setDeletedAt(0L);
             banner.setDeleted(false);
 
-            Media bannerMedia = Media.builder()
+            Image bannerMedia = Image.builder()
                     .imageUrl(mediaUrl)
                     .publicId(uploadedPublicId)
                     .referenceId(banner.getId())
@@ -152,9 +152,9 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
                 }
 
                 if (uploadImage != null) {
-                    Media bannerMedia = banner.getImage();
+                    Image bannerMedia = banner.getImage();
                     if (bannerMedia == null) {
-                        bannerMedia = Media.builder()
+                        bannerMedia = Image.builder()
                             .imageUrl((String) uploadImage.get("secure_url"))
                             .publicId((String) uploadImage.get("public_id"))
                             .referenceId(brand.getId())
@@ -197,7 +197,7 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
         Banner banner = iBannerRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IllegalArgumentException("Banner not found !"));
 
-        Media bannerMedia = banner.getImage();
+        Image bannerMedia = banner.getImage();
         if (bannerMedia != null && bannerMedia.getPublicId() != null) {
             bannerMedia.setInActive(false);
             bannerMedia.setDeleted(true);

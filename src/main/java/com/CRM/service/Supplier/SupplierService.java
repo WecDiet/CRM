@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.Util.Helper.HelperService;
-import com.CRM.model.Media;
+import com.CRM.model.Image;
 import com.CRM.model.Supplier;
 import com.CRM.repository.ISupplierRepository;
 import com.CRM.repository.Specification.SupplierSpecification;
@@ -108,7 +108,7 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
             uploadedPublicId = (String) uploadResult.get("public_id");
             String imageUrl = (String) uploadResult.get("secure_url");
 
-            Media supplierImage = Media.builder()
+            Image supplierImage = Image.builder()
                             .imageUrl(imageUrl)
                             .publicId(uploadedPublicId)
                             .referenceId(supplier.getId())
@@ -154,7 +154,7 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
     @Override
     public APIResponse<Boolean> deleteSupplier(String id) {
         Supplier supplier = iSupplierRepository.findById(UUID.fromString(id)).orElseThrow(() -> new IllegalArgumentException("Supplier not found with id:  + id"));
-        Media supllierImage = supplier.getImage();
+        Image supllierImage = supplier.getImage();
         if (supllierImage != null && supllierImage.getPublicId() != null) {
             supllierImage.setInActive(false);
             supllierImage.setDeleted(true);
@@ -233,9 +233,9 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
                     throw new RuntimeException("If uploading a new image fails, the system will retain the old image. Detail: " + e.getMessage());
                 }
                 if (uploadImage != null) {
-                    Media media = supplier.getImage();
+                    Image media = supplier.getImage();
                     if (media == null) {
-                        media = Media.builder()
+                        media = Image.builder()
                             .imageUrl((String) uploadImage.get("secure_url"))
                             .publicId((String) uploadImage.get("public_id"))
                             .referenceId(supplier.getId())

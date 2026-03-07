@@ -1,5 +1,7 @@
 package com.CRM.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,4 +50,13 @@ public class TransferTicket extends BaseEntity {
     
     @Column(name = "status")
     private String status; // PENDING, IN_TRANSIT, COMPLETED
+
+    @Column(name = "expected_delivery_date")
+    private LocalDate expectedDeliveryDate; // Ngày dự kiến hàng tới cửa hàng
+
+    @Column(name = "confirmed_at")
+    private LocalDateTime confirmedAt; // Thời điểm cửa hàng xác nhận nhận hàng
+
+    @Column(name = "note", columnDefinition = "TEXT")
+    private String note; // Ghi chú tổng cho cả phiếu
 }

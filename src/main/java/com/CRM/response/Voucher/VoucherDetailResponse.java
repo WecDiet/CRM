@@ -9,10 +9,10 @@ import com.CRM.response.Product.BaseProductResponse;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
-@Setter
-@Data
+@ToString
 public class VoucherDetailResponse {
     private UUID id;
     private String name;

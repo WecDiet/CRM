@@ -5,13 +5,11 @@ import java.util.UUID;
 
 import com.CRM.response.Media.MediaResponse;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@ToString
 public class WarehouseResponse {
     private UUID id;
     

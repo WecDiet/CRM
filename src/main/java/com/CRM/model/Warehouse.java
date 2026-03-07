@@ -7,6 +7,7 @@ import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -54,7 +55,13 @@ public class Warehouse extends BaseEntity {
     private String warehouseType; // MAIN (Kho tổng), STORE (Cửa hàng)
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "warehouse_media", joinColumns = @JoinColumn(name = "warehouse_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    private List<Media> images = new ArrayList<>();
+    @JoinTable(name = "warehouse_media", joinColumns = @JoinColumn(name = "warehouse_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
+    private List<Image> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true , fetch = FetchType.LAZY)
+    private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "warehouse_inventory", joinColumns = @JoinColumn(name = "warehouse_id"), inverseJoinColumns = @JoinColumn(name = "inventory_id"))
+    private List<Inventory> inventories = new ArrayList<>();
 }

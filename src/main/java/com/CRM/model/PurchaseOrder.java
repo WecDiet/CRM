@@ -1,7 +1,8 @@
 package com.CRM.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +35,9 @@ public class PurchaseOrder extends BaseEntity {
     @Id 
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(name ="name", nullable = false)
+    private String name; // Tên đơn mua hàng (VD: Đơn mua hàng tháng 9/2023)
 
     @Column(name = "po_number")
     private String poNumber; // Mã đơn mua hàng (VD: PO-2023-0001)
@@ -54,10 +59,19 @@ public class PurchaseOrder extends BaseEntity {
     @Column(name = "total_amount")
     private BigDecimal totalAmount; // Tổng giá trị đơn hàng nhập
 
-    private LocalDateTime orderDate;
+    private LocalDate orderDate;
     
-    private LocalDateTime expectedDeliveryDate; // Ngày dự kiến hàng về
+    private LocalDate expectedDeliveryDate; // Ngày dự kiến hàng về
 
-    @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
-    private List<PurchaseOrderItem> items;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @OneToMany(mappedBy = "purchaseOrder",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<PurchaseOrderItem> items = new ArrayList<>();
+
+    @OneToOne
+    @JoinColumn(name = "po_delivery_id", nullable = false, unique = true)
+    private PurchaseOrderDelivery purchaseOrderDelivery;
 }

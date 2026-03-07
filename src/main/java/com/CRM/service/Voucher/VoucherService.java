@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.Util.Helper.HelperService;
-import com.CRM.model.Media;
+import com.CRM.model.Image;
 import com.CRM.model.Voucher;
 import com.CRM.repository.IProductRepository;
 import com.CRM.repository.IVoucherRepository;
@@ -108,7 +108,7 @@ public class VoucherService extends HelperService<Voucher, UUID> implements IVou
             uploadedPublicId = (String) uploadResult.get("public_id");
             String imageUrl = (String) uploadResult.get("secure_url");
 
-            Media voucherImage = Media.builder()
+            Image voucherImage = Image.builder()
                         .imageUrl(imageUrl)
                         .publicId(uploadedPublicId)
                         .referenceId(voucher.getId())

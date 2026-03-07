@@ -42,7 +42,6 @@ public class TransferTicketItem {
     @Column(name = "quantity_sent")
     private Integer quantitySent;
 
-    // 4. Ghi chú riêng cho từng dòng sản phẩm (VD: hàng dễ vỡ, lưu ý date)
-    @Column(columnDefinition = "TEXT")
-    private String note; 
+    @Column(name = "quantity_received")
+    private Integer quantityReceived;     // Số lượng cửa hàng thực tế nhận được
 }

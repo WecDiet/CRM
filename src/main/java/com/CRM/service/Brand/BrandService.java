@@ -16,7 +16,7 @@ import com.CRM.Util.Helper.HelperService;
 import com.CRM.enums.RestoreEnum;
 import com.CRM.model.Brand;
 import com.CRM.model.Category;
-import com.CRM.model.Media;
+import com.CRM.model.Image;
 import com.CRM.repository.IBrandRepository;
 import com.CRM.repository.ICategoryRepository;
 import com.CRM.repository.Specification.BrandSpecification;
@@ -92,7 +92,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             brand.setDeleted(false);
 
             // Tạo Media entity
-            Media brandMedia = Media.builder()
+            Image brandMedia = Image.builder()
                     .imageUrl(mediaUrl)
                     .publicId(uploadedPublicId)
                     .referenceId(brand.getId())
@@ -167,9 +167,9 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             }
 
             if (uploadImage != null) {
-                Media media = brand.getImage();
+                Image media = brand.getImage();
                 if (media == null) {
-                    media = Media.builder()
+                    media = Image.builder()
                             .imageUrl((String) uploadImage.get("secure_url"))
                             .publicId((String) uploadImage.get("public_id"))
                             .referenceId(brand.getId())
@@ -212,7 +212,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
     public APIResponse<Boolean> deleteBrand(String id) {
         Brand brand = iBrandRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new IllegalArgumentException("Role not found"));
-        Media brandMedia = brand.getImage();
+        Image brandMedia = brand.getImage();
         if (brandMedia != null && brandMedia.getPublicId() != null) {
             brandMedia.setInActive(false);
             brandMedia.setDeleted(true);

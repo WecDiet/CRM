@@ -5,19 +5,17 @@ import java.util.UUID;
 import com.CRM.response.Product.BaseProductResponse;
 import com.CRM.response.Warehouse.WarehouseResponse;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@ToString
 public class InventoryResponse {
     private UUID id;
     private int quantity;
     private String type; // Nhập kho, Xuất kho, Điều chuyển
     private String referenceCode; // Mã tham chiếu liên quan đến giao dịch kho hàng (nếu có) 
     private String note;
-    private BaseProductResponse product;
+    private BaseProductResponse product; 
     private WarehouseResponse warehouse;
 }

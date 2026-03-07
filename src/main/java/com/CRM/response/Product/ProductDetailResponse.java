@@ -2,13 +2,12 @@ package com.CRM.response.Product;
 
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@ToString
 public class ProductDetailResponse {
     private UUID id;
     private String name;

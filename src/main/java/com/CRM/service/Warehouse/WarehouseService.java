@@ -1,5 +1,6 @@
 package com.CRM.service.Warehouse;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -20,9 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.Util.Helper.HelperService;
 import com.CRM.enums.RestoreEnum;
-import com.CRM.model.Media;
+import com.CRM.model.Image;
 import com.CRM.model.Warehouse;
 import com.CRM.repository.IMediaRepository;
+import com.CRM.repository.IPurchaseOrderRepository;
 import com.CRM.repository.IWarehouseRepository;
 import com.CRM.repository.Specification.WarehouseSpecification;
 import com.CRM.request.Warehouse.WarehouseRequest;
@@ -44,6 +45,8 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     private final IMediaRepository iMediaRepository;
 
     private final CloudinaryService cloudinaryService;
+
+    private final IPurchaseOrderRepository iPurchaseOrderRepository;
 
     @Override
     public PagingResponse<WarehouseResponse> getAllWarehouses(int page, int limit, String sortBy, String direction,
@@ -69,9 +72,13 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
         if (iWarehouseRepository.existsActiveByName(warehouseRequest.getName())) {
             throw new IllegalArgumentException("Warehouse name already exists.");
         }
+        if (warehouseRequest.getWarehouseType().isEmpty()) {
+            throw new IllegalArgumentException("Warehouse type cannot be empty.");
+        }
 
         try {
             Warehouse warehouse = modelMapper.map(warehouseRequest, Warehouse.class);
+            warehouse.setWarehouseType(warehouseRequest.getWarehouseType());
             warehouse.setInActive(active);
             warehouse.setCreatedDate(new Date());
             warehouse.setModifiedDate(new Date());
@@ -79,7 +86,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
             warehouse.setDeletedAt(0L);
             warehouse.setDeleted(false);
 
-            List<Media> imageList = new ArrayList<>();
+            List<Image> imageList = new ArrayList<>();
 
             if (images != null && !images.isEmpty()) {
                 if (images.size() > 5) {
@@ -93,7 +100,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                         String uploadedPublicId = (String) uploadResult.get("public_id");
                         String mediaUrl = (String) uploadResult.get("secure_url");
 
-                        Media media = Media.builder()
+                        Image media = Image.builder()
                                 .imageUrl(mediaUrl)
                                 .publicId(uploadedPublicId)
                                 .referenceType("WAREHOUSE")
@@ -128,11 +135,11 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
 
     @Override
     public APIResponse<Boolean> updateWarehouse(String id, boolean active, WarehouseRequest warehouseRequest,
-            List<MultipartFile> images) {
+            List<MultipartFile> images, List<String> idsImageDelete) {
 
         List<Map<String, Object>> uploadedResults = new ArrayList<>();
         
-        List<String> imageDeleteIds = new ArrayList<>();
+        List<String> finalImageDeleteIds = new ArrayList<>();
 
         try {
             Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(id))
@@ -147,7 +154,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
             }
 
             int currentImageSize = (warehouse.getImages() != null) ? warehouse.getImages().size() : 0;
-            int imageDeleteSize = (warehouseRequest.getIdsImageDelete() != null) ? warehouseRequest.getIdsImageDelete().size() : 0;
+            int imageDeleteSize = (idsImageDelete != null) ? idsImageDelete.size() : 0;
             int newImageSize = (images != null) ? images.size() : 0;
 
             if ((currentImageSize - imageDeleteSize + newImageSize) > 5 ) {
@@ -173,15 +180,15 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
 
 
             // Xóa ảnh cũ trong List của Entity (Hibernate sẽ tự đánh dấu xóa trong DB)
-            if (warehouse.getImages() != null && warehouseRequest.getIdsImageDelete() != null && !warehouseRequest.getIdsImageDelete().isEmpty()) {
+            if (warehouse.getImages() != null && idsImageDelete != null && !idsImageDelete.isEmpty()) {
                 // Lọc ra những ảnh thực sự có trong DB để chuẩn bị xóa trên Cloudinary
-                imageDeleteIds = warehouse.getImages().stream()
-                                .map(Media::getPublicId)
-                                .filter(warehouseRequest.getIdsImageDelete()::contains)
+                finalImageDeleteIds = warehouse.getImages().stream()
+                                .map(Image::getPublicId)
+                                .filter(idsImageDelete::contains)
                                 .collect(Collectors.toList());
                 
                 // Xóa khỏi danh sách liên kết
-                warehouse.getImages().removeIf(image -> warehouseRequest.getIdsImageDelete().contains(image.getPublicId()));
+                warehouse.getImages().removeIf(image -> idsImageDelete.contains(image.getPublicId()));
             }
 
             if (!uploadedResults.isEmpty()) {
@@ -190,7 +197,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                 }
                 
                 for(Map<String, Object> uploadImages : uploadedResults){
-                    Media newImage = Media.builder()
+                    Image newImage = Image.builder()
                                     .imageUrl((String) uploadImages.get("secure_url"))
                                     .publicId((String) uploadImages.get("public_id"))
                                     .referenceId(warehouse.getId())
@@ -203,8 +210,8 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
 
                 iWarehouseRepository.save(warehouse);
 
-                if (!imageDeleteIds.isEmpty()) {
-                    final List<String> finalDeleteIds = new ArrayList<>(imageDeleteIds);
+                if (!finalImageDeleteIds.isEmpty()) {
+                    final List<String> finalDeleteIds = new ArrayList<>(finalImageDeleteIds);
                     CompletableFuture.runAsync(() -> {
                         finalDeleteIds.forEach(cloudinaryService::deleteMedia);
                     }).exceptionally(ex -> {
@@ -227,7 +234,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
     public APIResponse<Boolean> deleteWarehouse(String id) {
         Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IllegalArgumentException("Warehouse not found with id: " + id));
-        List<Media> warehouseImages = warehouse.getImages();
+        List<Image> warehouseImages = warehouse.getImages();
         if (warehouseImages != null && !warehouseImages.isEmpty()) {
             warehouse.getImages().stream().forEach(images -> {
                 images.setInActive(false);
@@ -272,11 +279,11 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                 WarehouseSpecification.deleteThreshold(deleteThreshold), warningMinutes,
                 "WAREHOUSE",
                 (warehouse) -> {
-                    List<Media> images = warehouse.getImages();
+                    List<Image> images = warehouse.getImages();
                     AtomicInteger success = new AtomicInteger();
                     AtomicInteger failed = new AtomicInteger();
                     List<CompletableFuture<Void>> futures = images.stream()
-                            .map(Media::getPublicId)
+                            .map(Image::getPublicId)
                             .filter(Objects::nonNull)
                             .map(publicId -> cloudinaryService.deleteMedia(publicId).exceptionally(ex -> {
                                 failed.incrementAndGet();
@@ -328,5 +335,6 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                 .data(true)
                 .build();
     }
+
 
 }

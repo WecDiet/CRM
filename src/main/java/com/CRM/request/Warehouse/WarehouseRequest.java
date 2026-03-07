@@ -20,6 +20,6 @@ public class WarehouseRequest {
 
     private String country;
 
-    private List<String> idsImageDelete;
+    private String warehouseType;
 
 }

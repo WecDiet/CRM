@@ -43,8 +43,8 @@ public class Story extends BaseEntity {
     private boolean status;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "story_media", joinColumns = @JoinColumn(name = "story_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    private List<Media> images = new ArrayList<>();
+    @JoinTable(name = "story_media", joinColumns = @JoinColumn(name = "story_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
+    private List<Image> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Brand> brands = new ArrayList<>();

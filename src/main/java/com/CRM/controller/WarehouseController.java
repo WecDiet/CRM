@@ -10,16 +10,21 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.constant.Enpoint;
 import com.CRM.enums.RestoreEnum;
 import com.CRM.request.Warehouse.WarehouseRequest;
+import com.CRM.response.Pagination.APIResponse;
+import com.CRM.service.PurchaseOrder.PurchaseOrderService;
 import com.CRM.service.Warehouse.WarehouseService;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -28,6 +33,8 @@ import lombok.RequiredArgsConstructor;
 public class WarehouseController {
 
     private final WarehouseService warehouseService;
+
+    private final PurchaseOrderService purchaseOrderService;
 
     @GetMapping
     public ResponseEntity<?> getAllWarehouse(
@@ -76,8 +83,19 @@ public class WarehouseController {
             @PathVariable String id,
             @ModelAttribute WarehouseRequest warehouseRequest,
             @RequestParam("active") boolean active,
-            @RequestParam("images") List<MultipartFile> images) {
-        return ResponseEntity.ok(warehouseService.updateWarehouse(id, active, warehouseRequest, images));
+            @RequestParam("images") List<MultipartFile> images,
+            @RequestParam("idsImageDelete") List<String> idsImageDelete) {
+        return ResponseEntity.ok(warehouseService.updateWarehouse(id, active, warehouseRequest, images, idsImageDelete));
+    }
+
+    @PutMapping(Enpoint.Warehouse.COMPLETE)
+    public ResponseEntity<APIResponse<Boolean>> confirmImportWarehouse(
+        @PathVariable String poCode,
+        @RequestParam("status") String status,
+        @RequestParam("note") String note,
+        @RequestParam("type") String type
+    ){
+        return ResponseEntity.ok(purchaseOrderService.completePurchaseOrder(poCode, status, note, type));
     }
 
 }

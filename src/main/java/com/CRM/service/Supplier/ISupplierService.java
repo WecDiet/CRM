@@ -25,5 +25,5 @@ public interface ISupplierService {
 
     PagingResponse<SupplierResponse> getAllSupplierTrash(int page, int limit, String sortBy, String direction, SupplierFilterRequest filter);
 
-
+    
 }

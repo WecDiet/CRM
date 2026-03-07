@@ -5,8 +5,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.CRM.model.Media;
+import com.CRM.model.Image;
 
-public interface IMediaRepository extends JpaRepository<Media, UUID>, JpaSpecificationExecutor<Media> {
+public interface IMediaRepository extends JpaRepository<Image, UUID>, JpaSpecificationExecutor<Image> {
 
 }

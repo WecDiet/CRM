@@ -1,14 +1,11 @@
 package com.CRM.response.Product;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@ToString
 public class BaseProductResponse {
-    private String name;
     private String code;
-    private Double price;
+    private BaseProductDetail productDetail;
 }

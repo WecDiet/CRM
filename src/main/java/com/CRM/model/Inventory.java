@@ -35,8 +35,12 @@ public class Inventory extends BaseEntity {
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
+    @JoinColumn(name = "store_id")
     private Store store;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
@@ -49,4 +53,5 @@ public class Inventory extends BaseEntity {
 
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;
+
 }

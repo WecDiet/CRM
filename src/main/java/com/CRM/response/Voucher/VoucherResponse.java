@@ -7,10 +7,10 @@ import java.util.UUID;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
-@Setter
-@Data
+@ToString
 public class VoucherResponse {
     private UUID id;
     private String code;

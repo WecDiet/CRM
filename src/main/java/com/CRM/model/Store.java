@@ -9,6 +9,7 @@ import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -62,7 +63,8 @@ public class Store extends BaseEntity {
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Inventory> inventory = new ArrayList<>();
+    @JoinTable(name = "store_inventory", joinColumns = @JoinColumn(name = "store_id"), inverseJoinColumns = @JoinColumn(name = "inventory_id"))
+    private List<Inventory> inventories = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "employee_store", joinColumns = @JoinColumn(name = "store_id"), inverseJoinColumns = @JoinColumn(name = "employee_id"))
@@ -72,7 +74,7 @@ public class Store extends BaseEntity {
     @JoinTable(
             name = "store_media",
             joinColumns = @JoinColumn(name = "store_id"),
-            inverseJoinColumns = @JoinColumn(name = "meida_id")
+            inverseJoinColumns = @JoinColumn(name = "image_id")
     )
-    private List<Media> images = new ArrayList<>();
+    private List<Image> images = new ArrayList<>();
 }

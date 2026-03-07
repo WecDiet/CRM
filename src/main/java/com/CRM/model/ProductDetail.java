@@ -97,10 +97,10 @@ public class ProductDetail {
     private Product product;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "product_image", joinColumns = @JoinColumn(name = "product_detail_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
-    private List<Media> images = new ArrayList<>();
+    @JoinTable(name = "product_image", joinColumns = @JoinColumn(name = "product_detail_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
+    private List<Image> images = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "pattern_color_id", nullable = false)
+    @JoinColumn(name = "pattern_color_id")
     private List<PatternColor> colors = new ArrayList<>();
 }

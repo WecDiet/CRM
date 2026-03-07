@@ -1,7 +1,6 @@
 package com.CRM.model;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -43,8 +43,12 @@ public class Product extends BaseEntity implements Serializable {
     @Column(name= "sku_code", nullable = false)
     private String skuCode;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "main_product_image", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
+    private Image mainImage;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_style_id", nullable = false)
+    @JoinColumn(name = "product_style_id")
     private ProductStyle productStyle;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -52,4 +56,5 @@ public class Product extends BaseEntity implements Serializable {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Inventory> inventories = new ArrayList<>();
+
 }

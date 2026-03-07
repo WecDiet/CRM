@@ -3,9 +3,7 @@ package com.CRM.Util.Helper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -20,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.util.StringUtils;
 
 import com.CRM.model.BaseEntity;
 import com.CRM.response.Pagination.APIResponse;
@@ -120,6 +119,7 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
 
                 // Parallel chỉ khi > 50 items và ModelMapper thread-safe
                 if (size > 50) {
+                        // parallelStream(): Tạo một luồng xử lý song song, tận dụng nhiều lõi CPU.
                         return entities.parallelStream()
                                         .map(entity -> mapEntityToDto(entity, dtoClass))
                                         .collect(Collectors.toCollection(() -> new ArrayList<>(size)));
@@ -186,7 +186,7 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                 // // Công thức: Hiện tại - 30 ngày
                 // long deleteThreshold = currentTime - duration;
                 List<T> expiredItems = executor.findAll(deleteSpec, PageRequest.of(0,
-                                2000)).getContent();
+                                2000)).getContent(); // Giới hạn 2000 bản ghi mỗi lần để tránh quá tải bộ nhớ
 
                 if (!expiredItems.isEmpty()) {
                         if (actionFunction != null) {
@@ -206,6 +206,16 @@ public abstract class HelperService<T extends BaseEntity, K> implements IHelperS
                                         + expiredItems.size() + " expired entries.");
                 }
 
+        }
+
+
+        @Override
+        public String generateUniqueCode() {
+                return StringUtils.trimAllWhitespace(
+                        UUID.randomUUID().toString()
+                                        .replace("-", "")
+                                        .substring(0,16)
+                                        .toUpperCase());
         }
 
 }

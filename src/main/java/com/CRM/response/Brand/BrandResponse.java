@@ -6,13 +6,11 @@ import java.util.UUID;
 import com.CRM.response.Media.MediaResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@ToString
 public class BrandResponse {
     private UUID id;
     private String name;
