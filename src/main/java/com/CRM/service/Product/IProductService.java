@@ -8,11 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.CRM.request.Inventory.InventoryFilterRequest;
 import com.CRM.request.Product.ProductFilter;
 import com.CRM.request.Product.ProductRquest;
+import com.CRM.response.Inventory.InventoryProduct;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Product.ProductDetailResponse;
 import com.CRM.response.Product.ProductResponse;
-import com.CRM.response.Product.Inventory.InventoryProduct;
 
 public interface IProductService {
     PagingResponse<ProductResponse> getAllProducts(

@@ -50,11 +50,12 @@ public class PurchaseOrder extends BaseEntity {
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse; // Luôn trỏ tới Kho Tổng
 
-    @Column(name = "status")
-    private String status;     
-    // DRAFT (Nháp), ORDERED (Đã đặt hàng), 
+    // DRAFT (Nháp), 
+    // ORDERED (Đã đặt hàng), 
     // PARTIALLY_RECEIVED (Nhận một phần), 
-    // COMPLETED (Đã nhập kho đủ), CANCELLED (Hủy)
+    // CANCELLED (Hủy)
+    @Column(name = "status") 
+    private String status;     
 
     @Column(name = "total_amount")
     private BigDecimal totalAmount; // Tổng giá trị đơn hàng nhập
@@ -71,7 +72,6 @@ public class PurchaseOrder extends BaseEntity {
             orphanRemoval = true)
     private List<PurchaseOrderItem> items = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "po_delivery_id", nullable = false, unique = true)
+    @OneToOne(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
     private PurchaseOrderDelivery purchaseOrderDelivery;
 }

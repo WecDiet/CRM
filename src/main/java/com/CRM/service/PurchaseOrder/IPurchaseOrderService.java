@@ -1,5 +1,7 @@
 package com.CRM.service.PurchaseOrder;
 
+import java.util.List;
+
 import org.apache.coyote.BadRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +18,7 @@ public interface IPurchaseOrderService {
     
     APIResponse<PurchaseOrderDetailResponse> getPurchaseOrderDetail(String id);
     
-    APIResponse<Boolean> createPurchaseOrder(PurchaseOrderRequest purchaseOrderRequest, MultipartFile image, boolean active) throws BadRequestException;
+    APIResponse<Boolean> createPurchaseOrder(PurchaseOrderRequest purchaseOrderRequest, List<MultipartFile> images, boolean active) throws BadRequestException;
     
     APIResponse<Boolean> updatePurchaseOrder(String id, PurchaseOrderRequest purchaseOrderRequest, boolean active);
     

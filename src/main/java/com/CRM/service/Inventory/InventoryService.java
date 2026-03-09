@@ -16,10 +16,10 @@ import com.CRM.repository.Specification.InventorySpecification;
 import com.CRM.repository.Specification.ProductSpecification;
 import com.CRM.request.Inventory.InventoryFilterRequest;
 import com.CRM.request.Inventory.InventoryRequest;
+import com.CRM.response.Inventory.InventoryProduct;
 import com.CRM.response.Inventory.InventoryResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
-import com.CRM.response.Product.Inventory.InventoryProduct;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

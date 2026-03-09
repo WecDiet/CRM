@@ -31,6 +31,7 @@ import com.CRM.model.Supplier;
 import com.CRM.model.Warehouse;
 import com.CRM.repository.IInventoryRepository;
 import com.CRM.repository.IProductRepository;
+import com.CRM.repository.IPurchaseOrderDeliverryRepository;
 import com.CRM.repository.IPurchaseOrderRepository;
 import com.CRM.repository.ISupplierRepository;
 import com.CRM.repository.IWarehouseRepository;
@@ -63,6 +64,8 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
 
     private final CloudinaryService cloudinaryService;
 
+    private final IPurchaseOrderDeliverryRepository iPurchaseOrderDeliverryRepository;
+
     private final ModelMapper modelMapper;
 
     @Override
@@ -88,7 +91,7 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
 
     @Override
     @Transactional
-    public APIResponse<Boolean> createPurchaseOrder(PurchaseOrderRequest purchaseOrderRequest, MultipartFile image, boolean active) throws BadRequestException {
+    public APIResponse<Boolean> createPurchaseOrder(PurchaseOrderRequest purchaseOrderRequest, List<MultipartFile> images, boolean active) throws BadRequestException {
 
         if (purchaseOrderRequest.getName() == null || purchaseOrderRequest.getName().isEmpty()) {
             throw new IllegalArgumentException("Purchase order name cannot be empty.");
@@ -114,6 +117,10 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
             Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(purchaseOrderRequest.getWarehouseId())).orElseThrow(
                 () -> new IllegalArgumentException("Warehouse not found with id: " + purchaseOrderRequest.getWarehouseId())
             );
+
+            if (!"MAIN".equalsIgnoreCase(warehouse.getWarehouseType())) {
+                throw new IllegalArgumentException("The warehouse is not the main warehouse.");
+            }
     
             Supplier supplier = iSupplierRepository.findById(UUID.fromString(purchaseOrderRequest.getSupplierId())).orElseThrow(
                 () -> new IllegalArgumentException("Supplier not found with id: " + purchaseOrderRequest.getSupplierId())
@@ -143,7 +150,7 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
             purchaseOrder.setWarehouse(warehouse);
             purchaseOrder.setSupplier(supplier);
             purchaseOrder.setName(purchaseOrderRequest.getName());
-            purchaseOrder.setStatus(PurchaseOrderEnum.getStatusName(purchaseOrderRequest.getStatus()));
+            purchaseOrder.setStatus(PurchaseOrderEnum.fromString(purchaseOrderRequest.getStatus()).getStatus());
             purchaseOrder.setOrderDate(orderDate);
             purchaseOrder.setExpectedDeliveryDate(expectedDeliveryDate);
             purchaseOrder.setPoNumber("PO-" + generateUniqueCode() + "-" + orderYear);
@@ -172,7 +179,9 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
             BigDecimal totalAmount = BigDecimal.ZERO;
             String uploadedPublicId = null;
 
-            for(OrderItemRequest items : purchaseOrderRequest.getItems()){
+            for(int i = 0; i < purchaseOrderRequest.getItems().size(); i ++){
+
+                OrderItemRequest items = purchaseOrderRequest.getItems().get(i);
                 Product product = null;
                 String skuCode = items.getSkuCode();
                 if (skuCode != null && !skuCode.isEmpty()) {
@@ -189,6 +198,9 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
                     if (items.getProductName() == null || items.getProductName().isEmpty()) {
                         throw new IllegalArgumentException("Product name is required for new product (skuCode is null).");
                     }
+
+                    MultipartFile image = images.get(i);
+                    
                     CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadMedia(image, "crm/products/main");
                     Map<String, Object> uploadResult = uploadFuture.join();
                     uploadedPublicId = (String) uploadResult.get("public_id");
@@ -202,6 +214,14 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
                             .altText(supplier.getName())
                             .type("IMAGE")
                             .build();
+                    
+                    imageProduct.setInActive(active);
+                    imageProduct.setCreatedDate(new Date());
+                    imageProduct.setModifiedDate(new Date());
+                    imageProduct.setCode(randomCode());
+                    imageProduct.setDeletedAt(0L);
+                    imageProduct.setDeleted(false);
+
 
                     Product newProduct = Product.builder()
                             .skuCode(generateUniqueCode())
@@ -292,15 +312,25 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
     }
 
     @Override
+    @Transactional
     public APIResponse<Boolean> deletePurchaseOrder(String id) {
        PurchaseOrder purchaseOrder = iPurchaseOrderRepository.findById(UUID.fromString(id)).orElseThrow(
             () -> new IllegalArgumentException("Purchase order not found with id: " + id)
         );
-        purchaseOrder.setInActive(false);
-        purchaseOrder.setDeleted(true);
-        purchaseOrder.setDeletedAt(System.currentTimeMillis() / 1000);
-        iPurchaseOrderRepository.save(purchaseOrder);
-        return new APIResponse<>(true, "Purchase order deleted successfully."); 
+
+        try {            
+            if ("CANCELLED".equalsIgnoreCase(purchaseOrder.getStatus()) || "COMPLETED".equalsIgnoreCase(purchaseOrder.getPurchaseOrderDelivery().getStatus())) {
+                purchaseOrder.setInActive(false);
+                purchaseOrder.setDeleted(true);
+                purchaseOrder.setDeletedAt(System.currentTimeMillis() / 1000);
+                iPurchaseOrderRepository.save(purchaseOrder);
+                return new APIResponse<>(true, "Purchase order deleted successfully."); 
+            }
+
+            return new APIResponse<>(false,  "Purchase order deleted fail. Because status Purchase Order other Completed or Cancelled ");
+        } catch (Exception e) {
+            return new APIResponse<>(false, "Delete purchase order failed.");
+        }
     }
 
     @Override
@@ -349,54 +379,63 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
     }
 
     @Override
+    @Transactional
     public APIResponse<Boolean> completePurchaseOrder(String poCode, String status, String note, String type) {
-        PurchaseOrder purchaseOrder = iPurchaseOrderRepository.findByPoNumber(poCode)
-                .orElseThrow(() -> new IllegalArgumentException("Purchase order not found with code: " + poCode));
+
+        PurchaseOrder purchaseOrder = iPurchaseOrderRepository.findByPoNumber(poCode).orElseThrow(() -> new IllegalArgumentException("Purchase order not found with code: " + poCode));
 
         if ("COMPLETED".equalsIgnoreCase(purchaseOrder.getStatus()) || "CANCELLED".equalsIgnoreCase(purchaseOrder.getStatus())) {
             throw new IllegalArgumentException("Purchase order is already completed or canceled.");
         }
 
+        // Tạo delivery info
+        PurchaseOrderDelivery delivery = PurchaseOrderDelivery.builder()
+                    .actualDeliveryDate(LocalDate.now())
+                    .deliveryNote(note)
+                    .purchaseOrder(purchaseOrder)
+                    .status(status)
+                    .build();
+
+        // CASE CANCEL
         if ("CANCELLED".equalsIgnoreCase(status)) {
-            purchaseOrder.setStatus("CANCELLED");
-            PurchaseOrderDelivery infor = PurchaseOrderDelivery.builder()
-                                .actualDeliveryDate(LocalDate.now())
-                                .deliveryNote(note)
-                                .build();
-            purchaseOrder.setPurchaseOrderDelivery(infor);
+
+            iPurchaseOrderDeliverryRepository.save(delivery);
+
+            return new APIResponse<>(true, "Purchase order cancelled successfully.");
         }
 
-        Inventory inventory = null;
+        // CASE COMPLETE
         if ("COMPLETED".equalsIgnoreCase(status)) {
+
             for (PurchaseOrderItem item : purchaseOrder.getItems()) {
+
                 Product product = item.getProduct();
-                inventory = Inventory.builder()
+
+                Inventory inventory = Inventory.builder()
                         .product(product)
                         .warehouse(purchaseOrder.getWarehouse())
-                        .quantity(item.getQuantityOrdered())
-                        .type(type)
+                        .quantity(item.getQuantityOrdered())      
+                        .type(type) 
                         .referenceCode(purchaseOrder.getPoNumber())
-                        .note("Nhập kho từ đơn hàng " + purchaseOrder.getSupplier().getName() + " - Mã PO: " + purchaseOrder.getPoNumber())
                         .build();
-                    }
-                
-                PurchaseOrderDelivery infor = PurchaseOrderDelivery.builder()
-                            .actualDeliveryDate(LocalDate.now())
-                            .deliveryNote(note)
-                            .build();
-                inventory.setInActive(true);
+
                 inventory.setCode(randomCode());
+                inventory.setInActive(true);
                 inventory.setCreatedDate(new Date());
                 inventory.setModifiedDate(new Date());
-                inventory.setDeleted(false); 
+                inventory.setDeleted(false);
                 inventory.setDeletedAt(0L);
-                purchaseOrder.setPurchaseOrderDelivery(infor);
-                purchaseOrder.setStatus("COMPLETED");
+
                 iInventoryRepository.save(inventory);
+            }
+
+            iPurchaseOrderDeliverryRepository.save(delivery);
+            purchaseOrder.setPurchaseOrderDelivery(delivery);
+
+            iPurchaseOrderRepository.save(purchaseOrder);
         }
-        iPurchaseOrderRepository.save(purchaseOrder);
 
         return new APIResponse<>(true, "Update status Purchase Order successfully.");
-    }
+    } 
     
 }

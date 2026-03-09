@@ -148,6 +148,7 @@ public class ProductSpecification {
                 predicates.add(criteriaBuilder.equal(inventoryJoin.get("type"), filter.getType()));
             }
 
+            predicates.add(criteriaBuilder.equal(root.get("status"), false));
             predicates.add(criteriaBuilder.equal(root.get("inActive"), true));
             predicates.add(criteriaBuilder.equal(root.get("isDeleted"), false));
             predicates.add(criteriaBuilder.equal(root.get("deletedAt"), 0L));

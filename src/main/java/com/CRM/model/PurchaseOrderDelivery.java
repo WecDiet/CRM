@@ -32,10 +32,15 @@ public class PurchaseOrderDelivery {
 
     private LocalDate actualDeliveryDate; // Ngày thực tế hàng về
     
+    // COMPLETED (Đã nhập kho đủ), CANCELLED (Hủy)
+    @Column(name = "status")
+    private String status;     
+    
     @Column(name = "delivery_note")
     private String deliveryNote; // Ghi chú về việc giao hàng
 
     @OneToOne
     @JoinColumn(name = "purchase_order_id", nullable = false, unique = true)
     private PurchaseOrder purchaseOrder;
+    
 }

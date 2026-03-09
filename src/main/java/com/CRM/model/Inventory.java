@@ -51,7 +51,4 @@ public class Inventory extends BaseEntity {
     @Column(name = "reference_code")
     private String referenceCode; // Mã tham chiếu liên quan đến giao dịch kho hàng (nếu có) 
 
-    @Column(name = "note", columnDefinition = "TEXT")
-    private String note;
-
 }

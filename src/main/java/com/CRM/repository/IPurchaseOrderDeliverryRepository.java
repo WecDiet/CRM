@@ -5,9 +5,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.CRM.model.Inventory;
+import com.CRM.model.PurchaseOrderDelivery;
 
-public interface IInventoryRepository extends JpaRepository<Inventory, UUID>, JpaSpecificationExecutor<Inventory> {
-    Boolean existsByProduct_Id(UUID id);
+public interface IPurchaseOrderDeliverryRepository extends JpaRepository<PurchaseOrderDelivery, UUID>{
     
 }

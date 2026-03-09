@@ -6,22 +6,21 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public enum PurchaseOrderEnum {
-    DRAFT, // Nháp
-    ORDERED, // Đã đặt hàng
-    PARTIALLY_RECEIVED, // Nhận một phần
-    COMPLETED, // Đã nhập kho đủ
-    CANCELLED; // Hủy
 
-    String status;
+    DRAFT("DRAFT"),                 // Nháp
+    ORDERED("ORDERED"),             // Đã đặt hàng
+    PARTIALLY_RECEIVED("PARTIALLY_RECEIVED"), // Nhận một phần
+    COMPLETED("COMPLETED"),         // Đã nhập kho đủ
+    CANCELLED("CANCELLED");         // Hủy
 
-    public static String getStatusName(String statusName){
+    private final String status;
+
+    public static PurchaseOrderEnum fromString(String status) {
         try {
-            return PurchaseOrderEnum.valueOf(statusName.toUpperCase()).getStatus();
-        } catch (IllegalArgumentException e) {
-            return "unknown";
+            return PurchaseOrderEnum.valueOf(status.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid purchase order status: " + status);
         }
     }
-
 }
