@@ -39,7 +39,7 @@ public class TransferTicket extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY) 
     @JoinColumn(name = "warehouse_id", nullable = false)
-    private Warehouse warehouse; // Thường là Kho Tổng
+    private Warehouse warehouse; // Kho Tổng
 
     @ManyToOne(fetch = FetchType.LAZY) 
     @JoinColumn(name = "store_id", nullable = false)

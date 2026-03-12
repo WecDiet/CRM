@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.CRM.constant.Enpoint;
 import com.CRM.request.Inventory.InventoryFilterRequest;
-import com.CRM.service.Inventory.InventoryService;
+import com.CRM.service.Product.InventoryService;
 import com.CRM.service.Product.ProductService;
 
 import lombok.RequiredArgsConstructor;

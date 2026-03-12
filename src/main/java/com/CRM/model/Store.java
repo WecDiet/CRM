@@ -62,8 +62,8 @@ public class Store extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "store_inventory", joinColumns = @JoinColumn(name = "store_id"), inverseJoinColumns = @JoinColumn(name = "inventory_id"))
+
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     private List<Inventory> inventories = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -77,4 +77,8 @@ public class Store extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "image_id")
     )
     private List<Image> images = new ArrayList<>();
+
+    // Không dùng CascadeType.ALL ở đây để tránh xóa nhầm lịch sử
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
+    private List<InventoryTransaction> transactions = new ArrayList<>();
 }

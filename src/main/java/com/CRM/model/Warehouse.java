@@ -61,7 +61,15 @@ public class Warehouse extends BaseEntity {
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true , fetch = FetchType.LAZY)
     private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "warehouse_inventory", joinColumns = @JoinColumn(name = "warehouse_id"), inverseJoinColumns = @JoinColumn(name = "inventory_id"))
+    // @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JoinTable(name = "warehouse_inventory", joinColumns = @JoinColumn(name = "warehouse_id"), inverseJoinColumns = @JoinColumn(name = "inventory_id"))
+    // private List<Inventory> inventories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
     private List<Inventory> inventories = new ArrayList<>();
+
+
+    // Không dùng CascadeType.ALL ở đây để tránh xóa nhầm lịch sử
+    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY)
+    private List<InventoryTransaction> transactions = new ArrayList<>();
 }

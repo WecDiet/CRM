@@ -32,5 +32,5 @@ public interface IPurchaseOrderService {
     
     APIResponse<Boolean> restorePurchaseOrder(String id, RestoreEnum action);
     
-    APIResponse<Boolean> completePurchaseOrder(String poCode, String status, String type, String note);
+    APIResponse<Boolean> confirmOrder(String id);
 }

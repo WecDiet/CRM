@@ -89,6 +89,195 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
                     PurchaseOrderDetailResponse.class);
     }
 
+    // @Override
+    // @Transactional
+    // public APIResponse<Boolean> createPurchaseOrder(PurchaseOrderRequest purchaseOrderRequest, List<MultipartFile> images, boolean active) throws BadRequestException {
+
+    //     if (purchaseOrderRequest.getName() == null || purchaseOrderRequest.getName().isEmpty()) {
+    //         throw new IllegalArgumentException("Purchase order name cannot be empty.");
+    //     }
+
+    //     if (iPurchaseOrderRepository.existsActiveByName(purchaseOrderRequest.getName())) {
+    //         throw new IllegalArgumentException("Purchase order name already exists.");
+    //     }
+
+    //     if (purchaseOrderRequest.getOrderDay() != null && purchaseOrderRequest.getOrderMonth() != null && purchaseOrderRequest.getOrderYear() != null) {
+    //         if (!isValidDate(purchaseOrderRequest.getOrderYear(), purchaseOrderRequest.getOrderMonth(), purchaseOrderRequest.getOrderDay())) {
+    //             throw new BadRequestException("Invalid order date");
+    //         }    
+    //     }
+
+    //     if (purchaseOrderRequest.getExpectedDeliveryDay() != null && purchaseOrderRequest.getExpectedDeliveryMonth() != null && purchaseOrderRequest.getExpectedDeliveryYear() != null) {
+    //         if (!isValidDate(purchaseOrderRequest.getExpectedDeliveryYear(), purchaseOrderRequest.getExpectedDeliveryMonth(), purchaseOrderRequest.getExpectedDeliveryDay())) {
+    //             throw new BadRequestException("Invalid expected delivery date");
+    //         }    
+    //     }
+        
+    //     try {
+    //         Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(purchaseOrderRequest.getWarehouseId())).orElseThrow(
+    //             () -> new IllegalArgumentException("Warehouse not found with id: " + purchaseOrderRequest.getWarehouseId())
+    //         );
+
+    //         if (!"MAIN".equalsIgnoreCase(warehouse.getWarehouseType())) {
+    //             throw new IllegalArgumentException("The warehouse is not the main warehouse.");
+    //         }
+    
+    //         Supplier supplier = iSupplierRepository.findById(UUID.fromString(purchaseOrderRequest.getSupplierId())).orElseThrow(
+    //             () -> new IllegalArgumentException("Supplier not found with id: " + purchaseOrderRequest.getSupplierId())
+    //         );
+
+    //         LocalDate orderDate = null;
+
+    //         Integer orderDay = purchaseOrderRequest.getOrderDay();
+    //         Integer orderMonth = purchaseOrderRequest.getOrderMonth();
+    //         Integer orderYear = purchaseOrderRequest.getOrderYear();
+            
+    //         LocalDate expectedDeliveryDate = null;
+
+    //         Integer expectedDeliveryDay = purchaseOrderRequest.getExpectedDeliveryDay();
+    //         Integer expectedDeliveryMonth = purchaseOrderRequest.getExpectedDeliveryMonth();
+    //         Integer expectedDeliveryYear = purchaseOrderRequest.getExpectedDeliveryYear();
+
+    //         if (orderDay != null && orderMonth != null && orderYear != null) {
+    //             orderDate = LocalDate.of(orderYear, orderMonth, orderDay);
+    //         }
+
+    //         if (expectedDeliveryDay != null && expectedDeliveryMonth != null && expectedDeliveryYear != null) {
+    //             expectedDeliveryDate = LocalDate.of(expectedDeliveryYear, expectedDeliveryMonth, expectedDeliveryDay);
+    //         }
+
+    //         String date = LocalDate.now().toString().replace("-", "");
+    //         PurchaseOrder purchaseOrder = modelMapper.map(purchaseOrderRequest, PurchaseOrder.class);
+    //         purchaseOrder.setWarehouse(warehouse);
+    //         purchaseOrder.setSupplier(supplier);
+    //         purchaseOrder.setName(purchaseOrderRequest.getName());
+    //         purchaseOrder.setStatus(PurchaseOrderEnum.fromString("DRAFT").getStatus());
+    //         purchaseOrder.setOrderDate(orderDate);
+    //         purchaseOrder.setExpectedDeliveryDate(expectedDeliveryDate);
+    //         purchaseOrder.setPoNumber("PO-" + generateUniqueCode() + "-" + date);
+    //         purchaseOrder.setDescription(purchaseOrderRequest.getDescription());
+
+    //         purchaseOrder.setInActive(active);
+    //         purchaseOrder.setCode(randomCode());
+    //         purchaseOrder.setCreatedDate(new Date());
+    //         purchaseOrder.setModifiedDate(new Date());
+    //         purchaseOrder.setDeleted(false);
+    //         purchaseOrder.setDeletedAt(0L);
+    
+    //         List<String> requestSkuCodes = purchaseOrderRequest.getItems().stream()
+    //                 .map(OrderItemRequest::getSkuCode)
+    //                 .filter(Objects::nonNull)
+    //                 .collect(Collectors.toList());
+            
+    //         List<Product> existingProducts = iProductRepository.findBySkuCodeIn(requestSkuCodes);
+
+    //         Map<String, Product> productMap = existingProducts.stream()
+    //                 .collect(Collectors.toMap(Product::getSkuCode, product -> product));
+            
+
+    //         List<Product> newProducts = new ArrayList<>();
+    //         List<PurchaseOrderItem> orderItems = new ArrayList<>();
+    //         BigDecimal totalAmount = BigDecimal.ZERO;
+    //         String uploadedPublicId = null;
+
+    //         for(int i = 0; i < purchaseOrderRequest.getItems().size(); i ++){
+
+    //             OrderItemRequest items = purchaseOrderRequest.getItems().get(i);
+    //             Product product = null;
+    //             String skuCode = items.getSkuCode();
+    //             if (skuCode != null && !skuCode.isEmpty()) {
+    //                 product = productMap.get(skuCode);
+    //                 if (product == null) {
+    //                     throw new IllegalArgumentException("Product not found with SKU code: " + skuCode);
+    //                 }
+
+    //                 BigDecimal newSuggestedPrice = items.getUnitPrice().multiply(BigDecimal.valueOf(1.2));
+    //                 if (newSuggestedPrice.compareTo(product.getProductDetail().getPrice()) > 0) {
+    //                     product.getProductDetail().setPrice(newSuggestedPrice);
+    //                 }
+    //             } else {
+    //                 if (items.getProductName() == null || items.getProductName().isEmpty()) {
+    //                     throw new IllegalArgumentException("Product name is required for new product (skuCode is null).");
+    //                 }
+
+    //                 MultipartFile image = images.get(i);
+                    
+    //                 CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadMedia(image, "crm/products/main");
+    //                 Map<String, Object> uploadResult = uploadFuture.join();
+    //                 uploadedPublicId = (String) uploadResult.get("public_id");
+    //                 String imageUrl = (String) uploadResult.get("secure_url");
+
+    //                 Image imageProduct = Image.builder()
+    //                         .imageUrl(imageUrl)
+    //                         .publicId(uploadedPublicId)
+    //                         .referenceId(supplier.getId())
+    //                         .referenceType("PRODUCT")
+    //                         .altText(supplier.getName())
+    //                         .type("IMAGE")
+    //                         .build();
+                    
+    //                 imageProduct.setInActive(active);
+    //                 imageProduct.setCreatedDate(new Date());
+    //                 imageProduct.setModifiedDate(new Date());
+    //                 imageProduct.setCode(randomCode());
+    //                 imageProduct.setDeletedAt(0L);
+    //                 imageProduct.setDeleted(false);
+
+
+    //                 Product newProduct = Product.builder()
+    //                         .skuCode(generateUniqueCode())
+    //                         .mainImage(imageProduct) 
+    //                         .status(false)
+    //                         .build();
+
+    //                 newProduct.setInActive(active);
+    //                 newProduct.setCode(randomCode());
+    //                 newProduct.setCreatedDate(new Date());
+    //                 newProduct.setModifiedDate(new Date());
+    //                 newProduct.setDeleted(false);
+    //                 newProduct.setDeletedAt(0L);
+
+    //                 ProductDetail productDetail = ProductDetail.builder()
+    //                         .product(newProduct)
+    //                         .name(items.getProductName())
+    //                         .manufacturer(supplier.getName())
+    //                         .build();
+
+    //                 newProduct.setProductDetail(productDetail);
+    //                 newProducts.add(newProduct);
+    //                 productMap.put(skuCode, newProduct);
+    //                 product = newProduct;
+    //             }
+
+    //             BigDecimal itemTotal = calculateTotalAmount(items);
+    //             totalAmount = totalAmount.add(itemTotal);
+
+    //             PurchaseOrderItem orderItem = PurchaseOrderItem.builder()
+    //                     .purchaseOrder(purchaseOrder)
+    //                     .product(product)
+    //                     .productName(items.getProductName())
+    //                     .unitPrice(items.getUnitPrice())
+    //                     .taxRate(items.getTaxRate())
+    //                     .quantityOrdered(items.getQuantityOrdered())
+    //                     .quantityReceived(0)
+    //                     .build();
+    //             orderItems.add(orderItem);
+    //         }
+
+    //         if (!newProducts.isEmpty()) {
+    //             iProductRepository.saveAll(newProducts);
+    //         }
+
+    //         purchaseOrder.setItems(orderItems);
+    //         purchaseOrder.setTotalAmount(totalAmount);
+            
+    //         iPurchaseOrderRepository.save(purchaseOrder);
+    //         return new APIResponse<>(true, "Purchase order created successfully.");
+    //     } catch (Exception e) {
+    //         throw new RuntimeException("Failed to create purchase order", e);
+    //     }
+    // }
+
     @Override
     @Transactional
     public APIResponse<Boolean> createPurchaseOrder(PurchaseOrderRequest purchaseOrderRequest, List<MultipartFile> images, boolean active) throws BadRequestException {
@@ -112,7 +301,6 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
                 throw new BadRequestException("Invalid expected delivery date");
             }    
         }
-        
         try {
             Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(purchaseOrderRequest.getWarehouseId())).orElseThrow(
                 () -> new IllegalArgumentException("Warehouse not found with id: " + purchaseOrderRequest.getWarehouseId())
@@ -146,14 +334,15 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
                 expectedDeliveryDate = LocalDate.of(expectedDeliveryYear, expectedDeliveryMonth, expectedDeliveryDay);
             }
 
+            String date = LocalDate.now().toString().replace("-", "");
             PurchaseOrder purchaseOrder = modelMapper.map(purchaseOrderRequest, PurchaseOrder.class);
             purchaseOrder.setWarehouse(warehouse);
             purchaseOrder.setSupplier(supplier);
             purchaseOrder.setName(purchaseOrderRequest.getName());
-            purchaseOrder.setStatus(PurchaseOrderEnum.fromString(purchaseOrderRequest.getStatus()).getStatus());
+            purchaseOrder.setStatus(PurchaseOrderEnum.fromString("DRAFT").getStatus());
             purchaseOrder.setOrderDate(orderDate);
             purchaseOrder.setExpectedDeliveryDate(expectedDeliveryDate);
-            purchaseOrder.setPoNumber("PO-" + generateUniqueCode() + "-" + orderYear);
+            purchaseOrder.setPoNumber("PO-" + generateUniqueCode() + "-" + date);
             purchaseOrder.setDescription(purchaseOrderRequest.getDescription());
 
             purchaseOrder.setInActive(active);
@@ -176,59 +365,74 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
 
             List<Product> newProducts = new ArrayList<>();
             List<PurchaseOrderItem> orderItems = new ArrayList<>();
-            BigDecimal totalAmount = BigDecimal.ZERO;
             String uploadedPublicId = null;
 
-            for(int i = 0; i < purchaseOrderRequest.getItems().size(); i ++){
-
-                OrderItemRequest items = purchaseOrderRequest.getItems().get(i);
+            for(OrderItemRequest itemRequest : purchaseOrderRequest.getItems()){
+                if (itemRequest.getUnitPrice() == null || itemRequest.getUnitPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                    throw new IllegalArgumentException(
+                        "Unit price must be greater than 0 for item: "
+                        + (itemRequest.getSkuCode() != null ? itemRequest.getSkuCode() : itemRequest.getProductName()));
+                }
+ 
+                if (itemRequest.getQuantityOrdered() == null || itemRequest.getQuantityOrdered() <= 0) {
+                    throw new IllegalArgumentException(
+                            "Quantity ordered must be greater than 0 for item: "
+                            + (itemRequest.getSkuCode() != null ? itemRequest.getSkuCode() : itemRequest.getProductName()));
+                }
                 Product product = null;
-                String skuCode = items.getSkuCode();
-                if (skuCode != null && !skuCode.isEmpty()) {
+                
+                String skuCode = itemRequest.getSkuCode();
+
+                if (skuCode != null && !skuCode.isBlank()) {
+
                     product = productMap.get(skuCode);
-                    if (product == null) {
-                        throw new IllegalArgumentException("Product not found with SKU code: " + skuCode);
-                    }
-
-                    BigDecimal newSuggestedPrice = items.getUnitPrice().multiply(BigDecimal.valueOf(1.2));
-                    if (newSuggestedPrice.compareTo(product.getProductDetail().getPrice()) > 0) {
-                        product.getProductDetail().setPrice(newSuggestedPrice);
-                    }
-                } else {
-                    if (items.getProductName() == null || items.getProductName().isEmpty()) {
-                        throw new IllegalArgumentException("Product name is required for new product (skuCode is null).");
-                    }
-
-                    MultipartFile image = images.get(i);
                     
-                    CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadMedia(image, "crm/products/main");
-                    Map<String, Object> uploadResult = uploadFuture.join();
-                    uploadedPublicId = (String) uploadResult.get("public_id");
-                    String imageUrl = (String) uploadResult.get("secure_url");
+                }else {
 
-                    Image imageProduct = Image.builder()
-                            .imageUrl(imageUrl)
-                            .publicId(uploadedPublicId)
-                            .referenceId(supplier.getId())
-                            .referenceType("PRODUCT")
-                            .altText(supplier.getName())
-                            .type("IMAGE")
-                            .build();
-                    
-                    imageProduct.setInActive(active);
-                    imageProduct.setCreatedDate(new Date());
-                    imageProduct.setModifiedDate(new Date());
-                    imageProduct.setCode(randomCode());
-                    imageProduct.setDeletedAt(0L);
-                    imageProduct.setDeleted(false);
+                    if (itemRequest.getProductName() == null || itemRequest.getProductName().isBlank()) {
+                        throw new IllegalArgumentException("Product name is required when SKU code is not provided.");
+                    }
 
+                    List<Image> uploadedImages = new ArrayList<>();
+                    if (images != null && !images.isEmpty()) {
+                        for(MultipartFile file : images){
+                           if (file == null || file.isEmpty()) continue;
+
+                           try {
+
+                                CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadMedia(file, "crm/products/main");
+
+                                Map<String, Object> uploadResult = uploadFuture.join();
+                                uploadedPublicId = (String) uploadResult.get("public_id");
+                                String imageUrl = (String) uploadResult.get("secure_url");
+
+                                Image imageProduct = Image.builder()
+                                        .imageUrl(imageUrl)
+                                        .publicId(uploadedPublicId)
+                                        .referenceId(supplier.getId())
+                                        .referenceType("PRODUCT")
+                                        .altText(supplier.getName())
+                                        .type("IMAGE")
+                                        .build();
+                                
+                                imageProduct.setInActive(active);
+                                imageProduct.setCreatedDate(new Date());
+                                imageProduct.setModifiedDate(new Date());
+                                imageProduct.setCode(randomCode());
+                                imageProduct.setDeletedAt(0L);
+                                imageProduct.setDeleted(false);
+                                uploadedImages.add(imageProduct);
+                           } catch (Exception e) {
+                                throw new BadRequestException("Failed to upload image: " + file.getOriginalFilename());
+                           }
+                        }
+                    }
 
                     Product newProduct = Product.builder()
-                            .skuCode(generateUniqueCode())
-                            .mainImage(imageProduct) 
-                            .status(false)
-                            .build();
-
+                                    .skuCode(generateUniqueCode())
+                                    .mainImage(uploadedImages.get(0))
+                                    .status(false)
+                                    .build();
                     newProduct.setInActive(active);
                     newProduct.setCode(randomCode());
                     newProduct.setCreatedDate(new Date());
@@ -238,7 +442,7 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
 
                     ProductDetail productDetail = ProductDetail.builder()
                             .product(newProduct)
-                            .name(items.getProductName())
+                            .name(itemRequest.getProductName())
                             .manufacturer(supplier.getName())
                             .build();
 
@@ -248,33 +452,29 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
                     product = newProduct;
                 }
 
-                BigDecimal itemTotal = calculateTotalAmount(items);
-                totalAmount = totalAmount.add(itemTotal);
-
                 PurchaseOrderItem orderItem = PurchaseOrderItem.builder()
                         .purchaseOrder(purchaseOrder)
                         .product(product)
-                        .productName(items.getProductName())
-                        .unitPrice(items.getUnitPrice())
-                        .taxRate(items.getTaxRate())
-                        .quantityOrdered(items.getQuantityOrdered())
+                        .productName(itemRequest.getProductName())
+                        .unitPrice(itemRequest.getUnitPrice())
+                        .taxRate(itemRequest.getTaxRate())
+                        .quantityOrdered(itemRequest.getQuantityOrdered())
                         .quantityReceived(0)
                         .build();
                 orderItems.add(orderItem);
             }
-
-            if (!newProducts.isEmpty()) {
+             if (!newProducts.isEmpty()) {
                 iProductRepository.saveAll(newProducts);
             }
 
             purchaseOrder.setItems(orderItems);
-            purchaseOrder.setTotalAmount(totalAmount);
-            
+
             iPurchaseOrderRepository.save(purchaseOrder);
             return new APIResponse<>(true, "Purchase order created successfully.");
         } catch (Exception e) {
             throw new RuntimeException("Failed to create purchase order", e);
         }
+
     }
 
 
@@ -288,21 +488,21 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
     }
 
     
-    private BigDecimal calculateTotalAmount(OrderItemRequest totalAmount) {
-        // 1. Lấy đơn giá nhập
-        BigDecimal unitPrice = totalAmount.getUnitPrice();
+    // private BigDecimal calculateTotalAmount(OrderItemRequest totalAmount) {
+    //     // 1. Lấy đơn giá nhập
+    //     BigDecimal unitPrice = totalAmount.getUnitPrice();
         
-        // 2. Chuyển đổi số lượng (Integer) sang BigDecimal để tính toán
-        BigDecimal quantity = BigDecimal.valueOf(totalAmount.getQuantityOrdered());
+    //     // 2. Chuyển đổi số lượng (Integer) sang BigDecimal để tính toán
+    //     BigDecimal quantity = BigDecimal.valueOf(totalAmount.getQuantityOrdered());
         
-        // 3. Xử lý thuế suất (Tax Rate)
-        // Nếu taxRate là 0.1 (10%), công thức tính là: UnitPrice * Quantity * (1 + 0.1)
-        double taxRate = (totalAmount.getTaxRate() != null) ? totalAmount.getTaxRate() : 0.0;
-        BigDecimal taxMultiplier = BigDecimal.valueOf(1.0 + taxRate);
+    //     // 3. Xử lý thuế suất (Tax Rate)
+    //     // Nếu taxRate là 0.1 (10%), công thức tính là: UnitPrice * Quantity * (1 + 0.1)
+    //     double taxRate = (totalAmount.getTaxRate() != null) ? totalAmount.getTaxRate() : 0.0;
+    //     BigDecimal taxMultiplier = BigDecimal.valueOf(1.0 + taxRate);
 
-        // 4. Thực hiện phép nhân: (UnitPrice * Quantity) * (1 + TaxRate)
-        return unitPrice.multiply(quantity).multiply(taxMultiplier);
-    }
+    //     // 4. Thực hiện phép nhân: (UnitPrice * Quantity) * (1 + TaxRate)
+    //     return unitPrice.multiply(quantity).multiply(taxMultiplier);
+    // }
 
     @Override
     public APIResponse<Boolean> updatePurchaseOrder(String id, PurchaseOrderRequest purchaseOrderRequest,
@@ -380,62 +580,27 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
 
     @Override
     @Transactional
-    public APIResponse<Boolean> completePurchaseOrder(String poCode, String status, String note, String type) {
+    public APIResponse<Boolean> confirmOrder(String id) {
+        PurchaseOrder purchaseOrder = iPurchaseOrderRepository.findById(UUID.fromString(id)).orElseThrow(
+            () -> new IllegalArgumentException("Purchase Order")
+        );
+        validateStatus(purchaseOrder,  "DRAFT", "Chỉ có thể xác nhận đơn hàng ở trạng thái DRAFT");
 
-        PurchaseOrder purchaseOrder = iPurchaseOrderRepository.findByPoNumber(poCode).orElseThrow(() -> new IllegalArgumentException("Purchase order not found with code: " + poCode));
+        BigDecimal total = purchaseOrder.getItems().stream()
+            .map(item -> item.getUnitPrice()
+                .multiply(BigDecimal.valueOf(item.getQuantityOrdered()))
+                .multiply(BigDecimal.ONE.add(BigDecimal.valueOf(item.getTaxRate()))))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if ("COMPLETED".equalsIgnoreCase(purchaseOrder.getStatus()) || "CANCELLED".equalsIgnoreCase(purchaseOrder.getStatus())) {
-            throw new IllegalArgumentException("Purchase order is already completed or canceled.");
+        purchaseOrder.setTotalAmount(total);
+        purchaseOrder.setStatus("ORDERED");
+        return new APIResponse<>(true, "Confirm Order from Purchase Order successfully.");
+    }
+
+    private void validateStatus(PurchaseOrder po, String expected, String message) {
+        if (!expected.equals(po.getStatus())) {
+            throw new IllegalArgumentException(message + ". Trạng thái hiện tại: " + po.getStatus());
         }
+    }
 
-        // Tạo delivery info
-        PurchaseOrderDelivery delivery = PurchaseOrderDelivery.builder()
-                    .actualDeliveryDate(LocalDate.now())
-                    .deliveryNote(note)
-                    .purchaseOrder(purchaseOrder)
-                    .status(status)
-                    .build();
-
-        // CASE CANCEL
-        if ("CANCELLED".equalsIgnoreCase(status)) {
-
-            iPurchaseOrderDeliverryRepository.save(delivery);
-
-            return new APIResponse<>(true, "Purchase order cancelled successfully.");
-        }
-
-        // CASE COMPLETE
-        if ("COMPLETED".equalsIgnoreCase(status)) {
-
-            for (PurchaseOrderItem item : purchaseOrder.getItems()) {
-
-                Product product = item.getProduct();
-
-                Inventory inventory = Inventory.builder()
-                        .product(product)
-                        .warehouse(purchaseOrder.getWarehouse())
-                        .quantity(item.getQuantityOrdered())      
-                        .type(type) 
-                        .referenceCode(purchaseOrder.getPoNumber())
-                        .build();
-
-                inventory.setCode(randomCode());
-                inventory.setInActive(true);
-                inventory.setCreatedDate(new Date());
-                inventory.setModifiedDate(new Date());
-                inventory.setDeleted(false);
-                inventory.setDeletedAt(0L);
-
-                iInventoryRepository.save(inventory);
-            }
-
-            iPurchaseOrderDeliverryRepository.save(delivery);
-            purchaseOrder.setPurchaseOrderDelivery(delivery);
-
-            iPurchaseOrderRepository.save(purchaseOrder);
-        }
-
-        return new APIResponse<>(true, "Update status Purchase Order successfully.");
-    } 
-    
 }

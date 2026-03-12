@@ -1,4 +1,4 @@
-package com.CRM.service.Inventory;
+package com.CRM.service.Product;
 
 import java.util.Date;
 import java.util.UUID;
@@ -16,10 +16,11 @@ import com.CRM.repository.Specification.InventorySpecification;
 import com.CRM.repository.Specification.ProductSpecification;
 import com.CRM.request.Inventory.InventoryFilterRequest;
 import com.CRM.request.Inventory.InventoryRequest;
-import com.CRM.response.Inventory.InventoryProduct;
 import com.CRM.response.Inventory.InventoryResponse;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
+import com.CRM.response.Product.Inventory.InventoryProduct;
+import com.CRM.service.Inventory.IInventoryService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -47,7 +47,6 @@ public class Enpoint {
         public static final String DELETE = "/{id}";
         public static final String TRASH = "/trash";
         public static final String RESTORE = TRASH + "/{id}";
-        public static final String COMPLETE = "/complete/{poCode}";
     }
 
     public static final class Inventory {
@@ -88,6 +87,8 @@ public class Enpoint {
         public static final String TRASH = "/trash";
         public static final String RESTORE = TRASH + "/{id}";
         public static final String TRASH_ID = TRASH + "/detail/{id}";
+
+        public static final String CONFIRM = "/{id}/confirm";
 
     }
     

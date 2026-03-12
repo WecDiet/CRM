@@ -18,15 +18,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "inventories")
+@Table(name = "inventory_transactions")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Inventory extends BaseEntity {
+public class InventoryTransaction {
 
-@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
@@ -34,7 +34,6 @@ public class Inventory extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    // Chỉ 1 trong 2 trường sau được phép có dữ liệu (Location)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
@@ -43,13 +42,15 @@ public class Inventory extends BaseEntity {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    @Column(name = "quantity_on_hand", nullable = false)
-    private Integer quantityOnHand; // Số lượng thực tế có thể bán/sử dụng
+    @Column(name = "type") 
+    private String type; // VD: IN_PURCHASE, OUT_TRANSFER, IN_TRANSFER
 
-    // @Column(name = "type")
-    // private String type; // Nhập kho, Xuất kho, Điều chuyển
+    @Column(name = "quantity")
+    private Integer quantity; // Biến động: +10 hoặc -10
 
-    // @Column(name = "reference_code")
-    // private String referenceCode; // Mã tham chiếu liên quan đến giao dịch kho hàng (nếu có) 
+    @Column(name = "reference_id")
+    private UUID referenceId; // ID của PurchaseOrder hoặc TransferTicket
 
+    @Column(name = "reference_code")
+    private String referenceCode; // PO Number hoặc Transfer Code
 }

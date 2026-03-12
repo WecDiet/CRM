@@ -88,14 +88,4 @@ public class WarehouseController {
         return ResponseEntity.ok(warehouseService.updateWarehouse(id, active, warehouseRequest, images, idsImageDelete));
     }
 
-    @PutMapping(Enpoint.Warehouse.COMPLETE)
-    public ResponseEntity<APIResponse<Boolean>> confirmImportWarehouse(
-        @PathVariable String poCode,
-        @RequestParam("status") String status,
-        @RequestParam("note") String note,
-        @RequestParam("type") String type
-    ){
-        return ResponseEntity.ok(purchaseOrderService.completePurchaseOrder(poCode, status, note, type));
-    }
-
 }
