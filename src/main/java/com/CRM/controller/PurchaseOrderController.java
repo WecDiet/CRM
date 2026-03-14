@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.CRM.constant.Enpoint;
 import com.CRM.request.PurchaseOrder.PurchaseOrderFilterRequest;
 import com.CRM.request.PurchaseOrder.PurchaseOrderRequest;
+import com.CRM.request.PurchaseOrder.Delivery.ReceiveDeliveryRequest;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.PurchaseOrder.PurchaseOrderDetailResponse;
 import com.CRM.service.PurchaseOrder.PurchaseOrderService;
@@ -90,5 +91,14 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(purchaseOrderService.confirmOrder(id));
     }
 
+
+    @PostMapping(Enpoint.PurchaseOrder.RECEIVE)
+    public ResponseEntity<?> receive(
+        @PathVariable("code") String code,
+        @RequestPart("receiveDeliveryRequest") ReceiveDeliveryRequest receiveDeliveryRequest,
+        @RequestPart("images") List<MultipartFile> images
+    ){
+        return ResponseEntity.ok(purchaseOrderService.receiveDelivery(code, receiveDeliveryRequest, images));
+    }
 
 }

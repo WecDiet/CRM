@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -72,6 +73,7 @@ public class PurchaseOrder extends BaseEntity {
             orphanRemoval = true)
     private List<PurchaseOrderItem> items = new ArrayList<>();
 
-    @OneToOne(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
-    private PurchaseOrderDelivery purchaseOrderDelivery;
+    @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<PurchaseOrderDelivery> deliveries = new ArrayList<>();
 }

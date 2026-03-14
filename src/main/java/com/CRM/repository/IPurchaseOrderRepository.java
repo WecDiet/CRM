@@ -19,4 +19,11 @@ public interface IPurchaseOrderRepository extends JpaRepository<PurchaseOrder, U
 
     @Query("SELECT COUNT(p) > 0 FROM PurchaseOrder p WHERE p.name = :name AND p.isDeleted = false")
     boolean existsActiveByName(@Param("name") String name);
+
+    @Query("""
+            SELECT po FROM PurchaseOrder po 
+            JOIN FETCH po.items 
+            WHERE po.poNumber = :poNumber
+            """)
+    Optional<PurchaseOrder> findByPONumberWithItems(String poNumber);
 }

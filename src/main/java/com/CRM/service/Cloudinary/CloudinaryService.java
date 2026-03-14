@@ -16,6 +16,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +30,7 @@ public class CloudinaryService implements ICloudinaryService {
     private final Semaphore uploadSemaphore = new Semaphore(10);
 
     @Override
+    @Transactional
     public CompletableFuture<Map<String, Object>> uploadMedia(MultipartFile media, String folderName) {
         return CompletableFuture.supplyAsync(() -> {
             try {

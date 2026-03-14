@@ -89,6 +89,7 @@ public class Enpoint {
         public static final String TRASH_ID = TRASH + "/detail/{id}";
 
         public static final String CONFIRM = "/{id}/confirm";
+        public static final String RECEIVE = "/{code}/receive";
 
     }
     
