@@ -55,7 +55,14 @@ public class Enpoint {
         public static final String DELETE = "/{id}";
         public static final String TRASH = "/trash";
         public static final String RESTORE = TRASH + "/{id}";
-        public static final String PRODUCT = "/products";
+
+        public static final String PRODUCT_WAREHOUSE = "/warehouses/{id}";
+        public static final String PRODUCT_STORE = "/stores/{id}";
+
+        public static final String TRANSACTION = "/transactions";
+        public static final String TRANSACTION_WAREHOUSE = "/transactions/warehouse";
+        public static final String ADJUST = "/warehouse/{id}/adjust";
+
     }
 
     public static final class Voucher {
@@ -89,7 +96,7 @@ public class Enpoint {
         public static final String TRASH_ID = TRASH + "/detail/{id}";
 
         public static final String CONFIRM = "/{id}/confirm";
-        public static final String RECEIVE = "/{code}/receive";
+        public static final String RECEIVE = "/receive/{code}";
 
     }
     
@@ -104,4 +111,21 @@ public class Enpoint {
         public static final String TRASH_ID = TRASH + "/detail/{id}";
     }
 
+    public static final class TransferTicket {
+        public static final String BASE = API_PREFIX + "/transfer-tickets";
+        public static final String ID = "/detail/{id}";
+        public static final String CREATE = "/new";
+        public static final String UPDATE = "/{id}";
+        public static final String DELETE = "/{id}";
+        
+    }
+
+    public static final class Store {
+        public static final String BASE = API_PREFIX + "/stores";
+        public static final String ID = "/detail/{id}";
+        public static final String CREATE = "/new";
+        public static final String UPDATE = "/{id}";
+        public static final String DELETE = "/{id}";
+        
+    }
 }

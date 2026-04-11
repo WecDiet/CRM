@@ -1,5 +1,7 @@
 package com.CRM.repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,4 +26,17 @@ public interface IInventoryRepository extends JpaRepository<Inventory, UUID>, Jp
             """)
     Optional<Inventory> findByProductAndWarehouseWithLock(@Param("product") Product product, @Param("warehouse") Warehouse warehouse);
     
+    List<Inventory> findAllByWarehouse(Warehouse warehouse);
+
+    Optional<Inventory> findByProductAndWarehouse(Product product, Warehouse warehouse);
+
+    @Query("""
+        SELECT i FROM Inventory i
+        WHERE i.warehouse.id = :warehouseId
+        AND i.product.id IN :productIds
+    """)
+    List<Inventory> findAllByWarehouseIdAndProductIdIn(
+        @Param("warehouseId") UUID warehouseId,
+        @Param("productIds")  Collection<UUID> productIds
+    );
 }

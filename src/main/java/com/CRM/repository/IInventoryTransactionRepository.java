@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import com.CRM.model.InventoryTransaction;
 
-@Repository
-public interface IIventoryTransactionRepository extends JpaRepository<InventoryTransaction, UUID>, JpaSpecificationExecutor<InventoryTransaction> {
+
+public interface IInventoryTransactionRepository extends JpaRepository<InventoryTransaction, UUID>, JpaSpecificationExecutor<InventoryTransaction> {
 
     
 }

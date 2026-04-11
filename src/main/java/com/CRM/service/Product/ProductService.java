@@ -23,7 +23,7 @@ import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Product.ProductDetailResponse;
 import com.CRM.response.Product.ProductResponse;
-import com.CRM.response.Product.Inventory.InventoryProduct;
+// import com.CRM.response.Product.Inventory.InventoryProduct;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -140,16 +140,16 @@ public class ProductService extends HelperService<Product, UUID> implements IPro
                 ProductDetailResponse.class);
     }
 
-    @Override
-    public PagingResponse<InventoryProduct> getAllProductInventoty(int page, int limit, String sortBy, String direction,
-            InventoryFilterRequest filter) {
-        return getAll(
-                    page, 
-                    limit, 
-                    sortBy, 
-                    direction, 
-                    ProductSpecification.getAllProductInInventory(filter), 
-                    InventoryProduct.class, 
-                    iProductRepository);
-    }
+    // @Override
+    // public PagingResponse<InventoryProduct> getAllProductInventoty(int page, int limit, String sortBy, String direction,
+    //         InventoryFilterRequest filter) {
+    //     return getAll(
+    //                 page, 
+    //                 limit, 
+    //                 sortBy, 
+    //                 direction, 
+    //                 ProductSpecification.getAllProductInInventory(filter), 
+    //                 InventoryProduct.class, 
+    //                 iProductRepository);
+    // }
 }

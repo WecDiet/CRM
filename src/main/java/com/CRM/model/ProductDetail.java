@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -100,7 +101,17 @@ public class ProductDetail {
     @JoinTable(name = "product_image", joinColumns = @JoinColumn(name = "product_detail_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
     private List<Image> images = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "pattern_color_id")
-    private List<PatternColor> colors = new ArrayList<>();
+
+    /*
+        Tại sao lại chọn ManyToMany cho mối quan hệ giữa ProductDetail và PatternColor mà không phải là OneToMany
+        Vì: nếu chỉ dùng OneToMany thì sẽ có nhiều bản ghi PatternColor trùng nhau (cùng lensColor + frameColor) nếu nhiều ProductDetail cùng sử dụng màu đó, dẫn đến dư thừa dữ liệu và khó quản lý.
+        Còn nếu dùng ManyToMany thì sẽ tránh được việc này, vì mỗi PatternColor sẽ chỉ tồn tại 1 bản ghi duy nhất trong bảng pattern_color, và nhiều ProductDetail có thể tham chiếu đến cùng một PatternColor đó 
+    */
+    @ManyToMany
+    @JoinTable(
+        name = "product_detail_colors",
+        joinColumns = @JoinColumn(name = "product_detail_id"),
+        inverseJoinColumns = @JoinColumn(name = "pattern_color_id")
+    )
+    private List<PatternColor> colors = new ArrayList<>(); 
 }

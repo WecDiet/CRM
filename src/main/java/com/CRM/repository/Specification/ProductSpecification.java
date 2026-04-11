@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.Predicate;
 
 import com.CRM.model.Inventory;
 import com.CRM.model.Product;
+import com.CRM.model.ProductDetail;
 import com.CRM.request.Inventory.InventoryFilterRequest;
 import com.CRM.request.Product.ProductFilter;
 
@@ -79,7 +80,7 @@ public class ProductSpecification {
 
     public static Specification<Product> getAllProductTrashFilter(ProductFilter filter){
         return (root, query, criteriaBuilder) -> {
-                        List<Predicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
             // 1️⃣ Tìm theo tên sản phẩm (LIKE)
             if (filter.getName() != null && !filter.getName().isBlank()) {
@@ -140,13 +141,13 @@ public class ProductSpecification {
                                 "%" + filter.getProductName().toLowerCase() + "%"));
             }
 
-            if (filter.getReferenceCode() != null && !filter.getReferenceCode().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(inventoryJoin.get("referenceCode"), filter.getReferenceCode()));
-            }
+            // if (filter.getReferenceCode() != null && !filter.getReferenceCode().isEmpty()) {
+            //     predicates.add(criteriaBuilder.equal(inventoryJoin.get("referenceCode"), filter.getReferenceCode()));
+            // }
 
-            if (filter.getType() != null && !filter.getType().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(inventoryJoin.get("type"), filter.getType()));
-            }
+            // if (filter.getType() != null && !filter.getType().isEmpty()) {
+            //     predicates.add(criteriaBuilder.equal(inventoryJoin.get("type"), filter.getType()));
+            // }
 
             predicates.add(criteriaBuilder.equal(root.get("status"), false));
             predicates.add(criteriaBuilder.equal(root.get("inActive"), true));
@@ -156,6 +157,41 @@ public class ProductSpecification {
             // 5. Đảm bảo kết quả không bị trùng lặp do JOIN
             query.distinct(true);
 
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+
+    public static Specification<Product> getProductsForNewTicket(String keyword){
+        return (root, query, criteriaBuilder) -> {
+            if (keyword == null || keyword.isBlank()) {
+                return criteriaBuilder.conjunction();
+            }
+
+            System.out.println("Keyword in Specification: " + keyword);
+            List<Predicate> predicates = new ArrayList<>();
+
+            // String likePattern = "%" + keyword.toLowerCase().trim() + "%";
+
+
+            Join<Product, ProductDetail> productDetailJoin = root.join("productDetail", JoinType.LEFT);
+
+            if (keyword != null && !keyword.isBlank()) {
+                System.out.println("Joining Product and ProductDetail for keyword search: " + keyword);
+                predicates.add(
+                        criteriaBuilder.or(
+                                criteriaBuilder.like(criteriaBuilder.lower(root.get("skuCode")), "%" + keyword.toLowerCase().trim() + "%"),
+                                criteriaBuilder.like(criteriaBuilder.lower(productDetailJoin.get("name")), "%" + keyword.toLowerCase().trim() + "%")
+                        )
+                        
+                    );
+                System.out.println("Added predicates for SKU code and Product name with keyword: " + keyword);
+                predicates.add(criteriaBuilder.equal(root.get("inActive"), true));
+                predicates.add(criteriaBuilder.equal(root.get("isDeleted"), false));
+                predicates.add(criteriaBuilder.equal(root.get("deletedAt"), 0L));
+
+            }
+            
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

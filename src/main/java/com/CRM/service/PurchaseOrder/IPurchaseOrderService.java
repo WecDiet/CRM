@@ -6,8 +6,6 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.CRM.enums.RestoreEnum;
-import com.CRM.model.Product;
-import com.CRM.model.Warehouse;
 import com.CRM.request.PurchaseOrder.PurchaseOrderFilterRequest;
 import com.CRM.request.PurchaseOrder.PurchaseOrderRequest;
 import com.CRM.request.PurchaseOrder.Delivery.ReceiveDeliveryRequest;
@@ -15,6 +13,7 @@ import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.PurchaseOrder.PurchaseOrderDetailResponse;
 import com.CRM.response.PurchaseOrder.PurchaseOrderResponse;
+import com.CRM.response.ReceiveDelivery.POReceiveInfoResponse;
 
 public interface IPurchaseOrderService {
     PagingResponse<PurchaseOrderResponse> getAllPurchaseOrder(int page, int limit, String sortBy, String direction, boolean active, PurchaseOrderFilterRequest filter);
@@ -38,5 +37,7 @@ public interface IPurchaseOrderService {
     APIResponse<Boolean> confirmOrder(String id);
 
     APIResponse<Boolean> receiveDelivery(String poCode, ReceiveDeliveryRequest receiveDeliveryRequest, List<MultipartFile> images);
+    
+    APIResponse<POReceiveInfoResponse> getPOReceiveInfo(String poCode);
 
 }

@@ -1,5 +1,6 @@
 package com.CRM.response.PurchaseOrder;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
 @ToString
 public class PurchaseOrderDetailResponse {
     private String name;

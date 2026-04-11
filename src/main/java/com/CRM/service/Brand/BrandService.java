@@ -75,7 +75,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             // String mediaUrl = (String) uploadResult.get("secure_url");
 
             CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
-                    .uploadMedia(image, "crm/brands");
+                    .uploadImage(image, "crm/brands");
 
             Map<String, Object> uploadResult = uploadFuture.join();
             uploadedPublicId = (String) uploadResult.get("public_id");
@@ -125,7 +125,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             // String uploadedPublicId = media.getPublicId();
             if (uploadedPublicId != null) {
                 try {
-                    cloudinaryService.deleteMedia(uploadedPublicId).join(); // Giả sử bạn có hàm này
+                    cloudinaryService.deleteImage(uploadedPublicId).join(); // Giả sử bạn có hàm này
                 } catch (Exception deleteEx) {
                     // Log lỗi xóa ảnh nhưng vẫn throw lỗi chính để rollback DB
                     System.err.println("Failed to cleanup Cloudinary image: " +
@@ -160,7 +160,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             String oldImage = (brand.getImage() != null) ? brand.getImage().getPublicId() : null;
         if (image != null && !image.isEmpty()) {
             try {
-                uploadImage = cloudinaryService.uploadMedia(image, "crm/brands").join();
+                uploadImage = cloudinaryService.uploadImage(image, "crm/brands").join();
             } catch (Exception e) {
                 // Nếu upload thất bại, ta ném lỗi để dừng hàm, giữ nguyên ảnh cũ
                 throw new RuntimeException("If uploading a new image fails, the system will retain the old image. Detail: " + e.getMessage());
@@ -192,7 +192,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
         if (oldImage != null && uploadImage != null) {
             final String finalDeleteId = oldImage;
             CompletableFuture.runAsync(() -> {
-                cloudinaryService.deleteMedia(finalDeleteId);
+                cloudinaryService.deleteImage(finalDeleteId);
             });
         }
         return new APIResponse<>(true, "Updated brand successfully");
@@ -200,7 +200,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
             // --- ROLLBACK: Nếu DB lỗi, xóa ảnh mới vừa up lên Cloudinary ---
             if (uploadImage != null) {
                 String publicIdRolback = (String) uploadImage.get("public_id");
-                cloudinaryService.deleteMedia(publicIdRolback);
+                cloudinaryService.deleteImage(publicIdRolback);
                 System.err.println("Database error. Rolled back uploaded image: ");
             }
             return new APIResponse<>(false, "Update failed: " + e.getMessage());
@@ -259,7 +259,7 @@ public class BrandService extends HelperService<Brand, UUID> implements IBrandSe
                 (brand) -> {
                     String publicId = brand.getImage().getPublicId();
                     if (publicId != null && !publicId.isEmpty()) {
-                        cloudinaryService.deleteMedia(publicId);
+                        cloudinaryService.deleteImage(publicId);
                     }
                 });
     }

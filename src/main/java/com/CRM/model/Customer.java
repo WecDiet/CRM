@@ -45,8 +45,8 @@ public class Customer extends Address {
     @Column(name = "google_account_id")
     private String googleAccountId;
 
-    @ManyToMany
-    @JoinTable(name = "customer_voucher", joinColumns = @JoinColumn(name = "customer_id"), inverseJoinColumns = @JoinColumn(name = "voucher_id"))
-    private List<Voucher> vouchers;
+    // @ManyToMany
+    // @JoinTable(name = "customer_voucher", joinColumns = @JoinColumn(name = "customer_id"), inverseJoinColumns = @JoinColumn(name = "voucher_id"))
+    // private List<Voucher> vouchers;
 
 }

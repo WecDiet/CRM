@@ -25,99 +25,197 @@ public class CloudinaryService implements ICloudinaryService {
 
     private final Cloudinary cloudinary;
 
-    private final ExecutorService uploadExecutor = Executors.newVirtualThreadPerTaskExecutor();
+    // private final ExecutorService uploadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
-    private final Semaphore uploadSemaphore = new Semaphore(10);
+    // private final Semaphore uploadSemaphore = new Semaphore(10);
+
+    // @Override
+    // @Transactional
+    // public CompletableFuture<Map<String, Object>> uploadMedia(MultipartFile media, String folderName) {
+    //     return CompletableFuture.supplyAsync(() -> {
+    //         try {
+
+    //             uploadSemaphore.acquire(); // Giới hạn số luồng upload cùng lúc
+
+    //             // 1. Kiểm tra tính hợp lệ (Size, Extension) bằng Utils của bạn
+    //             FileUploadUtils.assertAllowed(media, FileUploadUtils.MEDIA_PATTERN);
+
+    //             // 2. Chuẩn bị tên file và public_id
+    //             String originalFileName = media.getOriginalFilename();
+
+    //             if (originalFileName == null) {
+    //                 throw new RuntimeException("Invalid file name");
+    //             }
+
+    //             String cleanFileName = originalFileName
+    //                     .trim()
+    //                     .replaceAll("\\s+", "_")
+    //                     .replaceAll("[()\\\\/:*?\"<>|]", "");
+
+    //             // Đảm bảo tên file sau khi dọn dẹp vẫn còn giá trị
+    //             if (cleanFileName.isEmpty()) {
+    //                 cleanFileName = "default_name_" + System.currentTimeMillis();
+    //             }
+    //             String fileNameGenerated = FileUploadUtils.generateFileName(cleanFileName);
+
+    //             // Cloudinary public_id không nên bao gồm đuôi file
+    //             String publicId = fileNameGenerated.contains(".")
+    //                     ? fileNameGenerated.substring(0, fileNameGenerated.lastIndexOf('.'))
+    //                     : fileNameGenerated;
+
+    //             // 3. Cấu hình Transformation để Resize & Optimize
+    //             // f_auto: tự chuyển sang WebP/Avif, q_auto: nén dung lượng mà không giảm chất
+    //             // lượng mắt nhìn
+    //             Transformation transformation = new Transformation()
+    //                     .crop("limit") // "limit": chỉ thu nhỏ nếu ảnh lớn hơn 1920, không phóng to ảnh nhỏ
+    //                     .quality("auto") // Tự động nén tối ưu
+    //                     .fetchFormat("auto"); // Tự động chuyển định dạng WebP/Avif
+
+    //             // 4. Thiết lập tham số upload
+    //             Map<String, Object> params = ObjectUtils.asMap(
+    //                     "folder", folderName,
+    //                     "public_id", publicId,
+    //                     "overwrite", true,
+    //                     "resource_type", "auto" // Tự động nhận diện ảnh hay video
+    //             );
+
+    //             // Chỉ áp dụng transformation nếu là ảnh (Tránh lỗi khi upload video)
+    //             String extension = FileUploadUtils.getExtension(originalFileName);
+    //             if (!FileUploadUtils.getResourceTypeFromExtension(extension).equals("video")) {
+    //                 params.put("transformation", transformation);
+    //             }
+
+    //             // 5. Upload trực tiếp từ mảng byte (RAM) -> Nhanh và không để lại file rác
+    //             return cloudinary.uploader().upload(media.getBytes(), params);
+
+    //         } catch (IOException e) {
+    //             throw new RuntimeException("Lỗi đọc dữ liệu file: " + e.getMessage());
+    //         } catch (Exception e) {
+    //             throw new RuntimeException("Lỗi upload Cloudinary: " + e.getMessage());
+    //         } finally {
+    //             uploadSemaphore.release(); // Giải phóng semaphore sau khi hoàn thành upload
+    //         }
+
+    //     }, uploadExecutor);
+    // }
+
+    // @Override
+    // @Transactional
+    // public CompletableFuture<Void> deleteMedia(String publicId) {
+    //     return CompletableFuture.runAsync(() -> {
+    //         try {
+    //             if (publicId == null || publicId.isEmpty()) {
+    //                 throw new IllegalArgumentException("Public ID cannot be null or empty");
+    //             }
+
+    //             // Assume resource type is image
+    //             String resourceType = "image";
+
+    //             // Delete from Cloudinary
+    //             cloudinary.uploader().destroy(publicId, ObjectUtils.asMap(
+    //                     "resource_type", resourceType,
+    //                     "invalidate", true));
+    //         } catch (Exception e) {
+    //             throw new RuntimeException("Failed to delete file from Cloudinary", e);
+    //         }
+    //     }, uploadExecutor);
+    // }
+
+
+    private static final int MAX_CONCURRENT_UPLOADS = 10;
+    private final ExecutorService uploadExecutor =
+            Executors.newFixedThreadPool(MAX_CONCURRENT_UPLOADS);
 
     @Override
-    @Transactional
-    public CompletableFuture<Map<String, Object>> uploadMedia(MultipartFile media, String folderName) {
+    public CompletableFuture<Map<String, Object>> uploadImage(MultipartFile media, String folderName) {
+
+        final byte[] fileBytes;
+        try {
+            FileUploadUtils.assertAllowed(media, FileUploadUtils.MEDIA_PATTERN);
+            fileBytes = media.getBytes();
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(
+                    new RuntimeException("Cannot read file data: " + media.getOriginalFilename(), e));
+        }
+
+        final Map<String, Object> uploadParams = uploadParams(media, folderName);
+ 
         return CompletableFuture.supplyAsync(() -> {
             try {
-
-                uploadSemaphore.acquire(); // Giới hạn số luồng upload cùng lúc
-
-                // 1. Kiểm tra tính hợp lệ (Size, Extension) bằng Utils của bạn
-                FileUploadUtils.assertAllowed(media, FileUploadUtils.MEDIA_PATTERN);
-
-                // 2. Chuẩn bị tên file và public_id
-                String originalFileName = media.getOriginalFilename();
-
-                if (originalFileName == null) {
-                    throw new RuntimeException("Invalid file name");
-                }
-
-                String cleanFileName = originalFileName
-                        .trim()
-                        .replaceAll("\\s+", "_")
-                        .replaceAll("[()\\\\/:*?\"<>|]", "");
-
-                // Đảm bảo tên file sau khi dọn dẹp vẫn còn giá trị
-                if (cleanFileName.isEmpty()) {
-                    cleanFileName = "default_name_" + System.currentTimeMillis();
-                }
-                String fileNameGenerated = FileUploadUtils.generateFileName(cleanFileName);
-
-                // Cloudinary public_id không nên bao gồm đuôi file
-                String publicId = fileNameGenerated.contains(".")
-                        ? fileNameGenerated.substring(0, fileNameGenerated.lastIndexOf('.'))
-                        : fileNameGenerated;
-
-                // 3. Cấu hình Transformation để Resize & Optimize
-                // f_auto: tự chuyển sang WebP/Avif, q_auto: nén dung lượng mà không giảm chất
-                // lượng mắt nhìn
-                Transformation transformation = new Transformation()
-                        .crop("limit") // "limit": chỉ thu nhỏ nếu ảnh lớn hơn 1920, không phóng to ảnh nhỏ
-                        .quality("auto") // Tự động nén tối ưu
-                        .fetchFormat("auto"); // Tự động chuyển định dạng WebP/Avif
-
-                // 4. Thiết lập tham số upload
-                Map<String, Object> params = ObjectUtils.asMap(
-                        "folder", folderName,
-                        "public_id", publicId,
-                        "overwrite", true,
-                        "resource_type", "auto" // Tự động nhận diện ảnh hay video
-                );
-
-                // Chỉ áp dụng transformation nếu là ảnh (Tránh lỗi khi upload video)
-                String extension = FileUploadUtils.getExtension(originalFileName);
-                if (!FileUploadUtils.getResourceTypeFromExtension(extension).equals("video")) {
-                    params.put("transformation", transformation);
-                }
-
-                // 5. Upload trực tiếp từ mảng byte (RAM) -> Nhanh và không để lại file rác
-                return cloudinary.uploader().upload(media.getBytes(), params);
-
+                return cloudinary.uploader().upload(fileBytes, uploadParams);
             } catch (IOException e) {
-                throw new RuntimeException("Lỗi đọc dữ liệu file: " + e.getMessage());
-            } catch (Exception e) {
-                throw new RuntimeException("Lỗi upload Cloudinary: " + e.getMessage());
-            } finally {
-                uploadSemaphore.release(); // Giải phóng semaphore sau khi hoàn thành upload
+                throw new RuntimeException("Cloudinary upload failed: " + e.getMessage(), e);
             }
-
         }, uploadExecutor);
     }
 
+
     @Override
-    public CompletableFuture<Void> deleteMedia(String publicId) {
+    public CompletableFuture<Void> deleteImage(String publicId) {
+
+        if (publicId == null || publicId.isBlank()) {
+            return CompletableFuture.failedFuture(
+                    new IllegalArgumentException("Public ID cannot be null or empty."));
+        }
+
+        return deleteFile(publicId, "image");
+    }
+
+    private CompletableFuture<Void> deleteFile(String publicId, String resourceType) {
+        if (publicId == null || publicId.isBlank()) {
+            return CompletableFuture.failedFuture(
+                    new IllegalArgumentException("Public ID cannot be null or empty."));
+        }
+ 
         return CompletableFuture.runAsync(() -> {
             try {
-                if (publicId == null || publicId.isEmpty()) {
-                    throw new IllegalArgumentException("Public ID cannot be null or empty");
-                }
-
-                // Assume resource type is image
-                String resourceType = "image";
-
-                // Delete from Cloudinary
                 cloudinary.uploader().destroy(publicId, ObjectUtils.asMap(
                         "resource_type", resourceType,
                         "invalidate", true));
             } catch (Exception e) {
-                throw new RuntimeException("Failed to delete file from Cloudinary", e);
+                throw new RuntimeException("Failed to delete from Cloudinary: " + publicId, e);
             }
         }, uploadExecutor);
+    }
+
+
+    // ── Helper: build upload params ngoài async thread ───────────────
+    private Map<String, Object> uploadParams(MultipartFile media, String folderName) {
+        String originalFileName = media.getOriginalFilename();
+ 
+        String cleanFileName = (originalFileName == null || originalFileName.isBlank())
+                ? "file_" + System.currentTimeMillis()
+                : originalFileName.trim()
+                        .replaceAll("\\s+", "_")
+                        .replaceAll("[()\\\\/:*?\"<>|]", "");
+ 
+        if (cleanFileName.isEmpty()) cleanFileName = "file_" + System.currentTimeMillis();
+ 
+        String fileNameGenerated = FileUploadUtils.generateFileName(cleanFileName);
+        String publicId = fileNameGenerated.contains(".")
+                ? fileNameGenerated.substring(0, fileNameGenerated.lastIndexOf('.'))
+                : fileNameGenerated;
+ 
+        Map<String, Object> params = ObjectUtils.asMap(
+                "folder",         folderName,
+                "public_id",      publicId,
+                "overwrite",      true,
+                "resource_type",  "auto"
+        );
+ 
+        // Chỉ áp dụng transformation cho ảnh, không áp dụng cho video
+        String extension = originalFileName != null
+                ? FileUploadUtils.getExtension(originalFileName)
+                : "";
+ 
+        if (!"video".equals(FileUploadUtils.getResourceTypeFromExtension(extension))) {
+            params.put("transformation", new Transformation()
+                    .crop("limit")
+                    .quality("auto")
+                    .fetchFormat("auto"));
+        }
+ 
+        return params;
     }
 
 }

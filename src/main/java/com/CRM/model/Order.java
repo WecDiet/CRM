@@ -101,7 +101,7 @@ public class Order {
     @Column(name = "status")
     private boolean status;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private Set<VoucherUsage> voucherUsages;
+    // @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    // private Set<VoucherUsage> voucherUsages;
 
 }

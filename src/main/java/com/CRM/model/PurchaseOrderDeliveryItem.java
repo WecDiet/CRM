@@ -38,6 +38,14 @@ public class PurchaseOrderDeliveryItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "po_item_id", nullable = false)
     private PurchaseOrderItem purchaseOrderItem;
+
+    /**
+     * Trỏ về đúng dòng màu trong PO để tính lũy kế chính xác.
+     * Nếu sản phẩm không phân biệt màu thì vẫn trỏ vào phần tử duy nhất của colorItems.
+    */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "po_item_color_id", nullable = false)
+    private PurchaseOrderColor purchaseOrderColor;
  
     @Column(name = "quantity_delivered", nullable = false)
     private Integer quantityDelivered; // Số lượng giao trong lần NÀY

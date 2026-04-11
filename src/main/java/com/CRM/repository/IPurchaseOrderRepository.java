@@ -21,9 +21,11 @@ public interface IPurchaseOrderRepository extends JpaRepository<PurchaseOrder, U
     boolean existsActiveByName(@Param("name") String name);
 
     @Query("""
-            SELECT po FROM PurchaseOrder po 
-            JOIN FETCH po.items 
-            WHERE po.poNumber = :poNumber
-            """)
-    Optional<PurchaseOrder> findByPONumberWithItems(String poNumber);
+        SELECT DISTINCT po FROM PurchaseOrder po
+        LEFT JOIN FETCH po.items item
+        LEFT JOIN FETCH item.colorDetails
+        LEFT JOIN FETCH item.product
+        WHERE po.poNumber = :poNumber
+    """)
+    Optional<PurchaseOrder> findByPONumberWithItems(@Param("poNumber") String poNumber);
 }

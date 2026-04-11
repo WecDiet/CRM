@@ -47,7 +47,7 @@ public class PurchaseOrderDelivery {
     @Column(name = "status")
     private String status;     
     
-    @Column(name = "delivery_note")
+    @Column(name = "delivery_note", columnDefinition = "TEXT")
     private String deliveryNote; // Ghi chú về việc giao hàng
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -55,7 +55,7 @@ public class Warehouse extends BaseEntity {
     private String warehouseType; // MAIN (Kho tổng), STORE (Cửa hàng)
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "warehouse_media", joinColumns = @JoinColumn(name = "warehouse_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
+    @JoinTable(name = "warehouse_image", joinColumns = @JoinColumn(name = "warehouse_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
     private List<Image> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true , fetch = FetchType.LAZY)

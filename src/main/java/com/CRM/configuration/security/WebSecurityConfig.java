@@ -57,11 +57,11 @@ public class WebSecurityConfig {
                                                                         String.format("%s/vouchers", Enpoint.API_PREFIX),
                                                                         String.format("%s/suppliers", Enpoint.API_PREFIX),
                                                                         String.format("%s/purchase-orders", Enpoint.API_PREFIX),
-                                                                        String.format("%s/warehouses",
-                                                                                        Enpoint.API_PREFIX)
+                                                                        String.format("%s/transfer-tickets", Enpoint.API_PREFIX),
+                                                                        String.format("%s/stores", Enpoint.API_PREFIX),
+                                                                        String.format("%s/warehouses", Enpoint.API_PREFIX)
 
                                                         )
-
                                                         .permitAll()
                                                         .anyRequest()
                                                         .authenticated();

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -24,6 +23,7 @@ import com.CRM.request.PurchaseOrder.PurchaseOrderRequest;
 import com.CRM.request.PurchaseOrder.Delivery.ReceiveDeliveryRequest;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.PurchaseOrder.PurchaseOrderDetailResponse;
+import com.CRM.response.ReceiveDelivery.POReceiveInfoResponse;
 import com.CRM.service.PurchaseOrder.PurchaseOrderService;
 
 import lombok.RequiredArgsConstructor;
@@ -101,4 +101,9 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(purchaseOrderService.receiveDelivery(code, receiveDeliveryRequest, images));
     }
 
+
+    @GetMapping(Enpoint.PurchaseOrder.RECEIVE)
+    public ResponseEntity<APIResponse<POReceiveInfoResponse>> getPOReceiveInfo(@PathVariable String code) {
+        return ResponseEntity.ok(purchaseOrderService.getPOReceiveInfo(code));
+    }
 }

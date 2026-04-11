@@ -95,7 +95,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
                         CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService
-                                .uploadMedia(image, "crm/warehouses");
+                                .uploadImage(image, "crm/warehouses");
                         Map<String, Object> uploadResult = uploadFuture.join();
                         String uploadedPublicId = (String) uploadResult.get("public_id");
                         String mediaUrl = (String) uploadResult.get("secure_url");
@@ -164,7 +164,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
             if (images != null && !images.isEmpty()) {
                 List<CompletableFuture<Map<String, Object>>> futures = images.stream()
                                     .filter(image -> !image.isEmpty())
-                                    .map(image -> cloudinaryService.uploadMedia(image, "crm/warehouses"))
+                                    .map(image -> cloudinaryService.uploadImage(image, "crm/warehouses"))
                                     .collect(Collectors.toList());
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
@@ -213,7 +213,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                 if (!finalImageDeleteIds.isEmpty()) {
                     final List<String> finalDeleteIds = new ArrayList<>(finalImageDeleteIds);
                     CompletableFuture.runAsync(() -> {
-                        finalDeleteIds.forEach(cloudinaryService::deleteMedia);
+                        finalDeleteIds.forEach(cloudinaryService::deleteImage);
                     }).exceptionally(ex -> {
                         System.err.println("Cloudinary delete failed: " + ex.getMessage());
                         return null;
@@ -224,7 +224,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
             return new APIResponse<>(true, "Updated Warehouse successfully");
         } catch (Exception e) {
             if (!uploadedResults.isEmpty()) {
-                uploadedResults.forEach(image -> cloudinaryService.deleteMedia((String) image.get("public_id")));
+                uploadedResults.forEach(image -> cloudinaryService.deleteImage((String) image.get("public_id")));
             }
             throw new RuntimeException("Update warehouse failed: " + e.getMessage());
         }
@@ -285,7 +285,7 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                     List<CompletableFuture<Void>> futures = images.stream()
                             .map(Image::getPublicId)
                             .filter(Objects::nonNull)
-                            .map(publicId -> cloudinaryService.deleteMedia(publicId).exceptionally(ex -> {
+                            .map(publicId -> cloudinaryService.deleteImage(publicId).exceptionally(ex -> {
                                 failed.incrementAndGet();
                                 System.out.println("Failed to delete media with public ID: " + publicId + ". Error: "
                                         + ex.getMessage());

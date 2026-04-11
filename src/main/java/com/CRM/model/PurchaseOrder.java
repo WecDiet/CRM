@@ -3,7 +3,9 @@ package com.CRM.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
@@ -13,10 +15,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -65,14 +65,13 @@ public class PurchaseOrder extends BaseEntity {
     
     private LocalDate expectedDeliveryDate; // Ngày dự kiến hàng về
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+    @Column(name = "note", columnDefinition = "TEXT")
+    private String note;
 
-    @OneToMany(mappedBy = "purchaseOrder",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<PurchaseOrderItem> items = new ArrayList<>();
+    @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PurchaseOrderItem> items = new HashSet<>();;
 
+    
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PurchaseOrderDelivery> deliveries = new ArrayList<>();

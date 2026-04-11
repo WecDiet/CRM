@@ -2,20 +2,33 @@ package com.CRM.response.Inventory;
 
 import java.util.UUID;
 
-import com.CRM.response.Product.BaseProductResponse;
-import com.CRM.response.Warehouse.WarehouseResponse;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
+@Builder
 public class InventoryResponse {
+
     private UUID id;
-    private int quantity;
-    private String type; // Nhập kho, Xuất kho, Điều chuyển
-    private String referenceCode; // Mã tham chiếu liên quan đến giao dịch kho hàng (nếu có) 
-    private String note;
-    private BaseProductResponse product; 
-    private WarehouseResponse warehouse;
+
+    private UUID productId;
+
+    private String productName;
+
+    private String mainImage;
+
+    private String locationName;   // Tên kho hoặc cửa hàng
+
+    private String locationType;   // "WAREHOUSE" | "STORE"
+    
+    private Integer quantityOnHand;
+
 }

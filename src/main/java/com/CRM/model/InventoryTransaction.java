@@ -24,7 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class InventoryTransaction {
+public class InventoryTransaction extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -53,4 +53,7 @@ public class InventoryTransaction {
 
     @Column(name = "reference_code")
     private String referenceCode; // PO Number hoặc Transfer Code
+
+    @Column(name = "note", columnDefinition = "TEXT")
+    private String note;
 }

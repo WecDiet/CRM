@@ -103,7 +103,7 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
             supplier.setDeletedAt(0L);
             supplier.setColabDate(colabDate);
     
-            CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadMedia(image, "crm/suppliers");
+            CompletableFuture<Map<String, Object>> uploadFuture = cloudinaryService.uploadImage(image, "crm/suppliers");
             Map<String, Object> uploadResult = uploadFuture.join();
             uploadedPublicId = (String) uploadResult.get("public_id");
             String imageUrl = (String) uploadResult.get("secure_url");
@@ -132,7 +132,7 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
         } catch (Exception ex) {
             if (uploadedPublicId != null) {
                 try {
-                    cloudinaryService.deleteMedia(uploadedPublicId).join();
+                    cloudinaryService.deleteImage(uploadedPublicId).join();
                 } catch (Exception deleteEx) {
                     System.err.println("Failed to cleanup Cloudinary image: " + uploadedPublicId);
                 }
@@ -187,7 +187,7 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
             (supplier) -> {
                 String publicId = supplier.getImage().getPublicId();
                 if (publicId != null && !publicId.isEmpty()) {
-                    cloudinaryService.deleteMedia(publicId);
+                    cloudinaryService.deleteImage(publicId);
                 }
             });
     }
@@ -227,7 +227,7 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
 
             if (image != null && !image.isEmpty()) {
                 try {
-                    uploadImage = cloudinaryService.uploadMedia(image, "crm/suppliers").join();
+                    uploadImage = cloudinaryService.uploadImage(image, "crm/suppliers").join();
                 } catch (Exception e) {
                     // Nếu upload thất bại, ta ném lỗi để dừng hàm, giữ nguyên ảnh cũ
                     throw new RuntimeException("If uploading a new image fails, the system will retain the old image. Detail: " + e.getMessage());
@@ -260,7 +260,7 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
             if (oldImage != null && uploadImage != null) {
                 final String finalDeleteId = oldImage;
                 CompletableFuture.runAsync(() -> {
-                    cloudinaryService.deleteMedia(finalDeleteId);
+                    cloudinaryService.deleteImage(finalDeleteId);
                 });
             }
             return new APIResponse<>(true, "Updated supplier successfully");
@@ -268,7 +268,7 @@ public class SupplierService extends HelperService<Supplier, UUID> implements IS
             // --- ROLLBACK: Nếu DB lỗi, xóa ảnh mới vừa up lên Cloudinary ---
             if (uploadImage != null) {
                 String publicIdRolback = (String) uploadImage.get("public_id");
-                cloudinaryService.deleteMedia(publicIdRolback);
+                cloudinaryService.deleteImage(publicIdRolback);
                 System.err.println("Database error. Rolled back uploaded image: ");
             }
             return new APIResponse<>(false, "Update failed: " + e.getMessage());

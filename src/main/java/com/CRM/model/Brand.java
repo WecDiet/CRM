@@ -47,7 +47,7 @@ public class Brand extends BaseEntity {
     private boolean highlighted; // Trạng thái hiển thị brand thêm vào bộ sưu tập
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "brand_media", joinColumns = @JoinColumn(name = "brand_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
+    @JoinTable(name = "brand_image", joinColumns = @JoinColumn(name = "brand_id"), inverseJoinColumns = @JoinColumn(name = "image_id"))
     private Image image;
 
     @ManyToOne

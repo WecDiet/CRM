@@ -12,7 +12,7 @@ import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Product.ProductDetailResponse;
 import com.CRM.response.Product.ProductResponse;
-import com.CRM.response.Product.Inventory.InventoryProduct;
+// import com.CRM.response.Product.Inventory.InventoryProduct;
 
 public interface IProductService {
     PagingResponse<ProductResponse> getAllProducts(
@@ -30,5 +30,5 @@ public interface IProductService {
 
     APIResponse<ProductDetailResponse> getProductTrashDetail(String id);
 
-    PagingResponse<InventoryProduct> getAllProductInventoty(int page, int limit, String sortBy, String direction, InventoryFilterRequest filter);
+    // PagingResponse<InventoryProduct> getAllProductInventoty(int page, int limit, String sortBy, String direction, InventoryFilterRequest filter);
 }
