@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.request.Product.ProductFilter;
 import com.CRM.service.Product.ProductService;
 
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(Enpoint.Product.BASE)
+@RequestMapping(Endpoint.Product.BASE)
 public class ProductController {
     private final ProductService productService;
 
@@ -35,19 +35,19 @@ public class ProductController {
 
     }
 
-    @GetMapping(Enpoint.Product.ID)
+    @GetMapping(Endpoint.Product.ID)
     public ResponseEntity<?> getProductById(@PathVariable String id) {
         return ResponseEntity.ok(productService.getProductDetail(id));
     }
 
 
-    @DeleteMapping(Enpoint.Product.DELETE)
+    @DeleteMapping(Endpoint.Product.DELETE)
     public ResponseEntity<?> deleteProduct(@PathVariable String id) {
         return ResponseEntity.ok(productService.deleteProduct(id));
     }
 
 
-    @GetMapping(Enpoint.Product.TRASH)
+    @GetMapping(Endpoint.Product.TRASH)
     public ResponseEntity<?> getAllProductTrash(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "5") int limit,
@@ -58,7 +58,7 @@ public class ProductController {
 
     }
 
-    @GetMapping(Enpoint.Product.TRASH_ID)
+    @GetMapping(Endpoint.Product.TRASH_ID)
     public ResponseEntity<?> getProductTrashDetail(@PathVariable String id) {
         return ResponseEntity.ok(productService.getProductTrashDetail(id));
     }

@@ -57,6 +57,8 @@ public class InventorySpecification {
             predicates.add(criteriaBuilder.equal(productJoin.get("isDeleted"), false));
             predicates.add(criteriaBuilder.equal(productJoin.get("deletedAt"), 0L));
 
+            query.distinct(true);
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

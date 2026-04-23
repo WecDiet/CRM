@@ -1,15 +1,20 @@
 package com.CRM.Util.Helper;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.ListUtils;
 import org.modelmapper.ModelMapper;
-
+import org.springframework.beans.factory.BeanRegistry.Spec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,10 +26,12 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.util.StringUtils;
 
 import com.CRM.model.BaseEntity;
+import com.CRM.repository.Specification.BaseSpecification;
 import com.CRM.response.Pagination.APIResponse;
 import com.CRM.response.Pagination.PagingResponse;
 import com.CRM.response.Pagination.Info.PaginationInfo;
 
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

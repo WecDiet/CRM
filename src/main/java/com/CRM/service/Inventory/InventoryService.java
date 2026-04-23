@@ -124,10 +124,21 @@ public class InventoryService extends HelperService<Inventory, UUID> implements 
                 );
     }
 
+
+    /**
+     * Điều chỉnh tồn kho Kho Tổng khi kiểm kho phát hiện chênh lệch.
+     *
+     * @param delta  Dương (+) = tìm thấy thêm hàng, Âm (-) = hàng bị mất
+     * @param reason Lý do điều chỉnh (bắt buộc để audit)
+     */
     @Override
     @Transactional
     public APIResponse<InventoryResponse> adjustWarehouseStock(String productId, String warehouseId, int delta, String reason) {
         
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("A reason must be entered when adjusting inventory.");
+        }
+
         Warehouse warehouse = iWarehouseRepository.findById(UUID.fromString(warehouseId)).orElseThrow(() -> new IllegalArgumentException("Warehouse not found."));
 
         Product product = iProductRepository.findById(UUID.fromString(productId)).orElseThrow(() -> new IllegalArgumentException("Product not found"));

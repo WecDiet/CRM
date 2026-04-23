@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.CRM.model.Inventory;
 import com.CRM.model.Product;
+import com.CRM.model.Store;
 import com.CRM.model.Warehouse;
 
 import jakarta.persistence.LockModeType;
@@ -39,4 +40,17 @@ public interface IInventoryRepository extends JpaRepository<Inventory, UUID>, Jp
         @Param("warehouseId") UUID warehouseId,
         @Param("productIds")  Collection<UUID> productIds
     );
+
+        // Tìm theo warehouse + product
+    Optional<Inventory> findByWarehouseAndProduct(Warehouse warehouse, Product product);
+
+    // Tìm theo store + product
+    Optional<Inventory> findByStoreAndProduct(Store store, Product product);
+
+        // PESSIMISTIC_WRITE — dùng trong confirmReceipt
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT i FROM Inventory i WHERE i.product = :product AND i.store = :store")
+    Optional<Inventory> findByProductAndStoreWithLock(
+            @Param("product") Product product,
+            @Param("store") Store store);
 }

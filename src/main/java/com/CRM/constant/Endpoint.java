@@ -1,6 +1,6 @@
 package com.CRM.constant;
 
-public class Enpoint {
+public class Endpoint {
 
     public static final String API_PREFIX = "/crm/api/v1";
 
@@ -117,7 +117,10 @@ public class Enpoint {
         public static final String CREATE = "/new";
         public static final String UPDATE = "/{id}";
         public static final String DELETE = "/{id}";
-        
+        public static final String CONFIRM = "/{id}/confirm";
+        public static final String MARK = "/{ticketCode}/mark";
+        public static final String STORE_RECEIVED = "/store/{ticketCode}/received";
+        public static final String INFOR_RECEIPT = "/store/{ticketCode}";
     }
 
     public static final class Store {

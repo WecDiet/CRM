@@ -37,7 +37,8 @@ public class CategoryService extends HelperService<Category, UUID> implements IC
                 direction,
                 null,
                 CategoryResponse.class,
-                iCategoryRepository);
+                iCategoryRepository
+            );
     }
 
     @Override

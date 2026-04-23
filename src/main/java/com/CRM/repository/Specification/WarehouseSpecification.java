@@ -2,8 +2,10 @@ package com.CRM.repository.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -141,6 +143,10 @@ public class WarehouseSpecification {
             
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    public static Consumer<Root<Warehouse>> noFetch() {
+        return root -> {};
     }
 
 }

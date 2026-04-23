@@ -16,7 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,20 +46,20 @@ public class WebSecurityConfig {
                                                                         "/swagger-resources/",
                                                                         "/configuration/ui",
                                                                         "/configuration/security",
-                                                                        String.format("%s/**", Enpoint.API_PREFIX),
-                                                                        String.format("%s/roles", Enpoint.API_PREFIX),
+                                                                        String.format("%s/**", Endpoint.API_PREFIX),
+                                                                        String.format("%s/roles", Endpoint.API_PREFIX),
                                                                         String.format("%s/categories",
-                                                                                        Enpoint.API_PREFIX),
-                                                                        String.format("%s/banners", Enpoint.API_PREFIX),
+                                                                                        Endpoint.API_PREFIX),
+                                                                        String.format("%s/banners", Endpoint.API_PREFIX),
                                                                         String.format("%s/brands",
-                                                                                        Enpoint.API_PREFIX),
-                                                                        String.format("%s/inventories", Enpoint.API_PREFIX),
-                                                                        String.format("%s/vouchers", Enpoint.API_PREFIX),
-                                                                        String.format("%s/suppliers", Enpoint.API_PREFIX),
-                                                                        String.format("%s/purchase-orders", Enpoint.API_PREFIX),
-                                                                        String.format("%s/transfer-tickets", Enpoint.API_PREFIX),
-                                                                        String.format("%s/stores", Enpoint.API_PREFIX),
-                                                                        String.format("%s/warehouses", Enpoint.API_PREFIX)
+                                                                                        Endpoint.API_PREFIX),
+                                                                        String.format("%s/inventories", Endpoint.API_PREFIX),
+                                                                        String.format("%s/vouchers", Endpoint.API_PREFIX),
+                                                                        String.format("%s/suppliers", Endpoint.API_PREFIX),
+                                                                        String.format("%s/purchase-orders", Endpoint.API_PREFIX),
+                                                                        String.format("%s/transfer-tickets", Endpoint.API_PREFIX),
+                                                                        String.format("%s/stores", Endpoint.API_PREFIX),
+                                                                        String.format("%s/warehouses", Endpoint.API_PREFIX)
 
                                                         )
                                                         .permitAll()

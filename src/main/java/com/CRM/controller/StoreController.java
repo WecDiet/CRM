@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.request.Store.StoreFilterRequest;
 import com.CRM.request.Store.StoreRequest;
 import com.CRM.request.Warehouse.WarehouseRequest;
@@ -23,7 +23,7 @@ import com.CRM.service.Store.StoreService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(Enpoint.Store.BASE)
+@RequestMapping(Endpoint.Store.BASE)
 @RequiredArgsConstructor
 public class StoreController {
     private final StoreService storeService;
@@ -41,7 +41,7 @@ public class StoreController {
         return ResponseEntity.ok(storeService.getAllStore(page, limit, sortBy, direction, active, filter));
     }
 
-    @PostMapping(Enpoint.Store.CREATE)
+    @PostMapping(Endpoint.Store.CREATE)
     public ResponseEntity<APIResponse<Boolean>> createStore(
         @ModelAttribute StoreRequest storeRequest,
          @RequestParam("images") List<MultipartFile> images        

@@ -7,6 +7,7 @@ import com.CRM.model.TransferTicket;
 import com.CRM.response.Inventory.InventoryResponse;
 import com.CRM.response.TransferTicket.BaseTransferTicketResponse;
 import com.CRM.response.TransferTicket.TransferTicketDetailResponse;
+import com.CRM.response.TransferTicket.ConfirmReceipt.ComfirmReceiptResponse;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,16 @@ public class TransferTicketMapper {
                         mapping.map(entity -> entity.getStatus(), TransferTicketDetailResponse::setStatus);
                         mapping.map(entity -> entity.getNote(), TransferTicketDetailResponse::setNote);
                         mapping.map(entity -> entity.getItems(), TransferTicketDetailResponse::setItems);
-                    });            
+                    });
+        modelMapper.typeMap(TransferTicket.class, ComfirmReceiptResponse.class)
+                    .addMappings(mapping -> {
+                        mapping.map(entity -> entity.getTicketCode(), ComfirmReceiptResponse::setTicketCode);
+                        mapping.map(entity -> entity.getWarehouse().getName(), ComfirmReceiptResponse::setWarehouseName);
+                        mapping.map(entity -> entity.getStore().getName(), ComfirmReceiptResponse::setStoreName);
+                        mapping.map(entity -> entity.getExpectedDeliveryDate(), ComfirmReceiptResponse::setExpectedDeliveryDate);
+                        mapping.map(entity -> entity.getStatus(), ComfirmReceiptResponse::setStatus);
+                        mapping.map(entity -> entity.getNote(), ComfirmReceiptResponse::setNote);
+                        mapping.map(entity -> entity.getItems(), ComfirmReceiptResponse::setItems);
+                    });         
     }
 }

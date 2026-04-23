@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.request.Supplier.SupplierFilterRequest;
 import com.CRM.request.Supplier.SupplierRequest;
 import com.CRM.response.Pagination.APIResponse;
@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(Enpoint.Supplier.BASE)
+@RequestMapping(Endpoint.Supplier.BASE)
 public class SupplierController {
     private final SupplierService supplierService;
 
@@ -44,12 +44,12 @@ public class SupplierController {
     }
 
 
-    @GetMapping(Enpoint.Supplier.ID)
+    @GetMapping(Endpoint.Supplier.ID)
     public ResponseEntity<APIResponse<SupplierDetailResponse>> getSupplierDetail(String id){
         return ResponseEntity.ok(supplierService.getSupplierDetail(id));
     }
 
-    @PostMapping(Enpoint.Supplier.CREATE)
+    @PostMapping(Endpoint.Supplier.CREATE)
     public ResponseEntity<?> createSupplier(
             @ModelAttribute SupplierRequest supplierRequest,
             @RequestParam("active") boolean active,
@@ -58,7 +58,7 @@ public class SupplierController {
         return ResponseEntity.ok(supplierService.createSupplier(supplierRequest, image, active));
     }
 
-    @PutMapping(Enpoint.Supplier.UPDATE)
+    @PutMapping(Endpoint.Supplier.UPDATE)
     public ResponseEntity<APIResponse<Boolean>> updateSupplier(
         @PathVariable String id,
         @ModelAttribute SupplierRequest supplierRequest,
@@ -69,12 +69,12 @@ public class SupplierController {
     }
 
 
-    @DeleteMapping(Enpoint.Supplier.DELETE)
+    @DeleteMapping(Endpoint.Supplier.DELETE)
     public ResponseEntity<APIResponse<Boolean>> deleteSupplier(@PathVariable String id){
         return ResponseEntity.ok(supplierService.deleteSupplier(id));
     }
 
-    @GetMapping(Enpoint.Supplier.TRASH)
+    @GetMapping(Endpoint.Supplier.TRASH)
     public ResponseEntity<PagingResponse<SupplierResponse>> getAllSupplierTrash(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int limit,

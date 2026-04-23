@@ -58,7 +58,8 @@ public class WarehouseService extends HelperService<Warehouse, UUID> implements 
                 direction,
                 WarehouseSpecification.getAllWarehouseFilter(filter, active),
                 WarehouseResponse.class,
-                iWarehouseRepository);
+                iWarehouseRepository
+            );
     }
 
     @Override

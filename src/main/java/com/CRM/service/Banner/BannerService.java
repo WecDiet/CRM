@@ -59,7 +59,8 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
                 direction,
                 BannerSpecification.getAllBanner(active),
                 BannerResponse.class,
-                iBannerRepository);
+                iBannerRepository
+            );
     }
 
     @Transactional
@@ -221,7 +222,8 @@ public class BannerService extends HelperService<Banner, UUID> implements IBanne
                 sortBy,
                 direction,
                 BannerSpecification.getAllBannerTrash(), BannerResponse.class,
-                iBannerRepository);
+                iBannerRepository
+            );
     }
 
     @Override

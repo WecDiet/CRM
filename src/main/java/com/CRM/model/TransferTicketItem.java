@@ -29,7 +29,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransferTicketItem extends BaseEntity {
+public class TransferTicketItem{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

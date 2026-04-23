@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.request.PurchaseOrder.PurchaseOrderFilterRequest;
 import com.CRM.request.PurchaseOrder.PurchaseOrderRequest;
 import com.CRM.request.PurchaseOrder.Delivery.ReceiveDeliveryRequest;
@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(Enpoint.PurchaseOrder.BASE)
+@RequestMapping(Endpoint.PurchaseOrder.BASE)
 public class PurchaseOrderController {
 
     private final PurchaseOrderService purchaseOrderService;
@@ -47,13 +47,13 @@ public class PurchaseOrderController {
     }
 
 
-    @GetMapping(Enpoint.PurchaseOrder.ID)
+    @GetMapping(Endpoint.PurchaseOrder.ID)
     public ResponseEntity<APIResponse<PurchaseOrderDetailResponse>> getPurchaseOrderDetail( @PathVariable String id ) {
         return ResponseEntity.ok(purchaseOrderService.getPurchaseOrderDetail(id));
     }
 
     @PostMapping(
-        value = Enpoint.PurchaseOrder.CREATE,
+        value = Endpoint.PurchaseOrder.CREATE,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE
 
     )
@@ -65,12 +65,12 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(purchaseOrderService.createPurchaseOrder(purchaseOrderRequest, images, active));
     }
 
-    @DeleteMapping(Enpoint.PurchaseOrder.DELETE)
+    @DeleteMapping(Endpoint.PurchaseOrder.DELETE)
     public ResponseEntity<APIResponse<Boolean>> deletePurchaseOrder(@PathVariable String id) {
         return ResponseEntity.ok(purchaseOrderService.deletePurchaseOrder(id));
     }
 
-    @GetMapping(Enpoint.PurchaseOrder.TRASH)
+    @GetMapping(Endpoint.PurchaseOrder.TRASH)
     public ResponseEntity<?> getAllPurchaseOrderTrash(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "5") int limit,
@@ -80,19 +80,19 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(purchaseOrderService.getAllPurchaseOrderTrash(page, limit, sortBy, direction, filter));
     }
 
-    @GetMapping(Enpoint.PurchaseOrder.TRASH_ID)
+    @GetMapping(Endpoint.PurchaseOrder.TRASH_ID)
     public ResponseEntity<APIResponse<PurchaseOrderDetailResponse>> getPurchaseOrderTrashDetail(@PathVariable String id) {
         return ResponseEntity.ok(purchaseOrderService.getPurchaseOrderTrashDetail(id));
     }
 
     
-    @PutMapping(Enpoint.PurchaseOrder.CONFIRM)
+    @PutMapping(Endpoint.PurchaseOrder.CONFIRM)
     public ResponseEntity<APIResponse<Boolean>> confirmPurchaseOrder(@PathVariable String id) {
         return ResponseEntity.ok(purchaseOrderService.confirmOrder(id));
     }
 
 
-    @PostMapping(Enpoint.PurchaseOrder.RECEIVE)
+    @PostMapping(Endpoint.PurchaseOrder.RECEIVE)
     public ResponseEntity<?> receive(
         @PathVariable("code") String code,
         @RequestPart("receiveDeliveryRequest") ReceiveDeliveryRequest receiveDeliveryRequest,
@@ -102,8 +102,9 @@ public class PurchaseOrderController {
     }
 
 
-    @GetMapping(Enpoint.PurchaseOrder.RECEIVE)
+    @GetMapping(Endpoint.PurchaseOrder.RECEIVE)
     public ResponseEntity<APIResponse<POReceiveInfoResponse>> getPOReceiveInfo(@PathVariable String code) {
         return ResponseEntity.ok(purchaseOrderService.getPOReceiveInfo(code));
     }
+
 }

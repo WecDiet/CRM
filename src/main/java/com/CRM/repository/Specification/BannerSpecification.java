@@ -1,8 +1,12 @@
 package com.CRM.repository.Specification;
 
+import java.util.function.Consumer;
+
 import org.springframework.data.jpa.domain.Specification;
 
 import com.CRM.model.Banner;
+
+import jakarta.persistence.criteria.Root;
 
 public class BannerSpecification {
     public static Specification<Banner> getAllBanner(boolean active) {
@@ -24,5 +28,11 @@ public class BannerSpecification {
 
     public static Specification<Banner> warningThreshold(long threshold) {
         return BaseSpecification.warningThreshold(threshold);
+    }
+
+    public static Consumer<Root<Banner>> fetchMedia() {
+        return root -> {
+            root.fetch("image");
+        };
     }
 }

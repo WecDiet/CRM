@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.request.Inventory.InventoryFilterRequest;
 import com.CRM.request.Inventory.InventoryTransactionFilterRequest;
 import com.CRM.response.Inventory.InventoryResponse;
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(Enpoint.Inventory.BASE)
+@RequestMapping(Endpoint.Inventory.BASE)
 public class InventoryController {
     
     private final InventoryService inventoryService;
@@ -47,7 +47,7 @@ public class InventoryController {
     //     return ResponseEntity.ok(inventoryService.updateInventory(id, inventoryRequest));
     // }
 
-    @DeleteMapping(Enpoint.Inventory.DELETE)
+    @DeleteMapping(Endpoint.Inventory.DELETE)
     public ResponseEntity<?> deleteInventory(@PathVariable String id){
         return ResponseEntity.ok(inventoryService.deleteInventory(id));
     }
@@ -63,7 +63,7 @@ public class InventoryController {
     //     return ResponseEntity.ok(productService.getAllProductInventoty(page, limit, sortBy, direction, filter));
     // }
 
-    @GetMapping(Enpoint.Inventory.PRODUCT_WAREHOUSE)
+    @GetMapping(Endpoint.Inventory.PRODUCT_WAREHOUSE)
     public ResponseEntity<?> getAllProductWarehouse(
         @RequestParam String id,
         @RequestParam(defaultValue = "0") int page,
@@ -75,7 +75,7 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.getWarehouseInventory(page, limit, sortBy, direction, id, filter));
     }
 
-    @GetMapping(Enpoint.Inventory.PRODUCT_STORE)
+    @GetMapping(Endpoint.Inventory.PRODUCT_STORE)
     public ResponseEntity<?> getAllProductStore(
         @RequestParam String id,
         @RequestParam(defaultValue = "0") int page,
@@ -88,7 +88,7 @@ public class InventoryController {
     }
 
 
-    @GetMapping(Enpoint.Inventory.TRANSACTION)
+    @GetMapping(Endpoint.Inventory.TRANSACTION)
     public ResponseEntity<PagingResponse<InventoryTransactionResponse>> getAllInventoryTransaction(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "5") int limit,
@@ -100,7 +100,7 @@ public class InventoryController {
     }
 
 
-    @GetMapping(Enpoint.Inventory.TRANSACTION_WAREHOUSE)
+    @GetMapping(Endpoint.Inventory.TRANSACTION_WAREHOUSE)
     public ResponseEntity<PagingResponse<InventoryTransactionResponse>> getWarehouseTransactions(
         @RequestParam String productId,
         @RequestParam String warehouseId,
@@ -114,7 +114,8 @@ public class InventoryController {
     }
 
 
-    @PostMapping(Enpoint.Inventory.ADJUST)
+    /** Điều chỉnh tồn kho thủ công (kiểm kho) */
+    @PostMapping(Endpoint.Inventory.ADJUST)
     public ResponseEntity<APIResponse<InventoryResponse>> adjust(
         @PathVariable String warehouseId,
         @RequestParam String productId,

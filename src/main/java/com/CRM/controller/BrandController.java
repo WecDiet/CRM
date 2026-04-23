@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.enums.RestoreEnum;
 import com.CRM.request.Brand.BrandRequest;
 import com.CRM.service.Brand.BrandService;
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(Enpoint.Brand.BASE)
+@RequestMapping(Endpoint.Brand.BASE)
 public class BrandController {
     @Autowired
     private BrandService brandService;
@@ -42,7 +42,7 @@ public class BrandController {
                 direction, categoryName, active));
     }
 
-    @PostMapping(Enpoint.Brand.CREATE)
+    @PostMapping(Endpoint.Brand.CREATE)
     public ResponseEntity<?> createBrand(
             @ModelAttribute BrandRequest createRequest,
             @RequestParam("media") MultipartFile media,
@@ -50,7 +50,7 @@ public class BrandController {
         return ResponseEntity.ok(brandService.createBrand(createRequest, media, active));
     }
 
-    @PutMapping(Enpoint.Brand.UPDATE)
+    @PutMapping(Endpoint.Brand.UPDATE)
     public ResponseEntity<?> updateBrand(
             @PathVariable String id,
             @ModelAttribute BrandRequest updateRequest,
@@ -59,12 +59,12 @@ public class BrandController {
         return ResponseEntity.ok(brandService.updateBrand(id, updateRequest, media, active));
     }
 
-    @DeleteMapping(Enpoint.Brand.DELETE)
+    @DeleteMapping(Endpoint.Brand.DELETE)
     public ResponseEntity<?> deleteBrand(@PathVariable String id) {
         return ResponseEntity.ok(brandService.deleteBrand(id));
     }
 
-    @GetMapping(Enpoint.Brand.TRASH)
+    @GetMapping(Endpoint.Brand.TRASH)
     public ResponseEntity<?> getAllBrandTrash(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int limit,
@@ -73,7 +73,7 @@ public class BrandController {
         return ResponseEntity.ok(brandService.getAllBrandTrash(page, limit, sortBy, direction));
     }
 
-    @PatchMapping(Enpoint.Brand.RESTORE)
+    @PatchMapping(Endpoint.Brand.RESTORE)
     public ResponseEntity<?> restoreBrand(
             @PathVariable String id,
             @RequestParam(name = "action", required = false) RestoreEnum action) {

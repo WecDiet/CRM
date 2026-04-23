@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.enums.RestoreEnum;
 import com.CRM.request.Warehouse.WarehouseRequest;
 import com.CRM.response.Pagination.APIResponse;
@@ -29,12 +29,11 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(Enpoint.Warehouse.BASE)
+@RequestMapping(Endpoint.Warehouse.BASE)
 public class WarehouseController {
 
     private final WarehouseService warehouseService;
 
-    private final PurchaseOrderService purchaseOrderService;
 
     @GetMapping
     public ResponseEntity<?> getAllWarehouse(
@@ -47,7 +46,7 @@ public class WarehouseController {
         return ResponseEntity.ok(warehouseService.getAllWarehouses(page, limit, sortBy, direction, active, filter));
     }
 
-    @GetMapping(Enpoint.Warehouse.TRASH)
+    @GetMapping(Endpoint.Warehouse.TRASH)
     public ResponseEntity<?> getAllWarehouseTrash(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int limit,
@@ -58,7 +57,7 @@ public class WarehouseController {
         return ResponseEntity.ok(warehouseService.getAllWarehouseTrash(page, limit, sortBy, direction, filter));
     }
 
-    @PostMapping(Enpoint.Warehouse.CREATE)
+    @PostMapping(Endpoint.Warehouse.CREATE)
     public ResponseEntity<?> createWarehouse(
             @ModelAttribute WarehouseRequest warehouseRequest,
             @RequestParam("active") boolean active,
@@ -66,19 +65,19 @@ public class WarehouseController {
         return ResponseEntity.ok(warehouseService.createWarehouse(warehouseRequest, active, images));
     }
 
-    @DeleteMapping(Enpoint.Warehouse.DELETE)
+    @DeleteMapping(Endpoint.Warehouse.DELETE)
     public ResponseEntity<?> deleteWarehouse(@RequestParam("id") String id) {
         return ResponseEntity.ok(warehouseService.deleteWarehouse(id));
     }
 
-    @PatchMapping(Enpoint.Warehouse.RESTORE)
+    @PatchMapping(Endpoint.Warehouse.RESTORE)
     public ResponseEntity<?> restoreWarehouse(
             @PathVariable String id,
             @RequestParam(name = "action", required = false) RestoreEnum action) {
         return ResponseEntity.ok(warehouseService.restoreWarehouse(id, action));
     }
 
-    @PutMapping(Enpoint.Warehouse.UPDATE)
+    @PutMapping(Endpoint.Warehouse.UPDATE)
     public ResponseEntity<?> updateWarehouse(
             @PathVariable String id,
             @ModelAttribute WarehouseRequest warehouseRequest,

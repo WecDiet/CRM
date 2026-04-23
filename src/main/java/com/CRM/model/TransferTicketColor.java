@@ -43,10 +43,23 @@ public class TransferTicketColor {
 
     @Column(name = "quantity_received")
     private Integer quantityReceived;     // Số lượng cửa hàng thực tế nhận được
+
+    @Column(name = "quantity_damaged")
+    private Integer quantityDamaged;    // Số lượng bị hỏng (cửa hàng nhận nhưng không thể bán được, có thể do lỗi sản xuất hoặc hư hỏng trong quá trình vận chuyển)
     
+
+    public int getRemainingQuantity(){
+        int received = quantityReceived != null ? quantityReceived : 0;
+        int damaged = quantityDamaged != null ? quantityDamaged : 0;
+        return quantitySent - received - damaged;
+    }
+
+
     public boolean isFullyReceived() {
         // Giao 1 lần → chỉ cần check status của TransferTicket
         // Field này dùng khi cần biết từng màu đã confirm chưa
-        return transferTicketItem.getTransferTicket().getStatus().equals("COMPLETED");
+        // return transferTicketItem.getTransferTicket().getStatus().equals("COMPLETED");
+
+        return getRemainingQuantity() <= 0;
     }
 }

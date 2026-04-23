@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.request.Category.CategoryRequest;
 import com.CRM.service.Category.CategoryService;
 
@@ -26,7 +26,7 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping(Enpoint.Category.BASE)
+    @GetMapping(Endpoint.Category.BASE)
     public ResponseEntity<?> getAllCategories(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int limit,
@@ -35,18 +35,18 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getAllCategory(page, limit, sortBy, direction));
     }
 
-    @PostMapping(Enpoint.Category.BASE)
+    @PostMapping(Endpoint.Category.BASE)
     public ResponseEntity<?> createCategory(@RequestBody CategoryRequest categoryRequest) {
         return ResponseEntity.ok(categoryService.createCategory(categoryRequest));
     }
 
-    @PutMapping(Enpoint.Category.BASE)
+    @PutMapping(Endpoint.Category.BASE)
     public ResponseEntity<?> updateCategory(@RequestParam String id,
             @RequestBody CategoryRequest updateCategoryRequest) {
         return ResponseEntity.ok(categoryService.updateCategory(id, updateCategoryRequest));
     }
 
-    @DeleteMapping(Enpoint.Category.BASE)
+    @DeleteMapping(Endpoint.Category.BASE)
     public ResponseEntity<?> deleteCategory(@RequestParam String id) {
         return ResponseEntity.ok(categoryService.deleteCategory(id));
     }

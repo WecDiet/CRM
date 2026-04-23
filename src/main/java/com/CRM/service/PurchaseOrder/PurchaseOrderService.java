@@ -617,7 +617,7 @@ public class PurchaseOrderService extends HelperService<PurchaseOrder, UUID> imp
                     .collect(Collectors.toList());
             try {
                 CompletableFuture.allOf(uploadFutures.toArray(new CompletableFuture[0])).join();
-                uploadFutures.forEach(f -> imageList.add(f.join()));
+                uploadFutures.forEach(file -> imageList.add(file.join()));
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to upload delivery images.");
             }

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.CRM.constant.Enpoint;
+import com.CRM.constant.Endpoint;
 import com.CRM.enums.RestoreEnum;
 import com.CRM.request.Role.RoleRequest;
 import com.CRM.service.Role.RoleService;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(Enpoint.Role.BASE)
+@RequestMapping(Endpoint.Role.BASE)
 public class RoleController {
     @Autowired
     private RoleService roleService;
@@ -39,27 +39,27 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getAllRoles(page, limit, sortBy, direction));
     }
 
-    @GetMapping(Enpoint.Role.ID)
+    @GetMapping(Endpoint.Role.ID)
     public ResponseEntity<?> getRoleById(@PathVariable UUID id) {
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
 
-    @PostMapping(Enpoint.Role.CREATE)
+    @PostMapping(Endpoint.Role.CREATE)
     public ResponseEntity<?> createRole(@RequestBody RoleRequest createRoleRequest) {
         return ResponseEntity.ok(roleService.createRole(createRoleRequest));
     }
 
-    @PutMapping(Enpoint.Role.UPDATE)
+    @PutMapping(Endpoint.Role.UPDATE)
     public ResponseEntity<?> updateRole(@PathVariable String id, @RequestBody RoleRequest updateRoleRequest) {
         return ResponseEntity.ok(roleService.updateRole(id, updateRoleRequest));
     }
 
-    @DeleteMapping(Enpoint.Role.DELETE)
+    @DeleteMapping(Endpoint.Role.DELETE)
     public ResponseEntity<?> deleteRole(@PathVariable String id) {
         return ResponseEntity.ok(roleService.deleteRole(id));
     }
 
-    @GetMapping(Enpoint.Role.TRASH)
+    @GetMapping(Endpoint.Role.TRASH)
     public ResponseEntity<?> getAllRoleTrash(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int limit,
             @RequestParam(defaultValue = "createdDate") String sortBy,
@@ -67,7 +67,7 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getAllRoleTrash(page, limit, sortBy, direction));
     }
 
-    @PatchMapping(Enpoint.Role.RESTORE)
+    @PatchMapping(Endpoint.Role.RESTORE)
     public ResponseEntity<?> restoreRole(
             @PathVariable String id,
             @RequestParam(name = "action", required = false) RestoreEnum action) {
